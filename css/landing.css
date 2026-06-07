@@ -29,9 +29,14 @@ header{
 }
 
 .logo{
-    font-size:32px;
-    font-weight:700;
-    color:#1d4ed8;
+    display:flex;
+    align-items:center;
+}
+
+.logo img{
+    height:55px;
+    width:auto;
+    display:block;
 }
 
 nav{
