@@ -1,81 +1,124 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>ZP10 Trainer NRW</title>
-
-    <link rel="stylesheet" href="css/landing.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZP10 Trainer</title>
+  <link rel="stylesheet" href="css/landing.css" />
 </head>
-
 <body>
 
-    <header class="navbar">
-        <div class="logo">
-            ZP10 Trainer
+  <header class="navbar">
+    <div class="brand">
+      <div class="logo">📘</div>
+      <div><strong>ZP10</strong> Trainer</div>
+    </div>
+
+    <nav class="nav-links">
+      <a href="#features">Funktionen</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+
+    <div class="auth-buttons">
+      <button class="btn ghost">Login</button>
+      <button class="btn primary">Sign up</button>
+    </div>
+  </header>
+
+  <main class="hero">
+    <section class="hero-left">
+      <div class="badge">● NRW Abschlussprüfung</div>
+
+      <h1>
+        Bereite dich smart<br />
+        auf die <span>ZP10</span> vor.
+      </h1>
+
+      <p class="subtitle">
+        Der ZP10 Trainer hilft dir, dich gezielt und effektiv auf deine
+        Abschlussprüfung in Nordrhein-Westfalen vorzubereiten.
+      </p>
+
+      <div class="mini-features">
+        <div>
+          <div class="icon">🎯</div>
+          <h3>Gezieltes Lernen</h3>
+          <p>Übungen, die dich wirklich weiterbringen.</p>
         </div>
 
-        <nav>
-            <button id="login-btn">Login</button>
-            <button id="signup-btn">Sign Up</button>
-        </nav>
-    </header>
+        <div>
+          <div class="icon">📈</div>
+          <h3>Fortschritt im Blick</h3>
+          <p>Deine Entwicklung immer im Überblick.</p>
+        </div>
 
-    <main class="hero">
+        <div>
+          <div class="icon">🧠</div>
+          <h3>KI-Analyse</h3>
+          <p>Feedback und Tipps für bessere Ergebnisse.</p>
+        </div>
+      </div>
 
-        <div class="hero-content">
+      <div class="cta">
+        <button class="btn big primary">Kostenlos starten →</button>
+        <button class="btn big ghost">Mehr erfahren →</button>
+      </div>
+    </section>
 
-            <span class="badge">
-                NRW Abschlussprüfungen
-            </span>
+    <section class="dashboard-preview">
+      <aside class="sidebar">
+        <div class="mini-logo">📘</div>
+        <div class="side-active">🏠 Home</div>
+        <div>📋</div>
+        <div>📊</div>
+        <div>⚙️</div>
+      </aside>
 
-            <h1>
-                Lerne smarter für die ZP10.
-            </h1>
+      <div class="dashboard-content">
+        <h2>Hallo, Max! 👋</h2>
+        <p>Bereit für deine nächste Lerneinheit?</p>
 
-            <p>
-                Der ZP10 Trainer hilft Schülerinnen und Schülern,
-                sich gezielt auf Deutsch, Mathe und Englisch
-                vorzubereiten.
-            </p>
-
-            <p>
-                KI-gestützte Auswertung, personalisierte Übungen
-                und Fortschrittsanalysen folgen in den nächsten
-                Versionen.
-            </p>
-
-            <div class="hero-buttons">
-                <button id="start-btn">
-                    Kostenlos starten
-                </button>
-
-                <button id="info-btn">
-                    Mehr erfahren
-                </button>
+        <div class="dashboard-grid">
+          <div class="card progress-card">
+            <h4>Dein Fortschritt</h4>
+            <div class="progress-circle">72%</div>
+            <div class="bars">
+              <p>Deutsch <span>76%</span></p>
+              <div class="bar"><span class="green"></span></div>
+              <p>Mathe <span>68%</span></p>
+              <div class="bar"><span class="blue"></span></div>
+              <p>Englisch <span>72%</span></p>
+              <div class="bar"><span class="purple"></span></div>
             </div>
+          </div>
 
+          <div class="card next-card">
+            <h4>Nächste Übung</h4>
+            <p>Mathe</p>
+            <h3>Algebra – Terme und Gleichungen</h3>
+            <button>Übung starten →</button>
+          </div>
         </div>
 
-        <div class="hero-card">
+        <h3 class="section-title">Fächer</h3>
 
-            <h2>Geplante Funktionen</h2>
-
-            <ul>
-                <li>✅ Login & Registrierung</li>
-                <li>✅ GYM / MSA / EESA Auswahl</li>
-                <li>✅ Deutsch, Mathe & Englisch</li>
-                <li>✅ KI-Bewertung</li>
-                <li>✅ Fortschrittsanalyse</li>
-                <li>✅ Persönliches Dashboard</li>
-            </ul>
-
+        <div class="subject-grid">
+          <div class="subject-card">📖 <h4>Deutsch</h4><p>Grammatik, Textanalyse</p></div>
+          <div class="subject-card">🧮 <h4>Mathe</h4><p>Algebra, Geometrie</p></div>
+          <div class="subject-card">💬 <h4>Englisch</h4><p>Reading, Listening</p></div>
         </div>
+      </div>
+    </section>
+  </main>
 
-    </main>
+  <section class="bottom-strip">
+    <strong>Verfügbar auf allen Geräten</strong>
+    <span>🖥️ Web</span>
+    <span>📱 Tablet</span>
+    <span>📲 Smartphone</span>
+    <div class="secure">🛡️ Sicher & DSGVO-konform</div>
+  </section>
 
-    <script src="js/landing.js"></script>
-
+  <script src="js/landing.js"></script>
 </body>
 </html>
