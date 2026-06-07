@@ -1,47 +1,81 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ZP10 Trainer NRW</title>
-  <link rel="stylesheet" href="css/style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ZP10 Trainer NRW</title>
+
+    <link rel="stylesheet" href="css/landing.css">
 </head>
+
 <body>
 
-  <header class="navbar">
-    <div class="logo">ZP10 Trainer</div>
-    <nav>
-      <a href="#" class="login-btn">Login</a>
-      <a href="#" class="signup-btn">Sign up</a>
-    </nav>
-  </header>
+    <header class="navbar">
+        <div class="logo">
+            ZP10 Trainer
+        </div>
 
-  <main class="hero">
-    <section class="hero-text">
-      <p class="badge">NRW Prüfungsvorbereitung</p>
-      <h1>Bereite dich smart auf die ZP10 vor.</h1>
-      <p>
-        Übe Deutsch, Mathe und Englisch gezielt für deine Schulform.
-        Später bewertet KI deine Antworten und zeigt dir deine Schwächen.
-      </p>
+        <nav>
+            <button id="login-btn">Login</button>
+            <button id="signup-btn">Sign Up</button>
+        </nav>
+    </header>
 
-      <div class="actions">
-        <a href="#" class="primary-btn">Kostenlos starten</a>
-        <a href="#" class="secondary-btn">Mehr erfahren</a>
-      </div>
-    </section>
+    <main class="hero">
 
-    <section class="hero-card">
-      <h2>Was kommt später?</h2>
-      <ul>
-        <li>Login mit Supabase</li>
-        <li>Schulform: GYM, MSA, EESA</li>
-        <li>Fächer: Deutsch, Mathe, Englisch</li>
-        <li>KI-Bewertung und Fortschritt</li>
-      </ul>
-    </section>
-  </main>
+        <div class="hero-content">
 
-  <script src="js/main.js"></script>
+            <span class="badge">
+                NRW Abschlussprüfungen
+            </span>
+
+            <h1>
+                Lerne smarter für die ZP10.
+            </h1>
+
+            <p>
+                Der ZP10 Trainer hilft Schülerinnen und Schülern,
+                sich gezielt auf Deutsch, Mathe und Englisch
+                vorzubereiten.
+            </p>
+
+            <p>
+                KI-gestützte Auswertung, personalisierte Übungen
+                und Fortschrittsanalysen folgen in den nächsten
+                Versionen.
+            </p>
+
+            <div class="hero-buttons">
+                <button id="start-btn">
+                    Kostenlos starten
+                </button>
+
+                <button id="info-btn">
+                    Mehr erfahren
+                </button>
+            </div>
+
+        </div>
+
+        <div class="hero-card">
+
+            <h2>Geplante Funktionen</h2>
+
+            <ul>
+                <li>✅ Login & Registrierung</li>
+                <li>✅ GYM / MSA / EESA Auswahl</li>
+                <li>✅ Deutsch, Mathe & Englisch</li>
+                <li>✅ KI-Bewertung</li>
+                <li>✅ Fortschrittsanalyse</li>
+                <li>✅ Persönliches Dashboard</li>
+            </ul>
+
+        </div>
+
+    </main>
+
+    <script src="js/landing.js"></script>
+
 </body>
 </html>
