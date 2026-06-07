@@ -6,24 +6,36 @@
     <title>ZP10 Trainer</title>
     <link rel="stylesheet" href="css/landing.css">
 </head>
+
 <body>
 
 <header>
     <div class="container navbar">
 
         <div class="logo">
-            📘 ZP10 Trainer
+            <img src="./assets/logo.png" alt="ZP10 Trainer Logo">
         </div>
 
         <nav>
-            <a href="#">Startseite</a>
-            <a href="#">Funktionen</a>
-            <a href="#">FAQ</a>
+            <a class="active" href="index.html">Startseite</a>
+            <a href="#funktionen">Funktionen</a>
+            <a href="pages/faq.html">FAQ</a>
         </nav>
 
         <div class="auth-buttons">
-            <button class="btn-outline">Login</button>
-            <button class="btn-primary">Sign Up</button>
+
+            <button
+                onclick="window.location.href='pages/login.html'"
+                class="btn-outline">
+                Login
+            </button>
+
+            <button
+                onclick="window.location.href='pages/signup.html'"
+                class="btn-primary">
+                Sign Up
+            </button>
+
         </div>
 
     </div>
@@ -51,26 +63,36 @@
             </p>
 
             <div class="hero-buttons">
-                <button class="btn-primary">
+
+                <button
+                    onclick="window.location.href='pages/signup.html'"
+                    class="btn-primary">
+
                     Jetzt kostenlos starten
+
                 </button>
 
-                <button class="btn-outline">
+                <button
+                    onclick="document.getElementById('funktionen').scrollIntoView({behavior:'smooth'})"
+                    class="btn-outline">
+
                     Mehr erfahren
+
                 </button>
+
             </div>
 
         </div>
 
         <div class="hero-image">
-            <img src="./assets/hero-student.png" alt="Schüler">
+            <img src="./assets/hero-student.png" alt="ZP10 Schüler">
         </div>
 
     </div>
 
 </section>
 
-<section class="features">
+<section id="funktionen" class="features">
 
     <div class="container">
 
@@ -91,8 +113,8 @@
                 <div class="icon">🤖</div>
                 <h3>KI-Erklärungen</h3>
                 <p>
-                    Verstehe jede Aufgabe mit
-                    intelligenten Erklärungen.
+                    Verstehe jede Aufgabe mit intelligenten
+                    Erklärungen und Lösungswegen.
                 </p>
             </div>
 
@@ -109,8 +131,8 @@
                 <div class="icon">🎯</div>
                 <h3>Gezielte Vorbereitung</h3>
                 <p>
-                    Optimiere deine Stärken
-                    und arbeite an Schwächen.
+                    Optimiere deine Stärken und
+                    arbeite an deinen Schwächen.
                 </p>
             </div>
 
