@@ -36,6 +36,7 @@ header{
 .logo img{
     height:55px;
     width:auto;
+    max-width:100%;
     display:block;
 }
 
@@ -164,7 +165,6 @@ nav a{
     color:#64748b;
     line-height:1.6;
 }
-
 @media(max-width:1000px){
 
     .hero-content{
@@ -181,5 +181,9 @@ nav a{
 
     .hero h1{
         font-size:40px;
+    }
+
+    .logo img{
+        height:42px;
     }
 }
