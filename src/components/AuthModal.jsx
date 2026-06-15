@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useLang } from '../hooks/useLang'
 import { useAuth } from '../hooks/useAuth'
-import { recordLogin } from '../lib/loginAttempts'
 import logo from '../assets/logo.png'
 import styles from './AuthModal.module.css'
 
@@ -24,7 +22,6 @@ const AppleIcon = () => (
 export default function AuthModal({ isOpen, onClose }) {
   const { t } = useLang()
   const { signInWithGoogle, signInWithApple, signInWithEmail, signUpWithEmail } = useAuth()
-  const navigate = useNavigate()
   const [tab, setTab] = useState('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -55,25 +52,13 @@ export default function AuthModal({ isOpen, onClose }) {
     setError(''); setLoading(true)
     try {
       if (tab === 'login') {
-        const { data, error } = await signInWithEmail(email, password)
+        const { error } = await signInWithEmail(email, password)
         if (error) setError(error.message)
-        else {
-          const u = data?.user
-          recordLogin(u?.id || u?.email || email)
-          onClose()
-          navigate('/dashboard')
-        }
+        else onClose()
       } else {
-        const { data, error } = await signUpWithEmail(email, password, { first_name: firstName, school_type: schoolType })
+        const { error } = await signUpWithEmail(email, password, { first_name: firstName, school_type: schoolType })
         if (error) setError(error.message)
-        else if (data?.session) {
-          const u = data?.user
-          recordLogin(u?.id || u?.email || email)
-          onClose()
-          navigate('/dashboard')
-        } else {
-          onClose()
-        }
+        else onClose()
       }
     } finally {
       setLoading(false)
