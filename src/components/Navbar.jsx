@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { useLang } from '../hooks/useLang'
+import { useAuth } from '../hooks/useAuth'
 import logo from '../assets/logo.png'
 import styles from './Navbar.module.css'
 
 export default function Navbar({ onAuthClick }) {
   const { lang, setLang, t } = useLang()
+  const { user } = useAuth()
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -33,7 +36,11 @@ export default function Navbar({ onAuthClick }) {
           <button className={lang === 'de' ? styles.active : ''} onClick={() => setLang('de')}>DE</button>
           <button className={lang === 'en' ? styles.active : ''} onClick={() => setLang('en')}>EN</button>
         </div>
-        <button className={styles.btnNav} onClick={onAuthClick}>{t.nav.signIn}</button>
+        {user ? (
+          <Link className={styles.btnNav} to="/dashboard">Dashboard</Link>
+        ) : (
+          <button className={styles.btnNav} onClick={onAuthClick}>{t.nav.signIn}</button>
+        )}
         <button className={styles.hamburger} onClick={() => setMenuOpen(o => !o)} aria-label="Menu">
           <span /><span /><span />
         </button>
