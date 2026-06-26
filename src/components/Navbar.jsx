@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
 import { useLang } from '../hooks/useLang'
 import { useAuth } from '../hooks/useAuth'
 import logo from '../assets/logo.png'
@@ -7,7 +6,7 @@ import styles from './Navbar.module.css'
 
 export default function Navbar({ onAuthClick }) {
   const { lang, setLang, t } = useLang()
-  const { user } = useAuth()
+  const { user, signOut } = useAuth()
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -37,7 +36,7 @@ export default function Navbar({ onAuthClick }) {
           <button className={lang === 'en' ? styles.active : ''} onClick={() => setLang('en')}>EN</button>
         </div>
         {user ? (
-          <Link className={styles.btnNav} to="/dashboard">Dashboard</Link>
+          <button className={styles.btnNav} onClick={signOut}>{t.dashboard.signOut}</button>
         ) : (
           <button className={styles.btnNav} onClick={onAuthClick}>{t.nav.signIn}</button>
         )}

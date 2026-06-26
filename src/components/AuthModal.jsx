@@ -61,7 +61,7 @@ export default function AuthModal({ isOpen, onClose }) {
           const u = data?.user
           recordLogin(u?.id || u?.email || email)
           onClose()
-          navigate('/dashboard')
+          navigate('/')
         }
       } else {
         const { data, error } = await signUpWithEmail(email, password, { first_name: firstName, school_type: schoolType })
@@ -70,7 +70,7 @@ export default function AuthModal({ isOpen, onClose }) {
           const u = data?.user
           recordLogin(u?.id || u?.email || email)
           onClose()
-          navigate('/dashboard')
+          navigate('/')
         } else {
           onClose()
         }
