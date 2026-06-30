@@ -1,17 +1,17 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg: #0A0A0A;
-  --bg-card: #141414;
-  --bg-card2: #1A1A1A;
+  --bg: #FFFFFF;
+  --bg-card: #F0F7FF;
+  --bg-card2: #E8F1FC;
   --red: #2B7FE8;
   --red-light: #4B94F0;
-  --red-dim: rgba(43,127,232,0.15);
-  --red-border: rgba(43,127,232,0.35);
-  --text: #F0EFED;
-  --text-muted: #888580;
-  --text-dim: #4A4846;
-  --border: rgba(255,255,255,0.08);
+  --red-dim: rgba(43,127,232,0.1);
+  --red-border: rgba(43,127,232,0.3);
+  --text: #1A1A2E;
+  --text-muted: #5A6577;
+  --text-dim: #8E99A8;
+  --border: rgba(43,127,232,0.12);
   --border-hover: rgba(43,127,232,0.4);
   --font-head: 'Space Grotesk', sans-serif;
   --font-body: 'Inter', sans-serif;

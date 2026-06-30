@@ -14,7 +14,7 @@
   top: 25%; left: 50%;
   transform: translateX(-50%);
   width: 700px; height: 500px;
-  background: radial-gradient(ellipse, rgba(196,30,30,0.1) 0%, transparent 70%);
+  background: radial-gradient(ellipse, rgba(43,127,232,0.08) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -64,8 +64,8 @@
   display: inline-flex; align-items: center;
 }
 .btnSecondary:hover {
-  border-color: rgba(255,255,255,0.2);
-  background: rgba(255,255,255,0.04);
+  border-color: rgba(43,127,232,0.3);
+  background: rgba(43,127,232,0.04);
   transform: translateY(-2px);
 }
 
@@ -90,7 +90,7 @@
 }
 .demoPts span { font-size: 0.8rem; font-weight: 400; color: var(--text-dim); }
 .demoBarWrap {
-  background: rgba(255,255,255,0.06); border-radius: 6px;
+  background: rgba(43,127,232,0.08); border-radius: 6px;
   height: 7px; margin-bottom: 1.1rem; overflow: hidden;
 }
 .demoBarFill {
@@ -105,12 +105,12 @@
   padding: 3px 9px; border-radius: 100px;
 }
 .tagGood {
-  background: rgba(52,199,89,0.1); color: #4cd964;
-  border: 1px solid rgba(52,199,89,0.2);
+  background: rgba(52,199,89,0.1); color: #2d9a4e;
+  border: 1px solid rgba(52,199,89,0.25);
 }
 .tagWarn {
-  background: rgba(196,30,30,0.12); color: #e87070;
-  border: 1px solid rgba(196,30,30,0.2);
+  background: rgba(220,80,80,0.08); color: #c44;
+  border: 1px solid rgba(220,80,80,0.2);
 }
 
 /* Sections */
@@ -194,7 +194,7 @@
 .moduleTag {
   font-size: 0.68rem; font-weight: 500;
   padding: 3px 9px; border-radius: 100px;
-  background: rgba(255,255,255,0.04);
+  background: rgba(43,127,232,0.06);
   border: 1px solid var(--border);
   color: var(--text-muted);
 }
@@ -226,25 +226,25 @@
   display: flex; align-items: center; justify-content: center;
   font-size: 0.65rem; font-weight: 700;
 }
-.student { background: rgba(255,255,255,0.08); color: var(--text-muted); }
+.student { background: rgba(43,127,232,0.1); color: var(--text-muted); }
 .ai { background: var(--red); color: #fff; font-size: 0.6rem; }
 .kiBubble {
-  background: rgba(255,255,255,0.04); border-radius: 10px;
+  background: rgba(43,127,232,0.05); border-radius: 10px;
   padding: 10px 12px; font-size: 0.8rem;
   color: var(--text-muted); line-height: 1.55; flex: 1;
 }
 .kiBubbleAi {
-  background: rgba(196,30,30,0.07);
-  border: 1px solid rgba(196,30,30,0.15);
+  background: rgba(43,127,232,0.06);
+  border: 1px solid rgba(43,127,232,0.15);
   color: var(--text);
 }
 .kiScoreLine {
   display: flex; justify-content: space-between; align-items: center;
   margin-bottom: 5px; font-size: 0.72rem; color: var(--text-muted);
 }
-.kiScore { font-weight: 600; color: var(--red-light); }
+.kiScore { font-weight: 600; color: var(--red); }
 .kiMiniBar {
-  height: 4px; background: rgba(255,255,255,0.06);
+  height: 4px; background: rgba(43,127,232,0.08);
   border-radius: 4px; overflow: hidden; margin-bottom: 10px;
 }
 .kiMiniFill {

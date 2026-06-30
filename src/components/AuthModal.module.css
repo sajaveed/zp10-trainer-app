@@ -1,6 +1,6 @@
 .overlay {
   position: fixed; inset: 0; z-index: 200;
-  background: rgba(0,0,0,0.8);
+  background: rgba(0,0,0,0.35);
   display: flex; align-items: center; justify-content: center;
   padding: 1rem;
   backdrop-filter: blur(6px);
@@ -10,13 +10,14 @@
 @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
 
 .modal {
-  background: var(--bg-card);
+  background: #FFFFFF;
   border: 1px solid var(--border);
   border-radius: 18px;
   padding: 2rem 1.75rem;
   width: 100%; max-width: 400px;
   position: relative;
   animation: slideUp 0.2s cubic-bezier(0.16,1,0.3,1);
+  box-shadow: 0 8px 32px rgba(43,127,232,0.1);
 }
 
 @keyframes slideUp { from { transform: translateY(16px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
@@ -27,7 +28,7 @@
   font-size: 1.5rem; line-height: 1; padding: 4px 8px;
   border-radius: 6px; transition: background 0.15s, color 0.15s;
 }
-.close:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+.close:hover { background: rgba(43,127,232,0.06); color: var(--text); }
 
 .header {
   display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem;
@@ -39,7 +40,7 @@
 .logoText span { color: var(--red); }
 
 .tabs {
-  display: flex; background: rgba(255,255,255,0.04);
+  display: flex; background: var(--bg-card);
   border-radius: 8px; padding: 3px; margin-bottom: 1.25rem;
 }
 .tabs button {
@@ -48,18 +49,19 @@
   border-radius: 6px; transition: all 0.15s;
 }
 .tabs button.active {
-  background: var(--bg-card2); color: var(--text);
+  background: #FFFFFF; color: var(--text);
   border: 1px solid var(--border);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
 
 .socialBtn {
   width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
-  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  background: var(--bg-card); border: 1px solid var(--border);
   border-radius: var(--radius-sm); padding: 0.72rem;
   color: var(--text); font-size: 0.875rem; font-weight: 500;
   margin-bottom: 0.6rem; transition: background 0.15s, border-color 0.15s;
 }
-.socialBtn:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); }
+.socialBtn:hover { background: var(--bg-card2); border-color: rgba(43,127,232,0.2); }
 
 .divider {
   display: flex; align-items: center; gap: 0.75rem;
@@ -76,7 +78,7 @@
 }
 .field input, .field select {
   width: 100%; padding: 0.68rem 0.9rem;
-  background: rgba(255,255,255,0.04);
+  background: var(--bg-card);
   border: 1px solid var(--border); border-radius: var(--radius-sm);
   color: var(--text); font-family: var(--font-body); font-size: 0.875rem;
   outline: none; transition: border-color 0.15s;
@@ -84,13 +86,13 @@
 }
 .field input:focus, .field select:focus { border-color: var(--red); }
 .field input::placeholder { color: var(--text-dim); }
-.field select option { background: #1a1a1a; }
+.field select option { background: #FFFFFF; }
 
 .error {
-  font-size: 0.8rem; color: #f87171;
+  font-size: 0.8rem; color: #dc3545;
   margin-bottom: 0.75rem; padding: 0.5rem 0.75rem;
-  background: rgba(248,113,113,0.08); border-radius: var(--radius-sm);
-  border: 1px solid rgba(248,113,113,0.2);
+  background: rgba(220,53,69,0.06); border-radius: var(--radius-sm);
+  border: 1px solid rgba(220,53,69,0.15);
 }
 
 .submit {
@@ -107,8 +109,8 @@
   font-size: 0.78rem; color: var(--text-dim);
 }
 .switchNote button {
-  background: none; border: none; color: var(--red-light);
+  background: none; border: none; color: var(--red);
   font-size: 0.78rem; text-decoration: underline; margin-left: 4px;
   transition: color 0.15s;
 }
-.switchNote button:hover { color: var(--text); }
+.switchNote button:hover { color: var(--red-light); }
