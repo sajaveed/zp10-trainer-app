@@ -20,7 +20,7 @@ export default function Footer() {
             <h5>{t.footer.appCol}</h5>
             <a href="#how">{t.nav.how}</a>
             <a href="#subjects">{t.nav.subjects}</a>
-            <a href="#ki">Levi</a>
+            <a href="#ki">Zeno</a>
           </div>
           <div className={styles.col}>
             <h5>{t.footer.legalCol}</h5>

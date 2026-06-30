@@ -172,7 +172,7 @@ export default function Landing({ onAuthClick }) {
                 <div className={styles.kiBubble}>{t.ki.mockContent}</div>
               </div>
               <div className={styles.kiMsg}>
-                <div className={`${styles.kiAvatar} ${styles.ai}`}>Levi</div>
+                <div className={`${styles.kiAvatar} ${styles.ai}`}>Zeno</div>
                 <div className={`${styles.kiBubble} ${styles.kiBubbleAi}`}>
                   <div className={styles.kiScoreLine}>
                     <span>{t.ki.mockLabel1}</span><span className={styles.kiScore}>8 / 10</span>
