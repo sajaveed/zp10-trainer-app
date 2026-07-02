@@ -1,4 +1,5 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useRef, useState } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
 const AuthContext = createContext()
@@ -6,17 +7,24 @@ const AuthContext = createContext()
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const navigate = useNavigate()
+  const location = useLocation()
+  const locationRef = useRef(location)
+  locationRef.current = location
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
       setLoading(false)
     })
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null)
+      if (event === 'SIGNED_IN' && locationRef.current.pathname === '/') {
+        navigate('/dashboard')
+      }
     })
     return () => subscription.unsubscribe()
-  }, [])
+  }, [navigate])
 
   const signInWithGoogle = () =>
     supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } })
