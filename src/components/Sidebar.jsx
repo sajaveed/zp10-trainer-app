@@ -73,7 +73,7 @@ export default function Sidebar() {
             title="Abmelden"
             aria-label="Abmelden"
           >
-            ↩
+            🚪
           </button>
         </div>
       </aside>

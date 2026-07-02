@@ -19,6 +19,7 @@ const DASHBOARD_PATHS = ['/dashboard', '/deutsch', '/englisch', '/mathematik', '
 function AppContent() {
   const [modalOpen, setModalOpen] = useState(false)
   const { pathname } = useLocation()
+  // Use exact match or sub-path match (trailing '/') to avoid false positives like /settings-old
   const isDashboard = DASHBOARD_PATHS.some(p => pathname === p || pathname.startsWith(p + '/'))
 
   return (
