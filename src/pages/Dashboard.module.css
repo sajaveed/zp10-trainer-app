@@ -1,156 +1,88 @@
 .page {
-  min-height: 100vh;
-  padding: 120px 24px 80px;
+  padding: 40px 32px 60px;
   max-width: 1100px;
-  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
 }
 
+/* ── Header ── */
 .header {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
   flex-wrap: wrap;
-  margin-bottom: 40px;
+  gap: 8px;
 }
 
 .greeting {
   font-family: var(--font-head);
-  font-size: clamp(1.8rem, 4vw, 2.6rem);
-  font-weight: 600;
-  line-height: 1.15;
-}
-
-.greeting em {
-  color: var(--red-light);
-  font-style: normal;
+  font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.2;
 }
 
 .subtitle {
-  color: var(--text-muted);
-  margin-top: 6px;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: #6B7280;
+  margin-top: 4px;
 }
 
-.signOut {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: 10px 18px;
-  border-radius: var(--radius-md);
-  font-size: 0.9rem;
-  transition: border-color 0.2s ease, background 0.2s ease;
-}
-
-.signOut:hover {
-  border-color: var(--border-hover);
-  background: var(--bg-card2);
-}
-
-.grid {
+/* ── Top row ── */
+.topRow {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: 1fr 1fr;
   gap: 20px;
 }
 
-.card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  min-height: 180px;
-}
-
-.cardLabel {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.8rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-
-.cardIcon {
-  font-size: 1.1rem;
-}
-
-.statBig {
+/* ── Section title ── */
+.sectionTitle {
   font-family: var(--font-head);
-  font-size: 2.6rem;
-  font-weight: 600;
-  line-height: 1;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 14px;
 }
 
-.statSub {
-  color: var(--text-muted);
-  font-size: 0.9rem;
+/* ── Subjects grid ── */
+.subjectsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
 }
 
-.weatherMain {
-  display: flex;
-  align-items: center;
-  gap: 14px;
+/* ── Bottom row ── */
+.bottomRow {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
 }
 
-.weatherTemp {
-  font-family: var(--font-head);
-  font-size: 2.6rem;
-  font-weight: 600;
-  line-height: 1;
+/* ── Tablet ── */
+@media (max-width: 1023px) {
+  .subjectsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
-.weatherEmoji {
-  font-size: 2.4rem;
-}
+/* ── Mobile ── */
+@media (max-width: 767px) {
+  .page {
+    padding: 56px 16px 40px;
+    gap: 24px;
+  }
 
-.weatherMeta {
-  display: flex;
-  gap: 18px;
-  color: var(--text-muted);
-  font-size: 0.9rem;
-  flex-wrap: wrap;
-}
+  .topRow {
+    grid-template-columns: 1fr;
+  }
 
-.matchList {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+  .subjectsGrid {
+    grid-template-columns: 1fr;
+  }
 
-.match {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  background: var(--bg-card2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 12px 14px;
-}
-
-.matchTeams {
-  font-weight: 500;
-}
-
-.matchInfo {
-  color: var(--text-muted);
-  font-size: 0.85rem;
-  text-align: right;
-}
-
-.muted {
-  color: var(--text-muted);
-  font-size: 0.92rem;
-}
-
-.error {
-  color: #dc3545;
-  font-size: 0.9rem;
-}
-
-.wide {
-  grid-column: 1 / -1;
+  .bottomRow {
+    grid-template-columns: 1fr;
+  }
 }
