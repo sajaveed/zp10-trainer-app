@@ -1,10 +1,13 @@
 import { overallProgress } from '../../data/dashboardData'
+import { useLang } from '../../hooks/useLang'
 import styles from './OverallProgressCard.module.css'
 
 export default function OverallProgressCard() {
+  const { t } = useLang()
+
   return (
     <div className={styles.card}>
-      <h3 className={styles.title}>Gesamtfortschritt</h3>
+      <h3 className={styles.title}>{t.dashboard.overallProgress}</h3>
       <div className={styles.percentageRow}>
         <span className={styles.percentage}>{overallProgress}%</span>
       </div>
