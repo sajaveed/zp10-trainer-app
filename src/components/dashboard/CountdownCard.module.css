@@ -1,0 +1,60 @@
+.card {
+  background: #4F46E5;
+  color: #ffffff;
+  border-radius: 20px;
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.8;
+  margin-bottom: 4px;
+}
+
+.subject {
+  font-family: var(--font-head);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.daysWrapper {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 4px 0;
+}
+
+.daysNumber {
+  font-family: var(--font-head);
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.daysUnit {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+.dateLabel {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  opacity: 0.85;
+  margin-top: 2px;
+}
+
+.completed {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  opacity: 0.9;
+  margin-top: 8px;
+}

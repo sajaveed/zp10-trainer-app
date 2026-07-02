@@ -1,0 +1,23 @@
+.page {
+  padding: 40px 32px;
+}
+
+.title {
+  font-family: var(--font-head);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 10px;
+}
+
+.sub {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: #6B7280;
+}
+
+@media (max-width: 767px) {
+  .page {
+    padding: 56px 16px 32px;
+  }
+}
