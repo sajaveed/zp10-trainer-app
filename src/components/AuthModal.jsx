@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLang } from '../hooks/useLang'
 import { useAuth } from '../hooks/useAuth'
@@ -34,30 +34,37 @@ export default function AuthModal({ isOpen, onClose }) {
   const [loading, setLoading] = useState(false)
   const [signUpSuccess, setSignUpSuccess] = useState(false)
 
-  useEffect(() => {
-    const onKey = (e) => { if (e.key === 'Escape') onClose() }
-    if (isOpen) document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
-  }, [isOpen, onClose])
-
-  useEffect(() => {
-    document.body.style.overflow = isOpen ? 'hidden' : ''
-    return () => { document.body.style.overflow = '' }
-  }, [isOpen])
-
-  if (!isOpen) return null
-
-  const reset = () => {
+  const reset = useCallback(() => {
     setError('')
     setEmail('')
     setPassword('')
     setFirstName('')
     setSchoolType('')
     setSignUpSuccess(false)
-  }
+  }, [])
+
+  const handleClose = useCallback(() => { reset(); onClose() }, [onClose, reset])
+
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') handleClose() }
+    if (isOpen) document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [handleClose, isOpen])
+
+  useEffect(() => {
+    document.body.style.overflow = isOpen ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
+  }, [isOpen])
+
+  useEffect(() => {
+    return () => {
+      if (signUpSuccess) onClose()
+    }
+  }, [onClose, signUpSuccess])
+
+  if (!isOpen) return null
 
   const handleTab = (next) => { setTab(next); reset() }
-  const handleClose = () => { reset(); onClose() }
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault()
@@ -69,7 +76,7 @@ export default function AuthModal({ isOpen, onClose }) {
         else {
           const u = data?.user
           recordLogin(u?.id || u?.email || email)
-          onClose()
+          handleClose()
           navigate('/dashboard')
         }
       } else {
