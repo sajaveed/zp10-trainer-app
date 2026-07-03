@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLang } from '../hooks/useLang'
 import { useAuth } from '../hooks/useAuth'
 import { recordLogin } from '../lib/loginAttempts'
 import logo from '../assets/logo.png'
 import styles from './AuthModal.module.css'
+
+const SIGNUP_SUCCESS_REDIRECT_DELAY_MS = 150
 
 const GoogleIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -32,21 +34,43 @@ export default function AuthModal({ isOpen, onClose }) {
   const [schoolType, setSchoolType] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [signUpSuccess, setSignUpSuccess] = useState(false)
+
+  const reset = useCallback(() => {
+    setError('')
+    setLoading(false)
+    setEmail('')
+    setPassword('')
+    setFirstName('')
+    setSchoolType('')
+    setSignUpSuccess(false)
+  }, [])
+
+  const handleClose = useCallback(() => { reset(); onClose() }, [onClose, reset])
 
   useEffect(() => {
-    const onKey = (e) => { if (e.key === 'Escape') onClose() }
+    const onKey = (e) => { if (e.key === 'Escape') handleClose() }
     if (isOpen) document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
-  }, [isOpen, onClose])
+  }, [handleClose, isOpen])
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
   }, [isOpen])
 
-  if (!isOpen) return null
+  useEffect(() => {
+    if (!signUpSuccess) return undefined
 
-  const reset = () => { setError(''); setEmail(''); setPassword(''); setFirstName(''); setSchoolType('') }
+    const timeoutId = window.setTimeout(() => {
+      onClose()
+      navigate('/dashboard')
+    }, SIGNUP_SUCCESS_REDIRECT_DELAY_MS)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [navigate, onClose, signUpSuccess])
+
+  if (!isOpen) return null
 
   const handleTab = (next) => { setTab(next); reset() }
 
@@ -60,7 +84,7 @@ export default function AuthModal({ isOpen, onClose }) {
         else {
           const u = data?.user
           recordLogin(u?.id || u?.email || email)
-          onClose()
+          handleClose()
           navigate('/dashboard')
         }
       } else {
@@ -69,10 +93,9 @@ export default function AuthModal({ isOpen, onClose }) {
         else if (data?.session) {
           const u = data?.user
           recordLogin(u?.id || u?.email || email)
-          onClose()
-          navigate('/dashboard')
+          setSignUpSuccess(true)
         } else {
-          onClose()
+          setSignUpSuccess(true)
         }
       }
     } finally {
@@ -81,68 +104,80 @@ export default function AuthModal({ isOpen, onClose }) {
   }
 
   return (
-    <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && onClose()}>
+    <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && handleClose()}>
       <div className={styles.modal} role="dialog" aria-modal="true">
-        <button className={styles.close} onClick={onClose} aria-label="Schließen">×</button>
+        <button className={styles.close} onClick={handleClose} aria-label="Schließen">×</button>
 
         <div className={styles.header}>
           <img src={logo} alt="ZP10 Trainer" className={styles.logo} />
           <span className={styles.logoText}>ZP10<span>Trainer</span></span>
         </div>
 
-        <div className={styles.tabs}>
-          <button className={tab === 'login' ? styles.active : ''} onClick={() => handleTab('login')}>{t.auth.signIn}</button>
-          <button className={tab === 'signup' ? styles.active : ''} onClick={() => handleTab('signup')}>{t.auth.signUp}</button>
-        </div>
+        {signUpSuccess ? (
+          <div className={styles.successScreen}>
+            <div className={styles.successIcon}>✅</div>
+            <p className={styles.successMessage}>{t.auth.confirmEmailMessage}</p>
+            <button type="button" className={styles.successBtn} onClick={handleClose}>
+              {t.auth.goToDashboard}
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className={styles.tabs}>
+              <button className={tab === 'login' ? styles.active : ''} onClick={() => handleTab('login')}>{t.auth.signIn}</button>
+              <button className={tab === 'signup' ? styles.active : ''} onClick={() => handleTab('signup')}>{t.auth.signUp}</button>
+            </div>
 
-        <button className={styles.socialBtn} onClick={signInWithGoogle}>
-          <GoogleIcon /> {t.auth.withGoogle}
-        </button>
-        <button className={styles.socialBtn} onClick={signInWithApple}>
-          <AppleIcon /> {t.auth.withApple}
-        </button>
+            <button className={styles.socialBtn} onClick={signInWithGoogle}>
+              <GoogleIcon /> {t.auth.withGoogle}
+            </button>
+            <button className={styles.socialBtn} onClick={signInWithApple}>
+              <AppleIcon /> {t.auth.withApple}
+            </button>
 
-        <div className={styles.divider}>{t.auth.orEmail}</div>
+            <div className={styles.divider}>{t.auth.orEmail}</div>
 
-        <form onSubmit={handleEmailSubmit}>
-          {tab === 'signup' && (
-            <>
+            <form onSubmit={handleEmailSubmit}>
+              {tab === 'signup' && (
+                <>
+                  <div className={styles.field}>
+                    <label>{t.auth.firstName}</label>
+                    <input type="text" value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="Max" required />
+                  </div>
+                  <div className={styles.field}>
+                    <label>{t.auth.schoolType}</label>
+                    <select value={schoolType} onChange={e => setSchoolType(e.target.value)} required>
+                      <option value="" disabled>{t.auth.schoolPlaceholder}</option>
+                      <option value="gym">{t.auth.gym}</option>
+                      <option value="msa">{t.auth.msa}</option>
+                      <option value="eesa">{t.auth.eesa}</option>
+                    </select>
+                  </div>
+                </>
+              )}
               <div className={styles.field}>
-                <label>{t.auth.firstName}</label>
-                <input type="text" value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="Max" required />
+                <label>{t.auth.email}</label>
+                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="name@schule.de" required />
               </div>
               <div className={styles.field}>
-                <label>{t.auth.schoolType}</label>
-                <select value={schoolType} onChange={e => setSchoolType(e.target.value)} required>
-                  <option value="" disabled>{t.auth.schoolPlaceholder}</option>
-                  <option value="gym">{t.auth.gym}</option>
-                  <option value="msa">{t.auth.msa}</option>
-                  <option value="eesa">{t.auth.eesa}</option>
-                </select>
+                <label>{t.auth.password}</label>
+                <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required minLength={6} />
               </div>
-            </>
-          )}
-          <div className={styles.field}>
-            <label>{t.auth.email}</label>
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="name@schule.de" required />
-          </div>
-          <div className={styles.field}>
-            <label>{t.auth.password}</label>
-            <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required minLength={6} />
-          </div>
-          {error && <p className={styles.error}>{error}</p>}
-          <button type="submit" className={styles.submit} disabled={loading}>
-            {loading ? '...' : tab === 'login' ? t.auth.submitSignIn : t.auth.submitSignUp}
-          </button>
-        </form>
+              {error && <p className={styles.error}>{error}</p>}
+              <button type="submit" className={styles.submit} disabled={loading}>
+                {loading ? '...' : tab === 'login' ? t.auth.submitSignIn : t.auth.submitSignUp}
+              </button>
+            </form>
 
-        <p className={styles.switchNote}>
-          {tab === 'login' ? (
-            <>{t.auth.noAccount} <button onClick={() => handleTab('signup')}>{t.auth.signUpLink}</button></>
-          ) : (
-            <>{t.auth.hasAccount} <button onClick={() => handleTab('login')}>{t.auth.signInLink}</button></>
-          )}
-        </p>
+            <p className={styles.switchNote}>
+              {tab === 'login' ? (
+                <>{t.auth.noAccount} <button onClick={() => handleTab('signup')}>{t.auth.signUpLink}</button></>
+              ) : (
+                <>{t.auth.hasAccount} <button onClick={() => handleTab('login')}>{t.auth.signInLink}</button></>
+              )}
+            </p>
+          </>
+        )}
       </div>
     </div>
   )
