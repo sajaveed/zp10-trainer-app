@@ -67,6 +67,12 @@
   font-weight: 600;
 }
 
+.resendError {
+  color: #B45309;
+  font-size: 0.82rem;
+  margin-top: 6px;
+}
+
 .locked {
   opacity: 0.4;
   pointer-events: none;

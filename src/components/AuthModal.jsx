@@ -6,6 +6,8 @@ import { recordLogin } from '../lib/loginAttempts'
 import logo from '../assets/logo.png'
 import styles from './AuthModal.module.css'
 
+const SIGNUP_SUCCESS_REDIRECT_DELAY_MS = 150
+
 const GoogleIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -36,6 +38,7 @@ export default function AuthModal({ isOpen, onClose }) {
 
   const reset = useCallback(() => {
     setError('')
+    setLoading(false)
     setEmail('')
     setPassword('')
     setFirstName('')
@@ -57,10 +60,15 @@ export default function AuthModal({ isOpen, onClose }) {
   }, [isOpen])
 
   useEffect(() => {
-    return () => {
-      if (signUpSuccess) onClose()
-    }
-  }, [onClose, signUpSuccess])
+    if (!signUpSuccess) return undefined
+
+    const timeoutId = window.setTimeout(() => {
+      onClose()
+      navigate('/dashboard')
+    }, SIGNUP_SUCCESS_REDIRECT_DELAY_MS)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [navigate, onClose, signUpSuccess])
 
   if (!isOpen) return null
 
@@ -86,10 +94,8 @@ export default function AuthModal({ isOpen, onClose }) {
           const u = data?.user
           recordLogin(u?.id || u?.email || email)
           setSignUpSuccess(true)
-          navigate('/dashboard')
         } else {
           setSignUpSuccess(true)
-          navigate('/dashboard')
         }
       }
     } finally {
