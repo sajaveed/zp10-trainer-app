@@ -6,6 +6,74 @@
   gap: 32px;
 }
 
+.emailBanner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 18px;
+  background: #FFF7E6;
+  border: 1px solid #F6D38B;
+  border-radius: 18px;
+  margin-bottom: -8px;
+}
+
+.emailBannerIcon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.emailBannerCopy {
+  flex: 1;
+}
+
+.emailBannerText {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #8A5A00;
+}
+
+.emailBannerHint {
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  color: #9A6B16;
+  margin-top: 4px;
+}
+
+.resendBtn {
+  background: #fff;
+  color: #8A5A00;
+  border: 1px solid #F0C86E;
+  border-radius: 10px;
+  padding: 0.7rem 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: background 0.15s, border-color 0.15s, opacity 0.15s;
+}
+
+.resendBtn:hover:not(:disabled) {
+  background: #FFF3D6;
+  border-color: #E8BA52;
+}
+
+.resendBtn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.resendSuccess {
+  color: #15803D;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.locked {
+  opacity: 0.4;
+  pointer-events: none;
+  filter: blur(2px);
+  user-select: none;
+}
+
 /* ── Header ── */
 .header {
   display: flex;
@@ -72,6 +140,11 @@
   .page {
     padding: 56px 16px 40px;
     gap: 24px;
+  }
+
+  .emailBanner {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .topRow {

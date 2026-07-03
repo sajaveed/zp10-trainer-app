@@ -91,6 +91,8 @@ export const translations = {
       signUpLink: 'Jetzt registrieren',
       hasAccount: 'Bereits registriert?',
       signInLink: 'Anmelden',
+      confirmEmailMessage: 'Konto erstellt! Bitte bestätige deine E-Mail-Adresse, um alle Inhalte freizuschalten.',
+      goToDashboard: 'Zum Dashboard',
     },
     footer: {
       tagline: 'KI-gestützte ZP10-Vorbereitung für NRW.',
@@ -116,6 +118,11 @@ export const translations = {
       examOverview: 'Prüfungsübersicht',
       lastActivity: 'Zuletzt geöffnet',
       noActivity: 'Noch keine Aktivität',
+      emailNotConfirmed: 'Bitte bestätige deine E-Mail-Adresse, um auf alle Inhalte zuzugreifen.',
+      emailNotConfirmedHint: 'Wir haben dir eine Bestätigungs-E-Mail geschickt. Prüfe auch deinen Spam-Ordner.',
+      resendEmail: 'Bestätigungs-E-Mail erneut senden',
+      emailResent: 'E-Mail wurde erneut gesendet!',
+      contentLocked: 'Bestätige deine E-Mail, um diese Inhalte freizuschalten.',
     },
   },
   en: {
@@ -206,6 +213,8 @@ export const translations = {
       signUpLink: 'Sign up now',
       hasAccount: 'Already have an account?',
       signInLink: 'Sign in',
+      confirmEmailMessage: 'Account created! Please confirm your email address to unlock all content.',
+      goToDashboard: 'Go to Dashboard',
     },
     footer: {
       tagline: 'AI-powered ZP10 prep for NRW.',
@@ -231,6 +240,11 @@ export const translations = {
       examOverview: 'Exam overview',
       lastActivity: 'Last opened',
       noActivity: 'No activity yet',
+      emailNotConfirmed: 'Please confirm your email address to access all content.',
+      emailNotConfirmedHint: 'We sent you a confirmation email. Check your spam folder too.',
+      resendEmail: 'Resend confirmation email',
+      emailResent: 'Email has been resent!',
+      contentLocked: 'Confirm your email to unlock this content.',
     },
   },
 }

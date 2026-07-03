@@ -38,10 +38,34 @@ export function AuthProvider({ children }) {
   const signUpWithEmail = (email, password, metadata) =>
     supabase.auth.signUp({ email, password, options: { data: metadata } })
 
+  const resendConfirmationEmail = async () => {
+    if (!user?.email) return false
+
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email: user.email,
+    })
+
+    return !error
+  }
+
   const signOut = () => supabase.auth.signOut()
+  const emailConfirmed = !!user?.email_confirmed_at
 
   return (
-    <AuthContext.Provider value={{ user, loading, signInWithGoogle, signInWithApple, signInWithEmail, signUpWithEmail, signOut }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        emailConfirmed,
+        signInWithGoogle,
+        signInWithApple,
+        signInWithEmail,
+        signUpWithEmail,
+        resendConfirmationEmail,
+        signOut,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   )

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { useLang } from '../hooks/useLang'
 import { subjectProgress } from '../data/dashboardData'
@@ -9,52 +10,80 @@ import LastActivityCard from '../components/dashboard/LastActivityCard'
 import styles from './Dashboard.module.css'
 
 export default function Dashboard() {
-  const { user } = useAuth()
+  const { user, emailConfirmed, resendConfirmationEmail } = useAuth()
   const { t } = useLang()
+  const [isResending, setIsResending] = useState(false)
+  const [emailResent, setEmailResent] = useState(false)
 
   const name =
     user?.user_metadata?.first_name ||
     user?.email?.split('@')[0] ||
     null
 
+  const handleResendEmail = async () => {
+    setIsResending(true)
+    const success = await resendConfirmationEmail()
+    setEmailResent(success)
+    setIsResending(false)
+  }
+
   return (
     <div className={styles.page}>
-      {/* ── Header ── */}
-      <header className={styles.header}>
-        <div>
-          <h1 className={styles.greeting}>
-            {t.dashboard.greeting}{name ? ` ${name}` : ''} 👋
-          </h1>
-          <p className={styles.subtitle}>{t.dashboard.subtitle}</p>
+      {!emailConfirmed && (
+        <div className={styles.emailBanner}>
+          <div className={styles.emailBannerIcon}>⚠️</div>
+          <div className={styles.emailBannerCopy}>
+            <p className={styles.emailBannerText}>{t.dashboard.emailNotConfirmed}</p>
+            <p className={styles.emailBannerHint}>{t.dashboard.emailNotConfirmedHint}</p>
+          </div>
+          {emailResent ? (
+            <span className={styles.resendSuccess}>{t.dashboard.emailResent}</span>
+          ) : (
+            <button type="button" className={styles.resendBtn} onClick={handleResendEmail} disabled={isResending}>
+              {isResending ? '...' : t.dashboard.resendEmail}
+            </button>
+          )}
         </div>
-      </header>
+      )}
 
-      {/* ── Top row: countdown + overall progress ── */}
-      <div className={styles.topRow}>
-        <CountdownCard />
-        <OverallProgressCard />
-      </div>
+      <div className={!emailConfirmed ? styles.locked : ''}>
+        {/* ── Header ── */}
+        <header className={styles.header}>
+          <div>
+            <h1 className={styles.greeting}>
+              {t.dashboard.greeting}{name ? ` ${name}` : ''} 👋
+            </h1>
+            <p className={styles.subtitle}>{t.dashboard.subtitle}</p>
+          </div>
+        </header>
 
-      {/* ── Subject cards ── */}
-      <section>
-        <h2 className={styles.sectionTitle}>{t.dashboard.subjects}</h2>
-        <div className={styles.subjectsGrid}>
-          {subjectProgress.map(s => (
-            <SubjectCard
-              key={s.subject}
-              subject={s.subject}
-              progress={s.progress}
-              path={s.path}
-              icon={s.icon}
-            />
-          ))}
+        {/* ── Top row: countdown + overall progress ── */}
+        <div className={styles.topRow}>
+          <CountdownCard />
+          <OverallProgressCard />
         </div>
-      </section>
 
-      {/* ── Bottom row: exam overview + last activity ── */}
-      <div className={styles.bottomRow}>
-        <ExamOverviewCard />
-        <LastActivityCard />
+        {/* ── Subject cards ── */}
+        <section>
+          <h2 className={styles.sectionTitle}>{t.dashboard.subjects}</h2>
+          <div className={styles.subjectsGrid}>
+            {subjectProgress.map(s => (
+              <SubjectCard
+                key={s.subject}
+                subject={s.subject}
+                progress={s.progress}
+                path={s.path}
+                icon={s.icon}
+              />
+            ))}
+          </div>
+        </section>
+
+        {/* ── Bottom row: exam overview + last activity ── */}
+        <div className={styles.bottomRow}>
+          <ExamOverviewCard />
+          <LastActivityCard />
+        </div>
       </div>
     </div>
   )
