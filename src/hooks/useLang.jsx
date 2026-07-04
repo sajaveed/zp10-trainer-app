@@ -91,8 +91,9 @@ export const translations = {
       signUpLink: 'Jetzt registrieren',
       hasAccount: 'Bereits registriert?',
       signInLink: 'Anmelden',
-      confirmEmailMessage: 'Konto erstellt! Bitte bestätige deine E-Mail-Adresse, um alle Inhalte freizuschalten.',
+      confirmEmailMessage: 'Bitte bestätige deine E-Mail! Überprüfe dein Postfach und klicke auf den Bestätigungslink.',
       goToDashboard: 'Zum Dashboard',
+      goToLogin: 'Zum Login',
     },
     footer: {
       tagline: 'KI-gestützte ZP10-Vorbereitung für NRW.',
@@ -214,8 +215,9 @@ export const translations = {
       signUpLink: 'Sign up now',
       hasAccount: 'Already have an account?',
       signInLink: 'Sign in',
-      confirmEmailMessage: 'Account created! Please confirm your email address to unlock all content.',
+      confirmEmailMessage: 'Please confirm your email! Check your inbox and click the confirmation link.',
       goToDashboard: 'Go to Dashboard',
+      goToLogin: 'Go to Login',
     },
     footer: {
       tagline: 'AI-powered ZP10 prep for NRW.',
