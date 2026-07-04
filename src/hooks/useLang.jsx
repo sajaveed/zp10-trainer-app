@@ -94,6 +94,10 @@ export const translations = {
       confirmEmailMessage: 'Bitte bestätige deine E-Mail! Überprüfe dein Postfach und klicke auf den Bestätigungslink.',
       goToDashboard: 'Zum Dashboard',
       goToLogin: 'Zum Login',
+      linkExpired: 'Der Bestätigungslink ist abgelaufen. Bitte registriere dich erneut.',
+      linkError: 'Der Bestätigungslink konnte nicht verarbeitet werden. Bitte versuche es erneut.',
+      linkErrorGeneric: 'Bei der E-Mail-Bestätigung ist ein Fehler aufgetreten.',
+      close: 'Schließen',
     },
     footer: {
       tagline: 'KI-gestützte ZP10-Vorbereitung für NRW.',
@@ -218,6 +222,10 @@ export const translations = {
       confirmEmailMessage: 'Please confirm your email! Check your inbox and click the confirmation link.',
       goToDashboard: 'Go to Dashboard',
       goToLogin: 'Go to Login',
+      linkExpired: 'The confirmation link has expired. Please sign up again.',
+      linkError: 'The confirmation link could not be processed. Please try again.',
+      linkErrorGeneric: 'An error occurred during email confirmation.',
+      close: 'Close',
     },
     footer: {
       tagline: 'AI-powered ZP10 prep for NRW.',

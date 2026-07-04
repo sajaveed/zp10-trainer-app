@@ -59,6 +59,39 @@ function FaqItem({ q, a }) {
 export default function Landing({ onAuthClick }) {
   const { t } = useLang()
 
+  const [hashError] = useState(() => {
+    const hash = window.location.hash
+    if (!hash) return null
+    const params = new URLSearchParams(hash.replace(/^#/, ''))
+    const error = params.get('error')
+    if (!error) return null
+    return {
+      error,
+      errorCode: params.get('error_code'),
+      errorDescription: params.get('error_description'),
+    }
+  })
+  const [errorDismissed, setErrorDismissed] = useState(false)
+
+  useEffect(() => {
+    if (hashError) {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search)
+    }
+  }, [hashError])
+
+  let authError = null
+  if (hashError && !errorDismissed) {
+    if (hashError.errorCode === 'otp_expired') {
+      authError = t.auth.linkExpired
+    } else if (hashError.error === 'access_denied') {
+      authError = t.auth.linkError
+    } else {
+      authError = hashError.errorDescription
+        ? decodeURIComponent(hashError.errorDescription.replace(/\+/g, ' '))
+        : t.auth.linkErrorGeneric
+    }
+  }
+
   const subjects = [
     {
       emoji: '📖', name: 'Deutsch', sub: t.subjects.deSub,
@@ -83,7 +116,18 @@ export default function Landing({ onAuthClick }) {
   ]
 
   return (
-    <main>
+    <>
+      {authError && (
+        <div className={styles.errorBanner} role="alert">
+          <span className={styles.errorBannerText}>{authError}</span>
+          <button
+            className={styles.errorBannerClose}
+            onClick={() => setErrorDismissed(true)}
+            aria-label={t.auth.close}
+          >×</button>
+        </div>
+      )}
+      <main>
       {/* ── HERO ── */}
       <section className={styles.hero} id="home">
         <h1 className={styles.heroH1}>
@@ -203,5 +247,6 @@ export default function Landing({ onAuthClick }) {
         </div>
       </section>
     </main>
+    </>
   )
 }
