@@ -36,7 +36,14 @@ export function AuthProvider({ children }) {
     supabase.auth.signInWithPassword({ email, password })
 
   const signUpWithEmail = (email, password, metadata) =>
-    supabase.auth.signUp({ email, password, options: { data: metadata } })
+    supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: metadata,
+        emailRedirectTo: `${window.location.origin}/confirm`,
+      },
+    })
 
   const resendConfirmationEmail = async () => {
     if (!user?.email) return false

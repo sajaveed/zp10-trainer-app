@@ -13,6 +13,7 @@ import Englisch from './pages/Englisch'
 import Mathematik from './pages/Mathematik'
 import Fortschritt from './pages/Fortschritt'
 import Settings from './pages/Settings'
+import Confirm from './pages/Confirm'
 
 const DASHBOARD_PATHS = ['/dashboard', '/deutsch', '/englisch', '/mathematik', '/fortschritt', '/settings']
 
@@ -34,6 +35,7 @@ function AppContent() {
           path="/"
           element={user ? <Navigate to="/dashboard" replace /> : <Landing onAuthClick={() => setModalOpen(true)} />}
         />
+        <Route path="/confirm" element={<Confirm />} />
         <Route element={user ? <DashboardLayout /> : <Navigate to="/" replace />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/deutsch" element={<Deutsch />} />
