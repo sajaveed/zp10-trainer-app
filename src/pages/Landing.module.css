@@ -326,9 +326,11 @@
   width: 28px; height: 28px;
   border-radius: 50%;
   font-size: 1.1rem;
+  line-height: 1;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
+  cursor: pointer;
   transition: background 0.15s;
+  padding: 0;
 }
 .errorBannerClose:hover { background: rgba(255,255,255,0.35); }
-
