@@ -1,5 +1,7 @@
 import { useAuth } from '../hooks/useAuth'
 import { useLang } from '../hooks/useLang'
+import { subjectTopics } from '../data/dashboardData'
+import TopicCard from '../components/TopicCard'
 import styles from './Placeholder.module.css'
 
 export default function Deutsch() {
@@ -18,7 +20,18 @@ export default function Deutsch() {
   return (
     <div className={styles.page}>
       <h1 className={styles.title}>📝 Deutsch</h1>
-      <p className={styles.sub}>Hier erscheinen bald deine Deutsch-Aufgaben und Übungen.</p>
+      <p className={styles.sub}>Übe ZP10-Aufgaben in Deutsch und hol dir Feedback von Zeno.</p>
+      <h2 className={styles.sectionTitle}>Module</h2>
+      <div className={styles.topicsGrid}>
+        {subjectTopics.deutsch.map(topic => (
+          <TopicCard
+            key={topic.id}
+            emoji={topic.emoji}
+            title={topic.title}
+            desc={topic.desc}
+          />
+        ))}
+      </div>
     </div>
   )
 }

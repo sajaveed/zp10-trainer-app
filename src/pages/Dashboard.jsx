@@ -7,6 +7,7 @@ import OverallProgressCard from '../components/dashboard/OverallProgressCard'
 import SubjectCard from '../components/dashboard/SubjectCard'
 import ExamOverviewCard from '../components/dashboard/ExamOverviewCard'
 import LastActivityCard from '../components/dashboard/LastActivityCard'
+import ZenoCard from '../components/dashboard/ZenoCard'
 import styles from './Dashboard.module.css'
 
 export default function Dashboard() {
@@ -103,6 +104,9 @@ export default function Dashboard() {
           <ExamOverviewCard />
           <LastActivityCard />
         </div>
+
+        {/* ── Zeno Lerncoach ── */}
+        <ZenoCard />
       </div>
     </div>
   )
