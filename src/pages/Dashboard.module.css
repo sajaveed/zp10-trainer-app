@@ -4,6 +4,7 @@
   display: flex;
   flex-direction: column;
   gap: 32px;
+  position: relative;
 }
 
 .emailBanner {
@@ -134,10 +135,82 @@
   gap: 20px;
 }
 
-.zenoSection {
+.zenoArea {
   display: flex;
-  flex-direction: column;
-  gap: 14px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  border: 1px solid #D7E5FF;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #F4F7FF 0%, #EDF8FF 100%);
+}
+
+.zenoLead {
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  color: #4B5563;
+  margin-top: 4px;
+  max-width: 640px;
+}
+
+.zenoOpenBtn {
+  border: none;
+  border-radius: 999px;
+  background: #4F46E5;
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 0.7rem 1rem;
+  transition: opacity 0.15s;
+}
+
+.zenoOpenBtn:hover {
+  opacity: 0.9;
+}
+
+.zenoLauncher {
+  position: fixed;
+  left: 284px;
+  bottom: 22px;
+  width: 56px;
+  height: 56px;
+  border: none;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #61DAFB 0%, #8B5CF6 100%);
+  color: #06111F;
+  font-size: 1.15rem;
+  font-weight: 800;
+  box-shadow: 0 10px 25px rgba(79, 70, 229, 0.35);
+  z-index: 230;
+}
+
+.zenoPopup {
+  position: fixed;
+  left: 284px;
+  bottom: 88px;
+  width: min(460px, calc(100vw - 300px));
+  z-index: 229;
+}
+
+.zenoClose {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.24);
+  color: #fff;
+  font-size: 1.2rem;
+  line-height: 1;
+  z-index: 1;
+}
+
+.zenoPopup > * {
+  margin: 0;
 }
 
 /* ── Tablet ── */
@@ -169,5 +242,22 @@
 
   .bottomRow {
     grid-template-columns: 1fr;
+  }
+
+  .zenoArea {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .zenoLauncher {
+    left: 16px;
+    bottom: 16px;
+  }
+
+  .zenoPopup {
+    left: 16px;
+    right: 16px;
+    bottom: 82px;
+    width: auto;
   }
 }

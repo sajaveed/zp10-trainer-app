@@ -13,6 +13,18 @@
   margin: 0 auto;
 }
 
+.popupWrapper {
+  max-width: none;
+  margin: 0;
+  height: min(70vh, 640px);
+}
+
+.popupWrapper .chatWindow {
+  flex: 1;
+  min-height: 0;
+  height: auto;
+}
+
 /* ── Header ─────────────────────────────────────────────────────────────── */
 .header {
   display: flex;
