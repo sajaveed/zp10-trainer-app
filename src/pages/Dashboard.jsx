@@ -7,6 +7,7 @@ import OverallProgressCard from '../components/dashboard/OverallProgressCard'
 import SubjectCard from '../components/dashboard/SubjectCard'
 import ExamOverviewCard from '../components/dashboard/ExamOverviewCard'
 import LastActivityCard from '../components/dashboard/LastActivityCard'
+import ZenoCoach from '../components/ZenoCoach'
 import styles from './Dashboard.module.css'
 
 export default function Dashboard() {
@@ -103,6 +104,11 @@ export default function Dashboard() {
           <ExamOverviewCard />
           <LastActivityCard />
         </div>
+
+        <section className={styles.zenoSection}>
+          <h2 className={styles.sectionTitle}>{t.ki.label}</h2>
+          <ZenoCoach />
+        </section>
       </div>
     </div>
   )

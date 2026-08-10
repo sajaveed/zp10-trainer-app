@@ -93,11 +93,16 @@ export default function ZenoCoach() {
   const [thinking, setThinking] = useState(false)
   const [attachments, setAttachments] = useState([])
   const fileInputRef = useRef(null)
-  const chatEndRef = useRef(null)
+  const chatWindowRef = useRef(null)
 
-  // Scroll to bottom whenever messages change
+  // Keep scrolling inside the chat area to avoid moving the full page
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    const chatWindow = chatWindowRef.current
+    if (!chatWindow) return
+    chatWindow.scrollTo({
+      top: chatWindow.scrollHeight,
+      behavior: 'smooth',
+    })
   }, [messages, thinking])
 
   // ── Sending a message (mock – replace body with real API call later) ──────
@@ -175,12 +180,11 @@ export default function ZenoCoach() {
       </div>
 
       {/* ── Chat messages ── */}
-      <div className={styles.chatWindow} role="log" aria-live="polite" aria-label="Chat mit Zeno">
+      <div className={styles.chatWindow} ref={chatWindowRef} role="log" aria-live="polite" aria-label="Chat mit Zeno">
         {messages.map(msg => (
           <MessageBubble key={msg.id} message={msg} />
         ))}
         {thinking && <TypingIndicator />}
-        <div ref={chatEndRef} />
       </div>
 
       {/* ── Attachment preview ── */}

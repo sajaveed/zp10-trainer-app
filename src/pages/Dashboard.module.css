@@ -134,6 +134,12 @@
   gap: 20px;
 }
 
+.zenoSection {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
 /* ── Tablet ── */
 @media (max-width: 1023px) {
   .subjectsGrid {
