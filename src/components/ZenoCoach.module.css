@@ -103,8 +103,7 @@
   flex-direction: column;
   gap: 12px;
   padding: 20px 24px;
-  min-height: 260px;
-  max-height: 380px;
+  height: clamp(260px, 45vh, 380px);
   overflow-y: auto;
   scroll-behavior: smooth;
 }
