@@ -16,6 +16,7 @@ export default function Dashboard() {
   const [isResending, setIsResending] = useState(false)
   const [emailResent, setEmailResent] = useState(false)
   const [resendError, setResendError] = useState('')
+  const [zenoPopupOpen, setZenoPopupOpen] = useState(false)
   const resendResetTimeoutRef = useRef(null)
 
   const name =
@@ -99,16 +100,51 @@ export default function Dashboard() {
           </div>
         </section>
 
+        <section className={styles.zenoArea} id="zeno">
+          <div>
+            <h2 className={styles.sectionTitle}>{t.ki.label}</h2>
+            <p className={styles.zenoLead}>
+              Starte deinen ZP10-Chat mit Zeno, lade Aufgaben hoch und trainiere mit strukturiertem Feedback.
+            </p>
+          </div>
+          <button
+            type="button"
+            className={styles.zenoOpenBtn}
+            onClick={() => setZenoPopupOpen(true)}
+          >
+            Zeno Chat öffnen
+          </button>
+        </section>
+
         {/* ── Bottom row: exam overview + last activity ── */}
         <div className={styles.bottomRow}>
           <ExamOverviewCard />
           <LastActivityCard />
         </div>
+        <button
+          type="button"
+          className={styles.zenoLauncher}
+          onClick={() => setZenoPopupOpen(prev => !prev)}
+          aria-label="Zeno Chat öffnen"
+          aria-expanded={zenoPopupOpen}
+          aria-controls="zeno-popup"
+        >
+          Z
+        </button>
 
-        <section className={styles.zenoSection}>
-          <h2 className={styles.sectionTitle}>{t.ki.label}</h2>
-          <ZenoCoach />
-        </section>
+        {zenoPopupOpen && (
+          <section className={styles.zenoPopup} id="zeno-popup" aria-label="Zeno Chat Popup">
+            <button
+              type="button"
+              className={styles.zenoClose}
+              onClick={() => setZenoPopupOpen(false)}
+              aria-label="Zeno Chat schließen"
+            >
+              ×
+            </button>
+            <ZenoCoach popup />
+          </section>
+        )}
       </div>
     </div>
   )

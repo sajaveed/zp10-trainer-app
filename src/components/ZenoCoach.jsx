@@ -87,7 +87,7 @@ function AttachmentChip({ file, onRemove }) {
 // Structure is intentionally split so a future hook (e.g. useZenoChat) can
 // replace `messages`, `thinking`, and `handleSend` with API-backed equivalents.
 
-export default function ZenoCoach() {
+export default function ZenoCoach({ popup = false }) {
   const [messages, setMessages] = useState(INITIAL_MESSAGES)
   const [inputValue, setInputValue] = useState('')
   const [thinking, setThinking] = useState(false)
@@ -162,7 +162,7 @@ export default function ZenoCoach() {
   }, [])
 
   return (
-    <section className={styles.wrapper} id="zeno">
+    <section className={`${styles.wrapper} ${popup ? styles.popupWrapper : ''}`}>
       {/* ── Header ── */}
       <div className={styles.header}>
         <div className={styles.avatarWrap} aria-hidden="true">
