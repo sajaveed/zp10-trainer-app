@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLang } from '../hooks/useLang'
+import ZenoCoach from '../components/ZenoCoach'
 import styles from './Landing.module.css'
 
 function SectionLabel({ children }) {
@@ -58,7 +59,6 @@ function FaqItem({ q, a }) {
 
 export default function Landing({ onAuthClick }) {
   const { t } = useLang()
-
   const [hashError] = useState(() => {
     const hash = window.location.hash
     if (!hash) return null
@@ -93,18 +93,9 @@ export default function Landing({ onAuthClick }) {
   }
 
   const subjects = [
-    {
-      emoji: '📖', name: 'Deutsch', sub: t.subjects.deSub,
-      tags: ['Analyse', 'Argumentation', 'Stellungnahme', 'Zusammenfassung', 'Sprache'],
-    },
-    {
-      emoji: '🔢', name: 'Mathematik', sub: t.subjects.mathSub,
-      tags: ['Funktionen', 'Geometrie', 'Wahrscheinlichkeit', 'Algebra', 'Sachaufgaben'],
-    },
-    {
-      emoji: '🌍', name: 'Englisch', sub: t.subjects.enSub,
-      tags: ['Reading', 'Listening', 'Comment', 'Mediation', 'Vocabulary', 'Grammar'],
-    },
+    { emoji: '📖', name: 'Deutsch', sub: t.subjects.deSub, tags: ['Analyse', 'Argumentation', 'Stellungnahme', 'Zusammenfassung', 'Sprache'] },
+    { emoji: '🔢', name: 'Mathematik', sub: t.subjects.mathSub, tags: ['Funktionen', 'Geometrie', 'Wahrscheinlichkeit', 'Algebra', 'Sachaufgaben'] },
+    { emoji: '🌍', name: 'Englisch', sub: t.subjects.enSub, tags: ['Reading', 'Listening', 'Comment', 'Mediation', 'Vocabulary', 'Grammar'] },
   ]
 
   const faqItems = [
@@ -117,75 +108,40 @@ export default function Landing({ onAuthClick }) {
 
   return (
     <>
-      {authError && (
-        <div className={styles.errorBanner} role="alert">
-          <span className={styles.errorBannerText}>{authError}</span>
-          <button
-            className={styles.errorBannerClose}
-            onClick={() => setErrorDismissed(true)}
-            aria-label={t.auth.close}
-          >×</button>
-        </div>
-      )}
+      {authError && <div className={styles.errorBanner} role="alert"><span className={styles.errorBannerText}>{authError}</span><button className={styles.errorBannerClose} onClick={() => setErrorDismissed(true)} aria-label={t.auth.close}>×</button></div>}
       <main>
-      {/* ── HERO ── */}
       <section className={styles.hero} id="home">
-        <h1 className={styles.heroH1}>
-          {t.hero.h1a}<br /><em>{t.hero.h1b}</em>
-        </h1>
+        <h1 className={styles.heroH1}>{t.hero.h1a}<br /><em>{t.hero.h1b}</em></h1>
         <p className={styles.heroSub}>{t.hero.sub}</p>
-        <div className={styles.heroCta}>
-          <button className={styles.btnPrimary} onClick={onAuthClick}>{t.hero.cta}</button>
-          <a className={styles.btnSecondary} href="#how">{t.hero.learnMore}</a>
-        </div>
+        <div className={styles.heroCta}><button className={styles.btnPrimary} onClick={onAuthClick}>{t.hero.cta}</button><a className={styles.btnSecondary} href="#how">{t.hero.learnMore}</a></div>
         <HeroDemo t={t} />
       </section>
 
-      {/* ── HOW IT WORKS ── */}
       <section className={styles.section} id="how">
         <div className={styles.inner}>
           <SectionLabel>{t.how.label}</SectionLabel>
           <h2 className={styles.sectionTitle}>{t.how.title}</h2>
           <p className={styles.sectionSub}>{t.how.sub}</p>
-          <div className={styles.stepsGrid}>
-            {[
-              { num: '01', icon: '📝', title: t.how.s1title, text: t.how.s1text },
-              { num: '02', icon: '🤖', title: t.how.s2title, text: t.how.s2text },
-              { num: '03', icon: '📈', title: t.how.s3title, text: t.how.s3text },
-            ].map(s => (
-              <div className={styles.step} key={s.num}>
-                <div className={styles.stepNum}>{s.num}</div>
-                <div className={styles.stepIcon}>{s.icon}</div>
-                <h3>{s.title}</h3>
-                <p>{s.text}</p>
-              </div>
-            ))}
-          </div>
+          <div className={styles.stepsGrid}>{[{ num: '01', icon: '📝', title: t.how.s1title, text: t.how.s1text }, { num: '02', icon: '🤖', title: t.how.s2title, text: t.how.s2text }, { num: '03', icon: '📈', title: t.how.s3title, text: t.how.s3text }].map(s => (<div className={styles.step} key={s.num}><div className={styles.stepNum}>{s.num}</div><div className={styles.stepIcon}>{s.icon}</div><h3>{s.title}</h3><p>{s.text}</p></div>))}</div>
         </div>
       </section>
 
-      {/* ── SUBJECTS ── */}
       <section className={styles.section} id="subjects">
         <div className={styles.inner}>
           <SectionLabel>{t.subjects.label}</SectionLabel>
           <h2 className={styles.sectionTitle}>{t.subjects.title}</h2>
           <p className={styles.sectionSub}>{t.subjects.sub}</p>
-          <div className={styles.subjectsGrid}>
-            {subjects.map(s => (
-              <div className={styles.subjectCard} key={s.name}>
-                <span className={styles.subjectEmoji}>{s.emoji}</span>
-                <h3>{s.name}</h3>
-                <p>{s.sub}</p>
-                <div className={styles.moduleTags}>
-                  {s.tags.map(tag => <span className={styles.moduleTag} key={tag}>{tag}</span>)}
-                </div>
-              </div>
-            ))}
-          </div>
+          <div className={styles.subjectsGrid}>{subjects.map(s => (<div className={styles.subjectCard} key={s.name}><span className={styles.subjectEmoji}>{s.emoji}</span><h3>{s.name}</h3><p>{s.sub}</p><div className={styles.moduleTags}>{s.tags.map(tag => <span className={styles.moduleTag} key={tag}>{tag}</span>)}</div></div>))}</div>
         </div>
       </section>
 
-      {/* ── KI FEEDBACK ── */}
+      <section className={styles.section} id="zeno-demo">
+        <div className={styles.inner}>
+          <SectionLabel>{t.ki.label}</SectionLabel>
+          <ZenoCoach />
+        </div>
+      </section>
+
       <section className={styles.kiSection} id="ki">
         <div className={styles.inner}>
           <div className={styles.kiGrid}>
@@ -193,57 +149,18 @@ export default function Landing({ onAuthClick }) {
               <SectionLabel>{t.ki.label}</SectionLabel>
               <h2 className={styles.sectionTitle}>{t.ki.title}</h2>
               <p className={styles.sectionSub}>{t.ki.sub}</p>
-              <div className={styles.kiFeatures}>
-                {[
-                  { title: t.ki.f1title, text: t.ki.f1text },
-                  { title: t.ki.f2title, text: t.ki.f2text },
-                  { title: t.ki.f3title, text: t.ki.f3text },
-                ].map(f => (
-                  <div className={styles.kiFeature} key={f.title}>
-                    <div className={styles.kiDot} />
-                    <div>
-                      <h4>{f.title}</h4>
-                      <p>{f.text}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <div className={styles.kiFeatures}>{[{ title: t.ki.f1title, text: t.ki.f1text }, { title: t.ki.f2title, text: t.ki.f2text }, { title: t.ki.f3title, text: t.ki.f3text }].map(f => (<div className={styles.kiFeature} key={f.title}><div className={styles.kiDot} /><div><h4>{f.title}</h4><p>{f.text}</p></div></div>))}</div>
             </div>
-
-            <div className={styles.kiMockup}>
-              <div className={styles.kiMsg}>
-                <div className={`${styles.kiAvatar} ${styles.student}`}>S</div>
-                <div className={styles.kiBubble}>{t.ki.mockContent}</div>
-              </div>
-              <div className={styles.kiMsg}>
-                <div className={`${styles.kiAvatar} ${styles.ai}`}>Zeno</div>
-                <div className={`${styles.kiBubble} ${styles.kiBubbleAi}`}>
-                  <div className={styles.kiScoreLine}>
-                    <span>{t.ki.mockLabel1}</span><span className={styles.kiScore}>8 / 10</span>
-                  </div>
-                  <div className={styles.kiMiniBar}><div className={styles.kiMiniFill} style={{ width: '80%' }} /></div>
-                  <div className={styles.kiScoreLine}>
-                    <span>{t.ki.mockLabel2}</span><span className={styles.kiScore}>7 / 10</span>
-                  </div>
-                  <div className={styles.kiMiniBar}><div className={styles.kiMiniFill} style={{ width: '70%' }} /></div>
-                  <div className={styles.kiFeedback}>
-                    {t.ki.mockFeedback.split('\n').map((line, i) => <div key={i}>{line}</div>)}
-                  </div>
-                </div>
-              </div>
-            </div>
+            <div className={styles.kiMockup}><div className={styles.kiMsg}><div className={`${styles.kiAvatar} ${styles.student}`}>S</div><div className={styles.kiBubble}>{t.ki.mockContent}</div></div><div className={styles.kiMsg}><div className={`${styles.kiAvatar} ${styles.ai}`}>Zeno</div><div className={`${styles.kiBubble} ${styles.kiBubbleAi}`}><div className={styles.kiScoreLine}><span>{t.ki.mockLabel1}</span><span className={styles.kiScore}>8 / 10</span></div><div className={styles.kiMiniBar}><div className={styles.kiMiniFill} style={{ width: '80%' }} /></div><div className={styles.kiScoreLine}><span>{t.ki.mockLabel2}</span><span className={styles.kiScore}>7 / 10</span></div><div className={styles.kiMiniBar}><div className={styles.kiMiniFill} style={{ width: '70%' }} /></div><div className={styles.kiFeedback}>{t.ki.mockFeedback.split('\n').map((line, i) => <div key={i}>{line}</div>)}</div></div></div></div>
           </div>
         </div>
       </section>
 
-      {/* ── FAQ ── */}
       <section className={styles.section} id="faq">
         <div className={styles.inner}>
           <SectionLabel>FAQ</SectionLabel>
           <h2 className={styles.sectionTitle}>{t.faq.title}</h2>
-          <div className={styles.faqList}>
-            {faqItems.map(item => <FaqItem key={item.q} q={item.q} a={item.a} />)}
-          </div>
+          <div className={styles.faqList}>{faqItems.map(item => <FaqItem key={item.q} q={item.q} a={item.a} />)}</div>
         </div>
       </section>
     </main>
