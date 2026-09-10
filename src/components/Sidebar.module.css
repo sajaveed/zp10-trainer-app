@@ -4,105 +4,87 @@
   left: 0;
   width: 260px;
   height: 100vh;
-  background: #ffffff;
-  border-right: 1px solid #E5E7EB;
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.04);
+  background: var(--bg-elevated);
+  border-right: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
   z-index: 200;
   overflow-y: auto;
 }
 
-/* ── Logo ── */
 .logoArea {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 24px 20px 20px;
-  border-bottom: 1px solid #F3F4F6;
+  padding: 22px 18px;
+  border-bottom: 1px solid var(--border);
 }
 
-.logoIcon {
-  font-size: 1.4rem;
-  line-height: 1;
-}
+.logoIcon { font-size: 1.35rem; }
 
 .logoText {
   font-family: var(--font-head);
   font-size: 1.05rem;
   font-weight: 700;
-  color: #111827;
-  letter-spacing: -0.01em;
+  color: var(--text);
 }
 
-/* ── Nav ── */
 .nav {
   flex: 1;
-  padding: 16px 12px;
+  padding: 14px 10px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .navItem {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 12px;
   border-radius: 10px;
-  color: #6B7280;
-  font-family: var(--font-body);
+  padding: 10px 12px;
+  color: var(--text-muted);
   font-size: 0.9rem;
   font-weight: 500;
-  text-decoration: none;
-  transition: background 0.15s, color 0.15s;
 }
 
 .navItem:hover {
-  background: #F3F4F6;
-  color: #111827;
+  color: var(--text);
+  background: var(--bg-subtle);
 }
 
 .navItem.active {
-  background: #EEF2FF;
-  color: #4F46E5;
+  color: var(--red);
+  background: var(--red-dim);
   font-weight: 600;
 }
 
 .navIcon {
-  font-size: 1rem;
   width: 20px;
   text-align: center;
   flex-shrink: 0;
 }
 
-.navLabel {
-  line-height: 1.2;
-}
-
-/* ── User area ── */
 .userArea {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 16px 16px;
-  border-top: 1px solid #F3F4F6;
+  padding: 14px;
+  border-top: 1px solid var(--border);
 }
 
 .avatar {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: #4F46E5;
-  color: #ffffff;
+  background: var(--red);
+  color: #fff;
   font-family: var(--font-head);
-  font-size: 0.75rem;
+  font-size: 0.74rem;
   font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  letter-spacing: 0.02em;
+  display: grid;
+  place-items: center;
 }
 
 .userInfo {
@@ -114,89 +96,73 @@
 }
 
 .userName {
-  font-family: var(--font-body);
-  font-size: 0.85rem;
+  color: var(--text);
+  font-size: 0.84rem;
   font-weight: 600;
-  color: #111827;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
-.userClass {
-  font-family: var(--font-body);
-  font-size: 0.75rem;
-  color: #9CA3AF;
-}
+.userClass { color: var(--text-dim); font-size: 0.75rem; }
 
 .signOutBtn {
-  background: none;
-  border: none;
-  padding: 6px;
-  border-radius: 6px;
-  color: #9CA3AF;
-  font-size: 1rem;
-  line-height: 1;
-  cursor: pointer;
-  transition: color 0.15s, background 0.15s;
-  flex-shrink: 0;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 8px;
+  width: 30px;
+  height: 30px;
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  display: grid;
+  place-items: center;
 }
 
 .signOutBtn:hover {
-  color: #EF4444;
-  background: #FEF2F2;
+  color: var(--danger);
+  background: rgba(220, 38, 38, 0.08);
 }
 
-/* ── Hamburger button (mobile only) ── */
 .hamburger {
   display: none;
   position: fixed;
   top: 14px;
   left: 14px;
   z-index: 300;
-  background: #ffffff;
-  border: 1px solid #E5E7EB;
+  border: 1px solid var(--border);
   border-radius: 8px;
+  background: var(--bg-elevated);
   padding: 8px 10px;
-  cursor: pointer;
+  box-shadow: var(--shadow-sm);
   flex-direction: column;
   gap: 4px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
 
 .hamburger span {
-  display: block;
   width: 18px;
   height: 2px;
-  background: #374151;
+  background: var(--text);
   border-radius: 2px;
 }
 
-/* ── Overlay (mobile) ── */
 .overlay {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.35);
+  background: rgba(15, 23, 42, 0.35);
   z-index: 199;
 }
 
-/* ── Responsive ── */
 @media (max-width: 767px) {
   .sidebar {
     transform: translateX(-100%);
-    transition: transform 0.25s ease;
+    transition: transform 0.24s ease;
   }
 
-  .sidebar.open {
-    transform: translateX(0);
-  }
+  .sidebar.open { transform: translateX(0); }
 
-  .hamburger {
-    display: flex;
-  }
+  .hamburger,
+  .overlay { display: flex; }
 
-  .overlay {
-    display: block;
-  }
+  .overlay { display: block; }
 }

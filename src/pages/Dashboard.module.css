@@ -1,263 +1,180 @@
 .page {
-  padding: 40px 32px 60px;
-  max-width: 1100px;
+  max-width: 1140px;
+  padding: 34px 30px 58px;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 26px;
   position: relative;
 }
 
 .emailBanner {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 16px 18px;
-  background: #FFF7E6;
-  border: 1px solid #F6D38B;
-  border-radius: 18px;
-  margin-bottom: -8px;
+  gap: 14px;
+  border: 1px solid #f2d196;
+  background: #fff8ea;
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
 }
 
-.emailBannerIcon {
-  font-size: 1.5rem;
-  line-height: 1;
-}
+.emailBannerIcon { font-size: 1.45rem; }
 
-.emailBannerCopy {
-  flex: 1;
-}
+.emailBannerCopy { flex: 1; }
 
 .emailBannerText {
-  font-family: var(--font-body);
-  font-size: 0.95rem;
+  color: #8a5a00;
+  font-size: 0.94rem;
   font-weight: 600;
-  color: #8A5A00;
 }
 
-.emailBannerHint {
-  font-family: var(--font-body);
-  font-size: 0.88rem;
-  color: #9A6B16;
+.emailBannerHint,
+.resendError {
   margin-top: 4px;
+  color: #9a6b16;
+  font-size: 0.84rem;
 }
 
 .resendBtn {
+  border: 1px solid #f0c86e;
   background: #fff;
-  color: #8A5A00;
-  border: 1px solid #F0C86E;
-  border-radius: 10px;
-  padding: 0.7rem 0.9rem;
-  font-size: 0.85rem;
+  color: #8a5a00;
+  border-radius: var(--radius-sm);
+  padding: 0.63rem 0.85rem;
+  font-size: 0.84rem;
   font-weight: 600;
-  transition: background 0.15s, border-color 0.15s, opacity 0.15s;
 }
 
-.resendBtn:hover:not(:disabled) {
-  background: #FFF3D6;
-  border-color: #E8BA52;
-}
+.resendBtn:hover:not(:disabled) { background: #fff1cf; }
 
-.resendBtn:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
-}
+.resendBtn:disabled { opacity: 0.7; cursor: not-allowed; }
 
 .resendSuccess {
-  color: #15803D;
-  font-size: 0.88rem;
+  color: var(--success);
+  font-size: 0.86rem;
   font-weight: 600;
-}
-
-.resendError {
-  color: #B45309;
-  font-size: 0.82rem;
-  margin-top: 6px;
 }
 
 .locked {
-  opacity: 0.4;
+  opacity: 0.42;
   pointer-events: none;
   filter: blur(2px);
   user-select: none;
 }
 
-/* ── Header ── */
 .header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
 }
 
 .greeting {
   font-family: var(--font-head);
   font-size: clamp(1.6rem, 3.5vw, 2.2rem);
-  font-weight: 700;
-  color: #111827;
   line-height: 1.2;
+  color: var(--text);
 }
 
 .subtitle {
-  font-family: var(--font-body);
-  font-size: 1rem;
-  color: #6B7280;
+  color: var(--text-muted);
   margin-top: 4px;
+  font-size: 0.97rem;
 }
 
-/* ── Top row ── */
-.topRow {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
+.topRow { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 
-/* ── Section title ── */
 .sectionTitle {
   font-family: var(--font-head);
   font-size: 1rem;
-  font-weight: 700;
-  color: #111827;
-  margin-bottom: 14px;
+  color: var(--text);
+  margin-bottom: 12px;
 }
 
-/* ── Subjects grid ── */
-.subjectsGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-
-/* ── Bottom row ── */
-.bottomRow {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 20px;
-}
+.subjectsGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.bottomRow { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
 
 .zenoArea {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding: 18px 20px;
-  border: 1px solid #D7E5FF;
-  border-radius: 18px;
-  background: linear-gradient(135deg, #F4F7FF 0%, #EDF8FF 100%);
+  align-items: center;
+  gap: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(120deg, #f7f9ff 0%, #ebf1ff 100%);
+  padding: 16px 18px;
+  box-shadow: var(--shadow-sm);
 }
 
 .zenoLead {
-  font-family: var(--font-body);
-  font-size: 0.92rem;
-  color: #4B5563;
+  color: var(--text-muted);
   margin-top: 4px;
+  font-size: 0.9rem;
   max-width: 640px;
 }
 
 .zenoOpenBtn {
-  border: none;
+  border: 1px solid var(--red);
   border-radius: 999px;
-  background: #4F46E5;
+  background: var(--red);
   color: #fff;
-  font-family: var(--font-body);
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   font-weight: 600;
-  padding: 0.7rem 1rem;
-  transition: opacity 0.15s;
+  padding: 0.66rem 0.95rem;
 }
 
-.zenoOpenBtn:hover {
-  opacity: 0.9;
-}
+.zenoOpenBtn:hover { background: var(--red-light); border-color: var(--red-light); }
 
 .zenoLauncher {
   position: fixed;
-  left: 284px;
+  left: 282px;
   bottom: 22px;
-  width: 56px;
-  height: 56px;
-  border: none;
+  width: 54px;
+  height: 54px;
+  border: 1px solid var(--red);
   border-radius: 50%;
-  background: linear-gradient(135deg, #61DAFB 0%, #8B5CF6 100%);
-  color: #06111F;
-  font-size: 1.15rem;
+  background: linear-gradient(130deg, var(--red-light), var(--red));
+  color: #fff;
+  font-size: 1.1rem;
   font-weight: 800;
-  box-shadow: 0 10px 25px rgba(79, 70, 229, 0.35);
+  box-shadow: var(--shadow-md);
   z-index: 230;
 }
 
 .zenoPopup {
   position: fixed;
-  left: 284px;
-  bottom: 88px;
+  left: 282px;
+  bottom: 86px;
   width: min(460px, calc(100vw - 300px));
   z-index: 229;
 }
 
 .zenoClose {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 10px;
+  right: 10px;
   width: 32px;
   height: 32px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.24);
   color: #fff;
   font-size: 1.2rem;
-  line-height: 1;
   z-index: 1;
 }
 
-.zenoPopup > * {
-  margin: 0;
-}
+.zenoPopup > * { margin: 0; }
 
-/* ── Tablet ── */
 @media (max-width: 1023px) {
-  .subjectsGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  .subjectsGrid { grid-template-columns: repeat(2, 1fr); }
 }
 
-/* ── Mobile ── */
 @media (max-width: 767px) {
-  .page {
-    padding: 56px 16px 40px;
-    gap: 24px;
-  }
-
-  .emailBanner {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .topRow {
-    grid-template-columns: 1fr;
-  }
-
-  .subjectsGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .bottomRow {
-    grid-template-columns: 1fr;
-  }
-
-  .zenoArea {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .zenoLauncher {
-    left: 16px;
-    bottom: 16px;
-  }
-
-  .zenoPopup {
-    left: 16px;
-    right: 16px;
-    bottom: 82px;
-    width: auto;
-  }
+  .page { padding: 56px 16px 36px; gap: 20px; }
+  .emailBanner { flex-direction: column; align-items: flex-start; }
+  .topRow,
+  .subjectsGrid,
+  .bottomRow { grid-template-columns: 1fr; }
+  .zenoArea { flex-direction: column; align-items: flex-start; }
+  .zenoLauncher { left: 16px; bottom: 16px; }
+  .zenoPopup { left: 16px; right: 16px; width: auto; bottom: 82px; }
 }

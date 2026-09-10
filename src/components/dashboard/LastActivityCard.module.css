@@ -1,38 +1,20 @@
 .card {
-  background: #ffffff;
-  border-radius: 20px;
-  padding: 24px 28px;
-  border: 1px solid #E5E7EB;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  background: var(--bg-elevated);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
 }
 
 .title {
-  font-family: var(--font-body);
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #6B7280;
-  margin-bottom: 14px;
+  color: var(--text-dim);
+  margin-bottom: 12px;
 }
 
-.activityRow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #4F46E5;
-  flex-shrink: 0;
-}
-
-.activityText {
-  font-family: var(--font-body);
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: #111827;
-}
+.activityRow { display: flex; align-items: center; gap: 10px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); }
+.activityText { font-size: 0.95rem; font-weight: 500; color: var(--text); }

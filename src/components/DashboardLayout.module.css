@@ -1,18 +1,16 @@
 .layout {
   display: flex;
   min-height: 100vh;
+  background: var(--bg);
 }
 
 .main {
   flex: 1;
   margin-left: 260px;
-  background: #F6F8FC;
   min-height: 100vh;
   overflow-x: hidden;
 }
 
 @media (max-width: 767px) {
-  .main {
-    margin-left: 0;
-  }
+  .main { margin-left: 0; }
 }

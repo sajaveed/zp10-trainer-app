@@ -1,93 +1,153 @@
 .nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  display: flex; align-items: center; justify-content: space-between;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 0 2rem;
-  height: 64px;
-  transition: background 0.2s, border-color 0.2s;
+  height: 72px;
   border-bottom: 1px solid transparent;
 }
 
 .scrolled {
-  background: rgba(255,255,255,0.92);
-  backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
   border-bottom-color: var(--border);
 }
 
 .logo {
-  display: flex; align-items: center; gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
+
 .logoImg {
-  width: 36px; height: 36px; object-fit: contain;
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
 }
+
 .logoText {
   font-family: var(--font-head);
-  font-size: 1.15rem; font-weight: 700;
-  color: var(--text); letter-spacing: -0.02em;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
 }
+
 .logoText span { color: var(--red); }
 
 .links {
-  display: flex; align-items: center; gap: 2rem; list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+  list-style: none;
 }
+
 .links a {
-  color: var(--text-muted); font-size: 0.875rem; font-weight: 500;
-  transition: color 0.15s;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
 }
+
 .links a:hover { color: var(--text); }
 
 .right {
-  display: flex; align-items: center; gap: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
 }
 
 .langToggle {
-  display: flex; align-items: center; gap: 2px;
-  background: var(--bg-card); border: 1px solid var(--border);
-  border-radius: 6px; padding: 3px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px;
 }
+
 .langToggle button {
-  background: none; border: none; padding: 3px 9px;
-  border-radius: 4px; color: var(--text-muted);
-  font-size: 0.72rem; font-weight: 700;
-  letter-spacing: 0.04em; transition: all 0.15s;
+  background: transparent;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
 }
+
 .langToggle button.active {
-  background: var(--red); color: #fff;
+  background: var(--bg-elevated);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
 }
 
 .btnNav {
-  background: var(--red); color: #fff; border: none;
-  padding: 0.5rem 1.1rem; border-radius: var(--radius-sm);
-  font-size: 0.875rem; font-weight: 500;
-  transition: background 0.15s, transform 0.1s;
+  background: var(--red);
+  color: #fff;
+  border: 1px solid var(--red);
+  padding: 0.52rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.87rem;
+  font-weight: 600;
 }
-.btnNav:hover { background: var(--red-light); transform: translateY(-1px); }
-.btnNav:active { transform: translateY(0); }
+
+.btnNav:hover {
+  background: var(--red-light);
+  border-color: var(--red-light);
+  transform: translateY(-1px);
+}
 
 .hamburger {
-  display: none; flex-direction: column; gap: 5px;
-  background: none; border: none; padding: 4px;
-}
-.hamburger span {
-  display: block; width: 22px; height: 2px;
-  background: var(--text); border-radius: 2px;
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: transparent;
+  border: none;
+  padding: 6px;
 }
 
-@media (max-width: 680px) {
+.hamburger span {
+  width: 20px;
+  height: 2px;
+  background: var(--text);
+  border-radius: 2px;
+}
+
+@media (max-width: 720px) {
   .links {
-    display: none; position: fixed;
-    top: 64px; left: 0; right: 0;
-    background: rgba(255,255,255,0.97);
-    backdrop-filter: blur(12px);
-    flex-direction: column; gap: 0;
+    display: none;
+    position: fixed;
+    top: 72px;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--border);
+    flex-direction: column;
+    gap: 0;
   }
+
   .links.open { display: flex; }
+
   .links li { width: 100%; }
+
   .links a {
-    display: block; padding: 1rem 2rem;
+    display: block;
+    width: 100%;
+    padding: 0.95rem 1.5rem;
     border-bottom: 1px solid var(--border);
-    font-size: 1rem;
   }
+
   .hamburger { display: flex; }
-  .nav { padding: 0 1.25rem; }
+
+  .nav { padding: 0 1rem; }
+
+  .langToggle { display: none; }
 }
