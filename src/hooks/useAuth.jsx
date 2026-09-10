@@ -26,12 +26,6 @@ export function AuthProvider({ children }) {
     return () => subscription.unsubscribe()
   }, [navigate])
 
-  const signInWithGoogle = () =>
-    supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } })
-
-  const signInWithApple = () =>
-    supabase.auth.signInWithOAuth({ provider: 'apple', options: { redirectTo: window.location.origin } })
-
   const signInWithEmail = (email, password) =>
     supabase.auth.signInWithPassword({ email, password })
 
@@ -65,8 +59,6 @@ export function AuthProvider({ children }) {
         user,
         loading,
         emailConfirmed,
-        signInWithGoogle,
-        signInWithApple,
         signInWithEmail,
         signUpWithEmail,
         resendConfirmationEmail,

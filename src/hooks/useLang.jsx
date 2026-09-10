@@ -74,9 +74,6 @@ export const translations = {
     auth: {
       signIn: 'Anmelden',
       signUp: 'Registrieren',
-      withGoogle: 'Mit Google fortfahren',
-      withApple: 'Mit Apple fortfahren',
-      orEmail: 'oder per E-Mail',
       email: 'E-Mail-Adresse',
       password: 'Passwort',
       firstName: 'Vorname',
@@ -202,9 +199,6 @@ export const translations = {
     auth: {
       signIn: 'Sign in',
       signUp: 'Sign up',
-      withGoogle: 'Continue with Google',
-      withApple: 'Continue with Apple',
-      orEmail: 'or with email',
       email: 'Email address',
       password: 'Password',
       firstName: 'First name',
