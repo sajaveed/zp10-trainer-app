@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { useLang } from '../hooks/useLang'
-import { subjectProgress } from '../data/dashboardData'
+import { examDates, lastActivity, overallProgress, subjectProgress } from '../data/dashboardData'
 import CountdownCard from '../components/dashboard/CountdownCard'
 import OverallProgressCard from '../components/dashboard/OverallProgressCard'
 import SubjectCard from '../components/dashboard/SubjectCard'
@@ -70,57 +70,95 @@ export default function Dashboard() {
       <div className={!emailConfirmed ? styles.locked : ''}>
         {/* ── Header ── */}
         <header className={styles.header}>
-          <div>
+          <div className={styles.headerMain}>
             <h1 className={styles.greeting}>
               {t.dashboard.greeting}{name ? ` ${name}` : ''} 👋
             </h1>
             <p className={styles.subtitle}>{t.dashboard.subtitle}</p>
           </div>
+          <div className={styles.headerMetrics} aria-label="Dashboard Übersicht">
+            <div className={styles.metricCard}>
+              <span className={styles.metricLabel}>{t.dashboard.overallProgress}</span>
+              <strong className={styles.metricValue}>{overallProgress}%</strong>
+            </div>
+            <div className={styles.metricCard}>
+              <span className={styles.metricLabel}>{t.dashboard.subjects}</span>
+              <strong className={styles.metricValue}>{subjectProgress.length}</strong>
+            </div>
+            <div className={styles.metricCard}>
+              <span className={styles.metricLabel}>{t.dashboard.examOverview}</span>
+              <strong className={styles.metricValue}>{examDates.length}</strong>
+            </div>
+            <div className={styles.metricCard}>
+              <span className={styles.metricLabel}>{t.dashboard.lastActivity}</span>
+              <strong className={styles.metricValue}>{lastActivity.subject}</strong>
+            </div>
+          </div>
         </header>
 
         {/* ── Top row: countdown + overall progress ── */}
-        <div className={styles.topRow}>
+        <section className={styles.sectionPanel} aria-label="Schnellübersicht">
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>{t.dashboard.quickOverviewTitle}</h2>
+            <p className={styles.sectionDescription}>{t.dashboard.quickOverviewDescription}</p>
+          </div>
+          <div className={styles.topRow}>
           <CountdownCard />
           <OverallProgressCard />
-        </div>
-
-        {/* ── Subject cards ── */}
-        <section>
-          <h2 className={styles.sectionTitle}>{t.dashboard.subjects}</h2>
-          <div className={styles.subjectsGrid}>
-            {subjectProgress.map(s => (
-              <SubjectCard
-                key={s.subject}
-                subject={s.subject}
-                progress={s.progress}
-                path={s.path}
-                icon={s.icon}
-              />
-            ))}
           </div>
         </section>
 
-        <section className={styles.zenoArea} id="zeno">
-          <div>
-            <h2 className={styles.sectionTitle}>{t.ki.label}</h2>
-            <p className={styles.zenoLead}>
-              Starte deinen ZP10-Chat mit Zeno, lade Aufgaben hoch und trainiere mit strukturiertem Feedback.
-            </p>
+        {/* ── Subject cards ── */}
+        <section className={styles.sectionPanel}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>{t.dashboard.subjects}</h2>
+            <p className={styles.sectionDescription}>{t.dashboard.subjectsDescription}</p>
           </div>
-          <button
-            type="button"
-            className={styles.zenoOpenBtn}
-            onClick={() => setZenoPopupOpen(true)}
-          >
-            Zeno Chat öffnen
-          </button>
+          <div className={styles.subjectsGrid}>
+            {subjectProgress.length > 0 ? (
+              subjectProgress.map(s => (
+                <SubjectCard
+                  key={s.subject}
+                  subject={s.subject}
+                  progress={s.progress}
+                  path={s.path}
+                  icon={s.icon}
+                />
+              ))
+            ) : (
+              <div className={styles.emptyState}>{t.dashboard.noActivity}</div>
+            )}
+          </div>
+        </section>
+
+        <section className={styles.sectionPanel} id="zeno">
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>{t.ki.label}</h2>
+            <p className={styles.sectionDescription}>{t.dashboard.zenoDescription}</p>
+          </div>
+          <div className={styles.zenoArea}>
+            <p className={styles.zenoLead}>{t.dashboard.zenoHighlights}</p>
+            <button
+              type="button"
+              className={styles.zenoOpenBtn}
+              onClick={() => setZenoPopupOpen(true)}
+            >
+              Zeno Chat öffnen
+            </button>
+          </div>
         </section>
 
         {/* ── Bottom row: exam overview + last activity ── */}
-        <div className={styles.bottomRow}>
-          <ExamOverviewCard />
-          <LastActivityCard />
-        </div>
+        <section className={styles.sectionPanel}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>{t.dashboard.detailsTitle}</h2>
+            <p className={styles.sectionDescription}>{t.dashboard.detailsDescription}</p>
+          </div>
+          <div className={styles.bottomRow}>
+            <ExamOverviewCard />
+            <LastActivityCard />
+          </div>
+        </section>
         <button
           type="button"
           className={styles.zenoLauncher}
