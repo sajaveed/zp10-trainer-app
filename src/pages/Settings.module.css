@@ -1,0 +1,125 @@
+.page {
+  max-width: 980px;
+  width: 100%;
+  padding: 40px 34px 74px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.header,
+.card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-sm);
+  padding: 22px;
+}
+
+.title {
+  font-family: var(--font-head);
+  font-size: clamp(1.55rem, 3vw, 1.9rem);
+  color: var(--text);
+}
+
+.sub {
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.cardTitle {
+  font-family: var(--font-head);
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.themeOptions {
+  margin-top: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.option {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+}
+
+.option input {
+  accent-color: var(--red);
+}
+
+.hint {
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-size: 0.86rem;
+}
+
+.goalRow {
+  margin-top: 12px;
+  display: flex;
+  gap: 10px;
+}
+
+.goalInput {
+  max-width: 160px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  color: var(--text);
+  padding: 0.55rem 0.65rem;
+}
+
+.saveBtn {
+  border: 1px solid var(--red-border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-subtle);
+  color: var(--red);
+  font-weight: 600;
+  padding: 0.55rem 0.82rem;
+}
+
+.saveBtn:hover:not(:disabled) {
+  background: var(--red-dim);
+}
+
+.success {
+  margin-top: 8px;
+  color: var(--success);
+  font-size: 0.86rem;
+}
+
+.error,
+.state {
+  color: var(--danger);
+  font-size: 0.88rem;
+}
+
+.lockState {
+  min-height: 45vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.lockIcon {
+  font-size: 2.4rem;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 767px) {
+  .page { padding: 58px 16px 36px; }
+  .header,
+  .card { padding: 16px; }
+  .goalRow { flex-direction: column; }
+  .goalInput { max-width: 100%; }
+}
