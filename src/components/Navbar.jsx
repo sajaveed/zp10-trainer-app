@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { useLang } from '../hooks/useLang'
 import { useAuth } from '../hooks/useAuth'
 import { useThemeSettings } from '../hooks/useThemeSettings'
@@ -9,6 +10,7 @@ export default function Navbar({ onAuthClick }) {
   const { lang, setLang, t } = useLang()
   const { user, signOut } = useAuth()
   const { resolvedTheme, setThemePreference } = useThemeSettings()
+  const { pathname } = useLocation()
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -20,10 +22,10 @@ export default function Navbar({ onAuthClick }) {
 
   return (
     <nav className={`${styles.nav} ${scrolled ? styles.scrolled : ''}`}>
-      <a href="#home" className={styles.logo}>
+      <Link to={pathname === '/' ? '/#home' : '/'} className={styles.logo}>
         <img src={logo} alt="ZP10 Trainer" className={styles.logoImg} />
         <span className={styles.logoText}>ZP10<span>Trainer</span></span>
-      </a>
+      </Link>
 
       <ul className={`${styles.links} ${menuOpen ? styles.open : ''}`}>
         <li><a href="#how" onClick={() => setMenuOpen(false)}>{t.nav.how}</a></li>

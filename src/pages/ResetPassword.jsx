@@ -67,6 +67,9 @@ export default function ResetPassword() {
 
   return (
     <main className={styles.page}>
+      {error && <p className={styles.error}>{t.settings.errorPrefix} {error}</p>}
+      {status && <p className={styles.success}>{status}</p>}
+
       <section className={styles.card}>
         <h1 className={styles.title}>{t.auth.forgotPassword}</h1>
         <p className={styles.sub}>{t.auth.forgotPasswordHint}</p>
@@ -107,9 +110,6 @@ export default function ResetPassword() {
           </form>
         </section>
       )}
-
-      {error && <p className={styles.error}>{t.settings.errorPrefix} {error}</p>}
-      {status && <p className={styles.success}>{status}</p>}
     </main>
   )
 }

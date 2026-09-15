@@ -73,7 +73,7 @@
   box-shadow: var(--shadow-sm);
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 20px;
+  gap: 24px;
 }
 
 .greeting {
@@ -114,14 +114,14 @@
   grid-column: 1 / -1;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
+  gap: 16px;
 }
 
 .metricCard {
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   background: var(--bg-card);
-  padding: 14px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -356,7 +356,7 @@
   .emailBanner { flex-direction: column; align-items: flex-start; }
   .header,
   .sectionPanel { padding: 16px; }
-  .headerMetrics { grid-template-columns: 1fr; }
+  .headerMetrics { grid-template-columns: 1fr; gap: 12px; }
   .chart { gap: 6px; }
   .barWrapper { height: 98px; }
   .sessionItem,
