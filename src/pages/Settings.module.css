@@ -65,15 +65,22 @@
   margin-top: 12px;
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .goalInput {
-  max-width: 160px;
+  max-width: 220px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--bg-card);
   color: var(--text);
   padding: 0.55rem 0.65rem;
+}
+
+.accountMeta {
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-size: 0.84rem;
 }
 
 .saveBtn {
@@ -102,18 +109,14 @@
 }
 
 .lockState {
-  min-height: 45vh;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  text-align: center;
+  gap: 10px;
 }
 
 .lockIcon {
-  font-size: 2.4rem;
+  font-size: 1.2rem;
   line-height: 1;
-  margin-bottom: 10px;
 }
 
 @media (max-width: 767px) {

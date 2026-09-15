@@ -6,6 +6,7 @@ import { supabase } from '../lib/supabase'
 const ThemeSettingsContext = createContext(null)
 
 const VALID_THEMES = new Set(['light', 'dark', 'system'])
+const GUEST_THEME_STORAGE_KEY = 'zp10_theme_guest_preference'
 const DEFAULT_SETTINGS = {
   theme: 'system',
   dashboardLayout: { weekly_minutes_goal: 180 },
@@ -15,6 +16,12 @@ const DEFAULT_SETTINGS = {
 function getSystemTheme() {
   if (typeof window === 'undefined') return 'light'
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+}
+
+function getGuestThemePreference() {
+  if (typeof window === 'undefined') return DEFAULT_SETTINGS.theme
+  const storedTheme = window.localStorage.getItem(GUEST_THEME_STORAGE_KEY)
+  return VALID_THEMES.has(storedTheme) ? storedTheme : DEFAULT_SETTINGS.theme
 }
 
 export function ThemeSettingsProvider({ children }) {
@@ -49,7 +56,7 @@ export function ThemeSettingsProvider({ children }) {
     async function loadSettings() {
       if (!user?.id) {
         if (!cancelled) {
-          setTheme(DEFAULT_SETTINGS.theme)
+          setTheme(getGuestThemePreference())
           setDashboardLayout(DEFAULT_SETTINGS.dashboardLayout)
           setZenoPrefs(DEFAULT_SETTINGS.zenoPrefs)
           setError('')
@@ -111,7 +118,12 @@ export function ThemeSettingsProvider({ children }) {
 
     setTheme(nextTheme)
 
-    if (!user?.id) return true
+    if (!user?.id) {
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(GUEST_THEME_STORAGE_KEY, nextTheme)
+      }
+      return true
+    }
 
     setSaving(true)
     setError('')

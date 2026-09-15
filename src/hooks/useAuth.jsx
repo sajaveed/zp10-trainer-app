@@ -50,6 +50,14 @@ export function AuthProvider({ children }) {
     return !error
   }
 
+  const requestPasswordReset = (email) =>
+    supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    })
+
+  const updatePassword = (password) =>
+    supabase.auth.updateUser({ password })
+
   const signOut = () => supabase.auth.signOut()
   const emailConfirmed = !!user?.email_confirmed_at
 
@@ -61,6 +69,8 @@ export function AuthProvider({ children }) {
         emailConfirmed,
         signInWithEmail,
         signUpWithEmail,
+        requestPasswordReset,
+        updatePassword,
         resendConfirmationEmail,
         signOut,
       }}

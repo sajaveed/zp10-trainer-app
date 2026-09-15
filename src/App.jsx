@@ -16,6 +16,7 @@ import Mathematik from './pages/Mathematik'
 import Fortschritt from './pages/Fortschritt'
 import Settings from './pages/Settings'
 import Confirm from './pages/Confirm'
+import ResetPassword from './pages/ResetPassword'
 
 const DASHBOARD_PATHS = ['/dashboard', '/zeno', '/deutsch', '/englisch', '/mathematik', '/fortschritt', '/settings']
 
@@ -38,6 +39,7 @@ function AppContent() {
           element={user ? <Navigate to="/dashboard" replace /> : <Landing onAuthClick={() => setModalOpen(true)} />}
         />
         <Route path="/confirm" element={<Confirm />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route element={user ? <DashboardLayout /> : <Navigate to="/" replace />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/zeno" element={<Zeno />} />

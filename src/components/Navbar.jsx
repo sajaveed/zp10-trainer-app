@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useLang } from '../hooks/useLang'
 import { useAuth } from '../hooks/useAuth'
+import { useThemeSettings } from '../hooks/useThemeSettings'
 import logo from '../assets/logo.png'
 import styles from './Navbar.module.css'
 
 export default function Navbar({ onAuthClick }) {
   const { lang, setLang, t } = useLang()
   const { user, signOut } = useAuth()
+  const { resolvedTheme, setThemePreference } = useThemeSettings()
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -35,6 +37,17 @@ export default function Navbar({ onAuthClick }) {
           <button className={lang === 'de' ? styles.active : ''} onClick={() => setLang('de')}>DE</button>
           <button className={lang === 'en' ? styles.active : ''} onClick={() => setLang('en')}>EN</button>
         </div>
+        {!user && (
+          <button
+            type="button"
+            className={styles.themeToggle}
+            onClick={() => setThemePreference(resolvedTheme === 'dark' ? 'light' : 'dark')}
+            aria-label={t.nav.themeToggle}
+            title={t.nav.themeToggle}
+          >
+            {resolvedTheme === 'dark' ? '🌙' : '☀️'}
+          </button>
+        )}
         {user ? (
           <button className={styles.btnNav} onClick={signOut}>{t.dashboard.signOut}</button>
         ) : (
