@@ -124,6 +124,30 @@
   font-size: 0.82rem;
 }
 
+.status {
+  margin-bottom: 0.8rem;
+  padding: 0.55rem 0.72rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(34, 197, 94, 0.28);
+  background: rgba(34, 197, 94, 0.08);
+  color: var(--success);
+  font-size: 0.82rem;
+}
+
+.inlineAction {
+  margin: 0 0 0.9rem;
+  background: transparent;
+  border: none;
+  color: var(--red);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0;
+}
+
+.inlineAction:hover:not(:disabled) {
+  color: var(--red-light);
+}
+
 .submit,
 .successBtn {
   width: 100%;

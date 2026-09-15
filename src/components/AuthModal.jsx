@@ -8,7 +8,7 @@ import styles from './AuthModal.module.css'
 
 export default function AuthModal({ isOpen, onClose }) {
   const { t } = useLang()
-  const { signInWithEmail, signUpWithEmail } = useAuth()
+  const { signInWithEmail, signUpWithEmail, requestPasswordReset } = useAuth()
   const navigate = useNavigate()
   const [tab, setTab] = useState('login')
   const [email, setEmail] = useState('')
@@ -16,11 +16,13 @@ export default function AuthModal({ isOpen, onClose }) {
   const [firstName, setFirstName] = useState('')
   const [schoolType, setSchoolType] = useState('')
   const [error, setError] = useState('')
+  const [status, setStatus] = useState('')
   const [loading, setLoading] = useState(false)
   const [signUpSuccess, setSignUpSuccess] = useState(false)
 
   const reset = useCallback(() => {
     setError('')
+    setStatus('')
     setLoading(false)
     setEmail('')
     setPassword('')
@@ -47,12 +49,35 @@ export default function AuthModal({ isOpen, onClose }) {
     setFirstName('')
     setSchoolType('')
     setError('')
+    setStatus('')
     setTab('login')
   }, [])
 
   if (!isOpen) return null
 
   const handleTab = (next) => { setTab(next); reset() }
+
+  const handleForgotPassword = async () => {
+    setError('')
+    setStatus('')
+
+    if (!email.trim()) {
+      setError(t.auth.resetEmailRequired)
+      return
+    }
+
+    setLoading(true)
+    try {
+      const { error: resetError } = await requestPasswordReset(email.trim())
+      if (resetError) {
+        setError(resetError.message)
+        return
+      }
+      setStatus(t.auth.resetMailSent)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault()
@@ -134,7 +159,13 @@ export default function AuthModal({ isOpen, onClose }) {
                 <label>{t.auth.password}</label>
                 <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required minLength={6} />
               </div>
+              {tab === 'login' && (
+                <button type="button" className={styles.inlineAction} onClick={handleForgotPassword} disabled={loading}>
+                  {t.auth.forgotPassword}
+                </button>
+              )}
               {error && <p className={styles.error}>{error}</p>}
+              {status && <p className={styles.status}>{status}</p>}
               <button type="submit" className={styles.submit} disabled={loading}>
                 {loading ? '...' : tab === 'login' ? t.auth.submitSignIn : t.auth.submitSignUp}
               </button>
