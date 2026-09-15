@@ -95,24 +95,6 @@ export default function Zeno() {
               <p className={styles.empty}>{t.zenoPage.noFocusData}</p>
             )}
           </section>
-
-          <section className={styles.card}>
-            <h2 className={styles.cardTitle}>{t.zenoPage.snapshotTitle}</h2>
-            <div className={styles.stats}>
-              <div>
-                <span>{t.zenoPage.weeklyLabel}</span>
-                <strong>{kpis.weeklyMinutes} {t.dashboard.minutesUnit}</strong>
-              </div>
-              <div>
-                <span>{t.zenoPage.streakLabel}</span>
-                <strong>{kpis.streak} {t.dashboard.daysUnitLong}</strong>
-              </div>
-              <div>
-                <span>{t.zenoPage.effortLabel}</span>
-                <strong>{kpis.avgEffort}</strong>
-              </div>
-            </div>
-          </section>
         </div>
       )}
     </div>

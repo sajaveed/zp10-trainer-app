@@ -247,6 +247,7 @@
 .faqIcon { width: 22px; height: 22px; border: 1px solid var(--border); border-radius: 50%; display: grid; place-items: center; color: var(--text-muted); }
 .faqOpen .faqIcon { border-color: var(--red); color: var(--red); }
 .faqA { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+.faqOpen .faqA { max-height: 220px; }
 .faqAInner { padding-bottom: 1rem; font-size: 0.87rem; line-height: 1.7; }
 
 .errorBanner {

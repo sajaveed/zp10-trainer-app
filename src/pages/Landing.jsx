@@ -39,7 +39,6 @@ function HeroDemo({ t }) {
 
 function FaqItem({ q, a }) {
   const [open, setOpen] = useState(false)
-  const answerRef = useRef(null)
 
   return (
     <div className={`${styles.faqItem} ${open ? styles.faqOpen : ''}`}>
@@ -47,11 +46,8 @@ function FaqItem({ q, a }) {
         <span>{q}</span>
         <div className={styles.faqIcon}>{open ? '−' : '+'}</div>
       </button>
-      <div
-        className={styles.faqA}
-        style={{ maxHeight: open ? answerRef.current?.scrollHeight + 'px' : '0' }}
-      >
-        <div className={styles.faqAInner} ref={answerRef}>{a}</div>
+      <div className={styles.faqA}>
+        <div className={styles.faqAInner}>{a}</div>
       </div>
     </div>
   )
