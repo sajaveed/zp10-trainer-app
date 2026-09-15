@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
@@ -9,8 +9,6 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
   const location = useLocation()
-  const locationRef = useRef(location)
-  locationRef.current = location
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -19,12 +17,12 @@ export function AuthProvider({ children }) {
     })
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null)
-      if (event === 'SIGNED_IN' && locationRef.current.pathname === '/') {
+      if (event === 'SIGNED_IN' && location.pathname === '/') {
         navigate('/dashboard')
       }
     })
     return () => subscription.unsubscribe()
-  }, [navigate])
+  }, [location.pathname, navigate])
 
   const signInWithEmail = (email, password) =>
     supabase.auth.signInWithPassword({ email, password })

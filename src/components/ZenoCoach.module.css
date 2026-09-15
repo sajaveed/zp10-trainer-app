@@ -98,15 +98,14 @@
 
 .headerBadge {
   flex: 0 0 auto;
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  padding: 4px 10px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  padding: 4px 9px;
   border-radius: 999px;
-  background: rgba(139, 92, 246, 0.18);
-  border: 1px solid rgba(139, 92, 246, 0.35);
-  color: #c4b5fd;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: rgba(232, 237, 245, 0.86);
 }
 
 /* ── Chat window ─────────────────────────────────────────────────────────── */
@@ -348,7 +347,7 @@
 .disclaimer {
   text-align: center;
   font-size: 0.7rem;
-  opacity: 0.38;
+  opacity: 0.5;
   padding: 8px 20px 14px;
   margin: 0;
 }

@@ -141,6 +141,7 @@ export default function Settings() {
             className={styles.goalInput}
             placeholder={t.settings.newPassword}
             minLength={8}
+            disabled={!emailConfirmed || passwordSaving}
           />
           <input
             type="password"
@@ -149,8 +150,9 @@ export default function Settings() {
             className={styles.goalInput}
             placeholder={t.settings.confirmPassword}
             minLength={8}
+            disabled={!emailConfirmed || passwordSaving}
           />
-          <button type="button" className={styles.saveBtn} onClick={savePassword} disabled={passwordSaving}>
+          <button type="button" className={styles.saveBtn} onClick={savePassword} disabled={!emailConfirmed || passwordSaving}>
             {passwordSaving ? '...' : t.settings.changePassword}
           </button>
         </div>

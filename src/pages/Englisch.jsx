@@ -17,8 +17,11 @@ export default function Englisch() {
 
   return (
     <div className={styles.page}>
-      <h1 className={styles.title}>🌍 Englisch</h1>
-      <p className={styles.sub}>Hier erscheinen bald deine Englisch-Aufgaben und Übungen.</p>
+      <section className={styles.placeholderCard}>
+        <span className={styles.badge}>{t.placeholders.inDevelopment}</span>
+        <h1 className={styles.title}>{t.placeholders.englishTitle}</h1>
+        <p className={styles.sub}>{t.placeholders.englishDescription}</p>
+      </section>
     </div>
   )
 }

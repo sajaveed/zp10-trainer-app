@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useLang } from '../hooks/useLang'
 import styles from './ZenoCoach.module.css'
 
 // ─── Mock data ────────────────────────────────────────────────────────────────
@@ -6,26 +7,28 @@ import styles from './ZenoCoach.module.css'
 // The shape { role: 'zeno'|'student', text: string, timestamp: Date } is
 // intentionally kept simple so a future useSendMessage() hook can produce the
 // same structure from a backend response.
-const INITIAL_MESSAGES = [
-  {
-    id: 1,
-    role: 'zeno',
-    text: 'Hi! Ich bin Zeno – dein persönlicher Lerncoach für die ZP10. Lade eine Aufgabe oder schreibe deine Antwort, und ich gebe dir strukturiertes Feedback zu These, Belegen, Sprache und Struktur.',
-    timestamp: new Date(Date.now() - 90_000),
-  },
-  {
-    id: 2,
-    role: 'student',
-    text: 'Kannst du meine Argumentation prüfen?',
-    timestamp: new Date(Date.now() - 60_000),
-  },
-  {
-    id: 3,
-    role: 'zeno',
-    text: 'Natürlich. Ich achte auf These, Belege, Gegenargumente, Struktur und Sprache – genau wie das ZP10-Bewertungsraster es vorsieht. Schreib einfach los oder lade dein Aufgabenblatt hoch.',
-    timestamp: new Date(Date.now() - 30_000),
-  },
-]
+function buildInitialMessages(t) {
+  return [
+    {
+      id: 1,
+      role: 'zeno',
+      text: t.zenoCoach.initialMessageA,
+      timestamp: new Date(Date.now() - 90_000),
+    },
+    {
+      id: 2,
+      role: 'student',
+      text: t.zenoCoach.initialMessageB,
+      timestamp: new Date(Date.now() - 60_000),
+    },
+    {
+      id: 3,
+      role: 'zeno',
+      text: t.zenoCoach.initialMessageC,
+      timestamp: new Date(Date.now() - 30_000),
+    },
+  ]
+}
 
 // ─── Helper: format HH:MM ─────────────────────────────────────────────────────
 function fmtTime(date) {
@@ -51,11 +54,11 @@ function MessageBubble({ message }) {
   )
 }
 
-function TypingIndicator() {
+function TypingIndicator({ t }) {
   return (
     <div className={`${styles.messageRow} ${styles.zenoRow}`}>
       <div className={styles.bubbleAvatar} aria-hidden="true">Z</div>
-      <div className={`${styles.bubble} ${styles.zenoBubble} ${styles.typingBubble}`} aria-label="Zeno analysiert…">
+      <div className={`${styles.bubble} ${styles.zenoBubble} ${styles.typingBubble}`} aria-label={t.zenoCoach.typingAria}>
         <span className={styles.typingDot} />
         <span className={styles.typingDot} />
         <span className={styles.typingDot} />
@@ -88,7 +91,8 @@ function AttachmentChip({ file, onRemove }) {
 // replace `messages`, `thinking`, and `handleSend` with API-backed equivalents.
 
 export default function ZenoCoach({ popup = false }) {
-  const [messages, setMessages] = useState(INITIAL_MESSAGES)
+  const { t } = useLang()
+  const [messages, setMessages] = useState(() => buildInitialMessages(t))
   const [inputValue, setInputValue] = useState('')
   const [thinking, setThinking] = useState(false)
   const [attachments, setAttachments] = useState([])
@@ -131,12 +135,12 @@ export default function ZenoCoach({ popup = false }) {
         {
           id: Date.now() + 1,
           role: 'zeno',
-          text: 'Danke! Sobald das KI-Modell aktiv ist, bekommst du hier dein ZP10-Feedback. Im Moment bin ich noch ein Mockup.',
+          text: t.zenoCoach.mockReply,
           timestamp: new Date(),
         },
       ])
     }, 1800)
-  }, [inputValue, attachments])
+  }, [attachments, inputValue, t])
 
   const handleKeyDown = useCallback((e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -167,30 +171,30 @@ export default function ZenoCoach({ popup = false }) {
       <div className={styles.header}>
         <div className={styles.avatarWrap} aria-hidden="true">
           <div className={styles.avatar}>Z</div>
-          <div className={styles.statusDot} title="Online" />
+          <div className={styles.statusDot} title={t.zenoCoach.statusOnline} />
         </div>
         <div className={styles.headerInfo}>
-          <p className={styles.kicker}>Dein Lerncoach · ZP10</p>
+          <p className={styles.kicker}>{t.zenoCoach.kicker}</p>
           <h2 className={styles.title}>Zeno</h2>
           <p className={styles.subtitle}>
-            Schreib eine Antwort oder lade dein Aufgabenblatt hoch – Zeno bewertet nach dem ZP10-Raster.
+            {t.zenoCoach.subtitle}
           </p>
         </div>
-        <div className={styles.headerBadge}>KI-Preview</div>
+        <div className={styles.headerBadge}>{t.zenoCoach.inDevelopment}</div>
       </div>
 
       {/* ── Chat messages ── */}
-      <div className={styles.chatWindow} ref={chatWindowRef} role="log" aria-live="polite" aria-label="Chat mit Zeno">
+      <div className={styles.chatWindow} ref={chatWindowRef} role="log" aria-live="polite" aria-label={t.zenoCoach.chatAria}>
         {messages.map(msg => (
           <MessageBubble key={msg.id} message={msg} />
         ))}
-        {thinking && <TypingIndicator />}
+        {thinking && <TypingIndicator t={t} />}
       </div>
 
       {/* ── Attachment preview ── */}
       {attachments.length > 0 && (
         <div className={styles.attachmentPreview}>
-          <span className={styles.attachmentLabel}>Anhänge:</span>
+          <span className={styles.attachmentLabel}>{t.zenoCoach.attachmentsLabel}</span>
           <div className={styles.chips}>
             {attachments.map(file => (
               <AttachmentChip key={file.name} file={file} onRemove={removeAttachment} />
@@ -209,38 +213,38 @@ export default function ZenoCoach({ popup = false }) {
           accept="image/*,.pdf,.doc,.docx,.txt"
           className={styles.hiddenFileInput}
           onChange={handleFileChange}
-          aria-label="Dateien oder Bilder anhängen"
+          aria-label={t.zenoCoach.attachmentsAria}
         />
         <button
           type="button"
           className={styles.uploadButton}
           onClick={() => fileInputRef.current?.click()}
-          title="Datei oder Bild anhängen"
-          aria-label="Datei oder Bild anhängen"
+          title={t.zenoCoach.attachmentsButton}
+          aria-label={t.zenoCoach.attachmentsButton}
         >
           📎
         </button>
         <textarea
           className={styles.textInput}
-          placeholder="Schreibe an Zeno… (Enter zum Senden)"
+          placeholder={t.zenoCoach.inputPlaceholder}
           value={inputValue}
           onChange={e => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
           rows={1}
-          aria-label="Nachricht an Zeno"
+          aria-label={t.zenoCoach.inputAria}
         />
         <button
           type="button"
           className={styles.sendButton}
           onClick={handleSend}
           disabled={!inputValue.trim() && attachments.length === 0}
-          aria-label="Nachricht senden"
+          aria-label={t.zenoCoach.sendAria}
         >
           ➤
         </button>
       </div>
       <p className={styles.disclaimer}>
-        Momentan Frontend-Mockup · KI-Anbindung folgt · Anhänge werden lokal nicht gespeichert
+        {t.zenoCoach.disclaimer}
       </p>
     </section>
   )
