@@ -8,7 +8,7 @@ const NAV_ITEMS = [
   { label: 'Deutsch', path: '/deutsch', icon: '📝' },
   { label: 'Englisch', path: '/englisch', icon: '🌍' },
   { label: 'Mathematik', path: '/mathematik', icon: '📐' },
-  { label: 'Zeno', path: '/dashboard#zeno', icon: '🤖' },
+  { label: 'Zeno', path: '/zeno', icon: '🤖' },
   { label: 'Fortschritt', path: '/fortschritt', icon: '📈' },
   { label: 'Einstellungen', path: '/settings', icon: '⚙️' },
 ]

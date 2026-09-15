@@ -1,28 +1,45 @@
 import { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useLang } from '../hooks/useLang'
-import { examDates, lastActivity, overallProgress, subjectProgress } from '../data/dashboardData'
-import CountdownCard from '../components/dashboard/CountdownCard'
-import OverallProgressCard from '../components/dashboard/OverallProgressCard'
-import SubjectCard from '../components/dashboard/SubjectCard'
-import ExamOverviewCard from '../components/dashboard/ExamOverviewCard'
-import LastActivityCard from '../components/dashboard/LastActivityCard'
-import ZenoCoach from '../components/ZenoCoach'
+import { useThemeSettings } from '../hooks/useThemeSettings'
+import { useWorkoutAnalytics } from '../hooks/useWorkoutAnalytics'
 import styles from './Dashboard.module.css'
+
+function formatSessionDate(sessionDate) {
+  if (!sessionDate) return '—'
+  return new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium' }).format(new Date(sessionDate))
+}
 
 export default function Dashboard() {
   const { user, emailConfirmed, resendConfirmationEmail } = useAuth()
   const { t } = useLang()
+  const { dashboardLayout, loading: settingsLoading } = useThemeSettings()
+  const weeklyGoal = Number(dashboardLayout?.weekly_minutes_goal) || 180
+  const {
+    kpis,
+    weeklySeries,
+    sourceBreakdown,
+    recentSessions,
+    hasData,
+    loading,
+    error,
+    reload,
+  } = useWorkoutAnalytics(user?.id, weeklyGoal)
+
   const [isResending, setIsResending] = useState(false)
   const [emailResent, setEmailResent] = useState(false)
   const [resendError, setResendError] = useState('')
-  const [zenoPopupOpen, setZenoPopupOpen] = useState(false)
   const resendResetTimeoutRef = useRef(null)
+  const maxDayMinutes = Math.max(...weeklySeries.map(day => day.minutes), 1)
+  const sourceLabels = {
+    manual: t.dashboard.sourceManual,
+    deutsch: t.dashboard.sourceGerman,
+    englisch: t.dashboard.sourceEnglish,
+    mathematik: t.dashboard.sourceMath,
+  }
 
-  const name =
-    user?.user_metadata?.first_name ||
-    user?.email?.split('@')[0] ||
-    null
+  const name = user?.user_metadata?.first_name || user?.email?.split('@')[0] || null
 
   const handleResendEmail = async () => {
     if (resendResetTimeoutRef.current) window.clearTimeout(resendResetTimeoutRef.current)
@@ -32,19 +49,19 @@ export default function Dashboard() {
     const success = await resendConfirmationEmail()
     setEmailResent(success)
     setResendError(success ? '' : t.dashboard.emailResendFailed)
+
     if (success) {
       resendResetTimeoutRef.current = window.setTimeout(() => {
         setEmailResent(false)
         resendResetTimeoutRef.current = null
       }, 5000)
     }
+
     setIsResending(false)
   }
 
-  useEffect(() => {
-    return () => {
-      if (resendResetTimeoutRef.current) window.clearTimeout(resendResetTimeoutRef.current)
-    }
+  useEffect(() => () => {
+    if (resendResetTimeoutRef.current) window.clearTimeout(resendResetTimeoutRef.current)
   }, [])
 
   return (
@@ -68,120 +85,124 @@ export default function Dashboard() {
       )}
 
       <div className={!emailConfirmed ? styles.locked : ''}>
-        {/* ── Header ── */}
         <header className={styles.header}>
           <div className={styles.headerMain}>
-            <h1 className={styles.greeting}>
-              {t.dashboard.greeting}{name ? ` ${name}` : ''} 👋
-            </h1>
+            <h1 className={styles.greeting}>{t.dashboard.greeting}{name ? ` ${name}` : ''} 👋</h1>
             <p className={styles.subtitle}>{t.dashboard.subtitle}</p>
           </div>
+          <div className={styles.headerActions}>
+            <Link className={styles.zenoLink} to="/zeno">{t.dashboard.gotoZenoInsights}</Link>
+          </div>
           <div className={styles.headerMetrics} aria-label="Dashboard Übersicht">
-            <div className={styles.metricCard}>
-              <span className={styles.metricLabel}>{t.dashboard.overallProgress}</span>
-              <strong className={styles.metricValue}>{overallProgress}%</strong>
-            </div>
-            <div className={styles.metricCard}>
-              <span className={styles.metricLabel}>{t.dashboard.subjects}</span>
-              <strong className={styles.metricValue}>{subjectProgress.length}</strong>
-            </div>
-            <div className={styles.metricCard}>
-              <span className={styles.metricLabel}>{t.dashboard.examOverview}</span>
-              <strong className={styles.metricValue}>{examDates.length}</strong>
-            </div>
-            <div className={styles.metricCard}>
-              <span className={styles.metricLabel}>{t.dashboard.lastActivity}</span>
-              <strong className={styles.metricValue}>{lastActivity.subject}</strong>
-            </div>
+            <article className={styles.metricCard}>
+              <span className={styles.metricLabel}>{t.dashboard.trainingThisWeek}</span>
+              <strong className={styles.metricValue}>{kpis.weeklyMinutes} {t.dashboard.minutesUnit}</strong>
+            </article>
+            <article className={styles.metricCard}>
+              <span className={styles.metricLabel}>{t.dashboard.currentStreak}</span>
+              <strong className={styles.metricValue}>{kpis.streak} {t.dashboard.daysUnitLong}</strong>
+            </article>
+            <article className={styles.metricCard}>
+              <span className={styles.metricLabel}>{t.dashboard.totalSessions}</span>
+              <strong className={styles.metricValue}>{kpis.totalSessions}</strong>
+            </article>
+            <article className={styles.metricCard}>
+              <span className={styles.metricLabel}>{t.dashboard.avgEffort}</span>
+              <strong className={styles.metricValue}>{kpis.avgEffort}</strong>
+            </article>
           </div>
         </header>
 
-        {/* ── Top row: countdown + overall progress ── */}
-        <section className={styles.sectionPanel} aria-label="Schnellübersicht">
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>{t.dashboard.quickOverviewTitle}</h2>
-            <p className={styles.sectionDescription}>{t.dashboard.quickOverviewDescription}</p>
-          </div>
-          <div className={styles.topRow}>
-          <CountdownCard />
-          <OverallProgressCard />
-          </div>
-        </section>
+        {(loading || settingsLoading) && (
+          <section className={styles.stateCard} aria-live="polite">{t.dashboard.loadingDashboard}</section>
+        )}
 
-        {/* ── Subject cards ── */}
-        <section className={styles.sectionPanel}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>{t.dashboard.subjects}</h2>
-            <p className={styles.sectionDescription}>{t.dashboard.subjectsDescription}</p>
-          </div>
-          <div className={styles.subjectsGrid}>
-            {subjectProgress.length > 0 ? (
-              subjectProgress.map(s => (
-                <SubjectCard
-                  key={s.subject}
-                  subject={s.subject}
-                  progress={s.progress}
-                  path={s.path}
-                  icon={s.icon}
-                />
-              ))
-            ) : (
-              <div className={styles.emptyState}>{t.dashboard.noActivity}</div>
-            )}
-          </div>
-        </section>
-
-        <section className={styles.sectionPanel} id="zeno">
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>{t.ki.label}</h2>
-            <p className={styles.sectionDescription}>{t.dashboard.zenoDescription}</p>
-          </div>
-          <div className={styles.zenoArea}>
-            <p className={styles.zenoLead}>{t.dashboard.zenoHighlights}</p>
-            <button
-              type="button"
-              className={styles.zenoOpenBtn}
-              onClick={() => setZenoPopupOpen(true)}
-            >
-              Zeno Chat öffnen
-            </button>
-          </div>
-        </section>
-
-        {/* ── Bottom row: exam overview + last activity ── */}
-        <section className={styles.sectionPanel}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>{t.dashboard.detailsTitle}</h2>
-            <p className={styles.sectionDescription}>{t.dashboard.detailsDescription}</p>
-          </div>
-          <div className={styles.bottomRow}>
-            <ExamOverviewCard />
-            <LastActivityCard />
-          </div>
-        </section>
-        <button
-          type="button"
-          className={styles.zenoLauncher}
-          onClick={() => setZenoPopupOpen(prev => !prev)}
-          aria-label="Zeno Chat öffnen"
-          aria-expanded={zenoPopupOpen}
-          aria-controls="zeno-popup"
-        >
-          Z
-        </button>
-
-        {zenoPopupOpen && (
-          <section className={styles.zenoPopup} id="zeno-popup" aria-label="Zeno Chat Popup">
-            <button
-              type="button"
-              className={styles.zenoClose}
-              onClick={() => setZenoPopupOpen(false)}
-              aria-label="Zeno Chat schließen"
-            >
-              ×
-            </button>
-            <ZenoCoach popup />
+        {error && (
+          <section className={styles.stateCard} role="alert">
+            <p>{t.dashboard.loadingErrorPrefix} {error}</p>
+            <button type="button" className={styles.retryBtn} onClick={reload}>{t.dashboard.retry}</button>
           </section>
+        )}
+
+        {!loading && !error && (
+          <>
+            <section className={styles.sectionPanel} aria-labelledby="weekly-activity-title">
+              <div className={styles.sectionHeader}>
+                <h2 className={styles.sectionTitle} id="weekly-activity-title">{t.dashboard.weeklyActivityTitle}</h2>
+                <p className={styles.sectionDescription}>{t.dashboard.weeklyActivityDescription}</p>
+              </div>
+              <div className={styles.weeklyGoalRow}>
+                <span className={styles.goalText}>{kpis.weeklyMinutes} / {kpis.weeklyGoal} {t.dashboard.weeklyGoalLabel}</span>
+                <span className={styles.goalPercent}>{kpis.weeklyProgress}%</span>
+              </div>
+              <div className={styles.goalBar} role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={kpis.weeklyProgress}>
+                <span className={styles.goalFill} style={{ width: `${kpis.weeklyProgress}%` }} />
+              </div>
+              <div className={styles.chart} role="img" aria-label="Training in Minuten pro Tag">
+                {weeklySeries.map(day => (
+                  <div className={styles.barColumn} key={day.dateKey}>
+                    <div className={styles.barWrapper}>
+                      <span
+                        className={`${styles.bar} ${day.isToday ? styles.barToday : ''}`}
+                        style={{ height: `${day.minutes === 0 ? 0 : Math.max(10, Math.round((day.minutes / maxDayMinutes) * 100))}%` }}
+                        title={`${day.label}: ${day.minutes} Minuten`}
+                      />
+                    </div>
+                    <span className={styles.barValue}>{day.minutes}</span>
+                    <span className={styles.barLabel}>{day.label}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section className={styles.contentGrid}>
+              <article className={styles.sectionPanel}>
+                <div className={styles.sectionHeader}>
+                  <h2 className={styles.sectionTitle}>{t.dashboard.recentWorkoutsTitle}</h2>
+                  <p className={styles.sectionDescription}>{t.dashboard.recentWorkoutsDescription}</p>
+                </div>
+                {hasData ? (
+                  <ul className={styles.sessionList}>
+                    {recentSessions.map(session => (
+                      <li key={session.id} className={styles.sessionItem}>
+                        <div>
+                          <p className={styles.sessionDate}>{formatSessionDate(session.session_date)}</p>
+                          <p className={styles.sessionMeta}>{sourceLabels[session.source] || session.source || t.dashboard.sourceTraining}</p>
+                        </div>
+                        <div className={styles.sessionStats}>
+                          <span>{session.duration_min} {t.dashboard.minutesUnit}</span>
+                          <span>{session.calories_burned ? `${session.calories_burned} ${t.dashboard.kcalUnit}` : `— ${t.dashboard.kcalUnit}`}</span>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className={styles.emptyState}>
+                    {t.dashboard.noWorkoutData}
+                  </div>
+                )}
+              </article>
+
+              <article className={styles.sectionPanel}>
+                <div className={styles.sectionHeader}>
+                  <h2 className={styles.sectionTitle}>{t.dashboard.focusTitle}</h2>
+                  <p className={styles.sectionDescription}>{t.dashboard.focusDescription}</p>
+                </div>
+                {sourceBreakdown.length > 0 ? (
+                  <ul className={styles.focusList}>
+                    {sourceBreakdown.map(item => (
+                      <li key={item.source} className={styles.focusItem}>
+                        <span>{sourceLabels[item.source] || item.source}</span>
+                        <strong>{item.minutes} {t.dashboard.minutesUnit}</strong>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className={styles.emptyState}>{t.dashboard.noFocusData}</div>
+                )}
+              </article>
+            </section>
+          </>
         )}
       </div>
     </div>
