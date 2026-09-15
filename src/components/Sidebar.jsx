@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { NavLink } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import styles from './Sidebar.module.css'
 
@@ -41,10 +41,10 @@ export default function Sidebar() {
       )}
 
       <aside className={`${styles.sidebar} ${mobileOpen ? styles.open : ''}`}>
-        <div className={styles.logoArea}>
+        <Link to="/dashboard" className={styles.logoArea} onClick={closeMobile}>
           <span className={styles.logoIcon}>🎓</span>
           <span className={styles.logoText}>ZP10 Trainer</span>
-        </div>
+        </Link>
 
         <nav className={styles.nav} aria-label="Hauptnavigation">
           {NAV_ITEMS.map(item => (

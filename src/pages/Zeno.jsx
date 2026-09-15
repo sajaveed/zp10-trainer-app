@@ -3,6 +3,7 @@ import { useAuth } from '../hooks/useAuth'
 import { useLang } from '../hooks/useLang'
 import { useThemeSettings } from '../hooks/useThemeSettings'
 import { useWorkoutAnalytics } from '../hooks/useWorkoutAnalytics'
+import ZenoCoach from '../components/ZenoCoach'
 import styles from './Zeno.module.css'
 
 function buildRecommendations(kpis, hasData, t) {
@@ -54,6 +55,10 @@ export default function Zeno() {
         <h1 className={styles.title}>{t.zenoPage.title}</h1>
         <p className={styles.subtitle}>{t.zenoPage.subtitle}</p>
       </header>
+
+      <section className={styles.chatPanel}>
+        <ZenoCoach />
+      </section>
 
       {loading && <section className={styles.stateCard}>{t.zenoPage.loading}</section>}
 
