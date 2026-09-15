@@ -9,16 +9,20 @@ export default function ExamOverviewCard() {
   return (
     <div className={styles.card}>
       <h3 className={styles.title}>{t.dashboard.examOverview}</h3>
-      <ul className={styles.list}>
-        {examDates.map(exam => (
-          <li key={exam.subject} className={styles.item}>
-            <span className={styles.subject}>{exam.subject}</span>
-            <span className={styles.dateTime}>
-              {formatGermanDate(exam.date)} · {formatGermanTime(exam.date)}
-            </span>
-          </li>
-        ))}
-      </ul>
+      {examDates.length > 0 ? (
+        <ul className={styles.list}>
+          {examDates.map(exam => (
+            <li key={exam.subject} className={styles.item}>
+              <span className={styles.subject}>{exam.subject}</span>
+              <span className={styles.dateTime}>
+                {formatGermanDate(exam.date)} · {formatGermanTime(exam.date)}
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className={styles.empty}>{t.dashboard.examsCompleted}</p>
+      )}
     </div>
   )
 }
