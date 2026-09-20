@@ -43,11 +43,7 @@ export default function Sidebar({ isCollapsed, onToggleCollapse }) {
       )}
 
       <aside className={`${styles.sidebar} ${mobileOpen ? styles.open : ''} ${isCollapsed ? styles.collapsed : ''}`}>
-        <div className={styles.topRow}>
-          <Link to="/dashboard" className={styles.logoArea} onClick={closeMobile}>
-            <span className={styles.logoIcon}>🎓</span>
-            <span className={styles.logoText}>ZP10 Trainer</span>
-          </Link>
+        <div className={styles.collapseRow}>
           <button
             type="button"
             className={styles.collapseBtn}
@@ -58,6 +54,13 @@ export default function Sidebar({ isCollapsed, onToggleCollapse }) {
           >
             {isCollapsed ? '›' : '‹'}
           </button>
+        </div>
+
+        <div className={styles.topRow}>
+          <Link to="/dashboard" className={styles.logoArea} onClick={closeMobile}>
+            <span className={styles.logoIcon}>🎓</span>
+            <span className={styles.logoText}>ZP10 Trainer</span>
+          </Link>
         </div>
 
         <nav className={styles.nav} aria-label="Hauptnavigation">

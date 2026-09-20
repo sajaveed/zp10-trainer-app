@@ -58,43 +58,6 @@
   white-space: nowrap;
 }
 
-.locked {
-  opacity: 0.45;
-  pointer-events: none;
-  filter: blur(1.5px);
-  user-select: none;
-}
-
-.header,
-.placeholderCard {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 24px;
-  background: var(--bg-elevated);
-  box-shadow: var(--shadow-sm);
-}
-
-.greeting {
-  font-family: var(--font-head);
-  font-size: clamp(1.72rem, 3.4vw, 2.3rem);
-  line-height: 1.2;
-  color: var(--text);
-  letter-spacing: -0.01em;
-}
-
-.subtitle {
-  color: var(--text-muted);
-  margin-top: 8px;
-  font-size: 0.95rem;
-  line-height: 1.55;
-}
-
-.placeholderCard {
-  color: var(--text-muted);
-  font-size: 0.95rem;
-  line-height: 1.6;
-}
-
 @media (max-width: 1279px) {
   .page { padding: 30px 24px 62px; }
 }
@@ -102,6 +65,4 @@
 @media (max-width: 767px) {
   .page { padding: 58px 16px 36px; gap: 16px; }
   .emailBanner { flex-direction: column; align-items: flex-start; }
-  .header,
-  .placeholderCard { padding: 16px; }
 }

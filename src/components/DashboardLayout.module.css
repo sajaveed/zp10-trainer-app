@@ -15,7 +15,7 @@
   margin-left: var(--sidebar-width);
   min-height: 100vh;
   overflow-x: hidden;
-  transition: margin-left 0.24s ease;
+  transition: margin-left 0.28s ease;
 }
 
 @media (max-width: 767px) {
