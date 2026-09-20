@@ -4,15 +4,13 @@ import { useLang } from '../hooks/useLang'
 import styles from './Dashboard.module.css'
 
 export default function Dashboard() {
-  const { user, emailConfirmed, resendConfirmationEmail } = useAuth()
+  const { emailConfirmed, resendConfirmationEmail } = useAuth()
   const { t } = useLang()
 
   const [isResending, setIsResending] = useState(false)
   const [emailResent, setEmailResent] = useState(false)
   const [resendError, setResendError] = useState('')
   const resendResetTimeoutRef = useRef(null)
-
-  const name = user?.user_metadata?.first_name || user?.email?.split('@')[0] || null
 
   const handleResendEmail = async () => {
     if (resendResetTimeoutRef.current) window.clearTimeout(resendResetTimeoutRef.current)
@@ -56,17 +54,6 @@ export default function Dashboard() {
           )}
         </div>
       )}
-
-      <div className={!emailConfirmed ? styles.locked : ''}>
-        <header className={styles.header}>
-          <h1 className={styles.greeting}>{t.dashboard.greeting}{name ? ` ${name}` : ''} 👋</h1>
-          <p className={styles.subtitle}>{t.dashboard.subtitle}</p>
-        </header>
-
-        <section className={styles.placeholderCard}>
-          <p>{t.dashboard.dashboardRedesignHint}</p>
-        </section>
-      </div>
     </div>
   )
 }
