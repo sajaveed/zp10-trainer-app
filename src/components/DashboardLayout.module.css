@@ -2,15 +2,25 @@
   display: flex;
   min-height: 100vh;
   background: var(--bg);
+  --sidebar-width: 260px;
+  --sidebar-collapsed-width: 84px;
+}
+
+.sidebarCollapsed {
+  --sidebar-width: var(--sidebar-collapsed-width);
 }
 
 .main {
   flex: 1;
-  margin-left: 260px;
+  margin-left: var(--sidebar-width);
   min-height: 100vh;
   overflow-x: hidden;
+  transition: margin-left 0.24s ease;
 }
 
 @media (max-width: 767px) {
-  .main { margin-left: 0; }
+  .main {
+    margin-left: 0;
+    transition: none;
+  }
 }

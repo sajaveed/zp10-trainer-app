@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
+import { useLang } from '../hooks/useLang'
 import styles from './Sidebar.module.css'
 
 const NAV_ITEMS = [
@@ -13,8 +14,9 @@ const NAV_ITEMS = [
   { label: 'Einstellungen', path: '/settings', icon: '⚙️' },
 ]
 
-export default function Sidebar() {
+export default function Sidebar({ isCollapsed, onToggleCollapse }) {
   const { user, signOut } = useAuth()
+  const { t } = useLang()
   const [mobileOpen, setMobileOpen] = useState(false)
 
   const name =
@@ -40,11 +42,23 @@ export default function Sidebar() {
         <div className={styles.overlay} onClick={closeMobile} aria-hidden="true" />
       )}
 
-      <aside className={`${styles.sidebar} ${mobileOpen ? styles.open : ''}`}>
-        <Link to="/dashboard" className={styles.logoArea} onClick={closeMobile}>
-          <span className={styles.logoIcon}>🎓</span>
-          <span className={styles.logoText}>ZP10 Trainer</span>
-        </Link>
+      <aside className={`${styles.sidebar} ${mobileOpen ? styles.open : ''} ${isCollapsed ? styles.collapsed : ''}`}>
+        <div className={styles.topRow}>
+          <Link to="/dashboard" className={styles.logoArea} onClick={closeMobile}>
+            <span className={styles.logoIcon}>🎓</span>
+            <span className={styles.logoText}>ZP10 Trainer</span>
+          </Link>
+          <button
+            type="button"
+            className={styles.collapseBtn}
+            onClick={onToggleCollapse}
+            aria-expanded={!isCollapsed}
+            aria-label={isCollapsed ? t.dashboard.sidebarExpand : t.dashboard.sidebarCollapse}
+            title={isCollapsed ? t.dashboard.sidebarExpand : t.dashboard.sidebarCollapse}
+          >
+            {isCollapsed ? '›' : '‹'}
+          </button>
+        </div>
 
         <nav className={styles.nav} aria-label="Hauptnavigation">
           {NAV_ITEMS.map(item => (
@@ -55,6 +69,7 @@ export default function Sidebar() {
                 `${styles.navItem} ${isActive ? styles.active : ''}`
               }
               onClick={closeMobile}
+              title={isCollapsed ? item.label : undefined}
             >
               <span className={styles.navIcon}>{item.icon}</span>
               <span className={styles.navLabel}>{item.label}</span>
@@ -71,8 +86,8 @@ export default function Sidebar() {
           <button
             className={styles.signOutBtn}
             onClick={signOut}
-            title="Abmelden"
-            aria-label="Abmelden"
+            title={t.dashboard.signOut}
+            aria-label={t.dashboard.signOut}
           >
             🚪
           </button>
