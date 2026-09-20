@@ -190,6 +190,9 @@ export const translations = {
       dismissBanner: 'Später',
       loggingDurationInvalid: 'Bitte gib eine gültige Lernzeit zwischen 1 und 600 Minuten ein.',
       loggingSaveError: 'Die Lernsession konnte nicht gespeichert werden. Bitte versuche es erneut.',
+      sidebarCollapse: 'Sidebar einklappen',
+      sidebarExpand: 'Sidebar ausklappen',
+      dashboardRedesignHint: 'Das Dashboard wird gerade neu gestaltet. Schau bald wieder vorbei.',
     },
     settings: {
       title: '⚙️ Einstellungen',
@@ -451,6 +454,9 @@ export const translations = {
       dismissBanner: 'Later',
       loggingDurationInvalid: 'Please enter a valid learning time between 1 and 600 minutes.',
       loggingSaveError: 'The learning session could not be saved. Please try again.',
+      sidebarCollapse: 'Collapse sidebar',
+      sidebarExpand: 'Expand sidebar',
+      dashboardRedesignHint: 'The dashboard is being redesigned. Please check back soon.',
     },
     settings: {
       title: '⚙️ Settings',
