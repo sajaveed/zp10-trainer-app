@@ -5,7 +5,6 @@ import ExamOverview from '../components/deutsch/ExamOverview'
 import ExamTips from '../components/deutsch/ExamTips'
 import ExerciseAccordion from '../components/deutsch/ExerciseAccordion'
 import SimulationTeaser from '../components/deutsch/SimulationTeaser'
-import MaterialsDiagnostics from '../components/deutsch/MaterialsDiagnostics'
 import InfoBox from '../components/InfoBox'
 import { DEUTSCH_CATEGORIES } from '../data/deutschExercises'
 import styles from './Deutsch.module.css'
@@ -13,12 +12,21 @@ import styles from './Deutsch.module.css'
 const MATERIAL_ERROR_HINTS = {
   AUTH_NOT_CONFIGURED: 'Serverseitige Supabase-Einstellungen fehlen (SUPABASE_URL / SUPABASE_ANON_KEY).',
   AUTH_INVALID: 'Anmeldung konnte serverseitig nicht geprüft werden – SUPABASE_URL stimmt evtl. nicht mit dem Frontend-Projekt überein.',
-  AUTH_ISSUER_MISMATCH: 'Backend und Anmeldetoken verwenden unterschiedliche Supabase-Projekte – Diagnose anzeigen und Konfiguration abgleichen.',
+  AUTH_ISSUER_MISMATCH: 'Supabase-Projekt und X-Supabase-Authorization prüfen.',
+  AUTH_APIKEY_INVALID: 'Serverseitigen Supabase-Key prüfen.',
+  AUTH_TOKEN_INVALID: 'Bitte erneut anmelden.',
   AUTH_UPSTREAM_UNREACHABLE: 'Der Anmeldedienst ist nicht erreichbar – Supabase-URL und Netzwerkverbindung prüfen.',
   STORAGE_AUTH_FAILED: 'Azure-Zugangsdaten fehlen oder sind ungültig (AZURE_TENANT_ID/CLIENT_ID/CLIENT_SECRET oder Connection String).',
   STORAGE_FORBIDDEN: 'Keine Berechtigung auf den Container – Rolle „Storage Blob Data Reader" prüfen.',
   CONTAINER_NOT_FOUND: 'Container nicht gefunden – AZURE_STORAGE_CONTAINER_NAME prüfen.',
   STORAGE_NETWORK_BLOCKED: 'Azure Storage ist nicht erreichbar – DNS und Netzwerkregeln prüfen.',
+}
+
+const IGNORED_FILE_REASONS = {
+  'not-pdf': 'Keine PDF-Datei',
+  'unknown-folder': 'Unbekannter Ordner',
+  'wrong-subject': 'Anderes Fach',
+  'empty-title': 'Kein Aufgabentitel erkannt',
 }
 
 export default function Deutsch() {
@@ -59,13 +67,24 @@ export default function Deutsch() {
         {materials.status === 'loading' && <p className={styles.materialStatus} role="status">Aufgaben werden geladen …</p>}
         {materials.status === 'error' && (
           <div className={styles.materialError} role="status">
-            Aufgaben konnten nicht geladen werden. Angezeigt werden zunächst die gespeicherten Übungen.
-            {materials.error?.message && <small className={styles.materialDetail}>{materials.error.message}</small>}
-            {errorHint && <small className={styles.materialDetail}>{errorHint}</small>}
+            Aufgaben konnten nicht geladen werden.
+            <small className={styles.materialDetail}>
+              {materials.error?.status && `${materials.error.status}${materials.error.code ? ` ${materials.error.code}` : ''} · `}
+              {errorHint || 'Bitte versuche es erneut.'}
+            </small>
             <button className={styles.retryButton} type="button" onClick={materials.refetch}>Erneut versuchen</button>
           </div>
         )}
-        {materials.status === 'error' && <MaterialsDiagnostics materials={materials} />}
+        {materials.ignored.length > 0 && (
+          <details className={styles.materialStatus}>
+            <summary>Hinweis: {materials.ignored.length} Datei(en) in Azure wurden nicht erkannt</summary>
+            <ul>
+              {materials.ignored.map(({ path, reason }) => (
+                <li key={path}>{path} – {IGNORED_FILE_REASONS[reason] || 'Nicht erkannt'}</li>
+              ))}
+            </ul>
+          </details>
+        )}
         <div className={styles.accordions}>
           {DEUTSCH_CATEGORIES.map(category => (
             <ExerciseAccordion
