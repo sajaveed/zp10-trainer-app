@@ -1,3 +1,19 @@
+export function authErrorBody(details) {
+  const text = (typeof details === 'string' ? details : JSON.stringify(details)).toLowerCase()
+  let code = 'AUTH_INVALID'
+  if (/invalid[_ ]api[_ ]key|api[_ -]?key|apikey/.test(text)) {
+    code = 'AUTH_APIKEY_INVALID'
+  } else if (/invalid jwt|jwt.*invalid|bad_jwt|session_not_found|token.*expired|jwt.*expired/.test(text)) {
+    code = 'AUTH_TOKEN_INVALID'
+  }
+  const hints = {
+    AUTH_APIKEY_INVALID: 'SUPABASE_ANON_KEY ist falsch. Prüfe den Anon-Key des Supabase-Projekts.',
+    AUTH_TOKEN_INVALID: 'Das Zugriffstoken ist ungültig oder abgelaufen. Bitte erneut anmelden.',
+    AUTH_INVALID: 'Anmeldung fehlgeschlagen. Prüfe Supabase-Konfiguration und Zugriffstoken.',
+  }
+  return { error: 'Invalid authentication token.', code, hint: hints[code] }
+}
+
 export function storageErrorCode(error) {
   const codes = [error?.code, error?.details?.errorCode]
   if (['CredentialUnavailableError', 'AuthenticationError', 'AggregateAuthenticationError'].includes(error?.name)) {
