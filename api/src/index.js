@@ -5,6 +5,7 @@ import { Readable } from 'node:stream'
 import { parseBlobs } from './materials/parseBlobs.js'
 import { authErrorBody, storageErrorBody } from './materials/errorCodes.js'
 import { decodeJwtIssuer, issuerMatchesSupabaseUrl, getUrlHost } from './materials/tokenIssuer.js'
+import { getSupabaseDiagnostics, hasDiagnosticToken } from './materials/supabaseDiagnostics.js'
 
 const SUPPORTED_SUBJECTS = new Set(['deutsch', 'englisch', 'mathematik'])
 const ALLOWED_FOLDERS = new Set(['leseverstehen', '4a-aufgaben', '4b-aufgaben', '2-aufgaben'])
@@ -183,6 +184,9 @@ app.http('materialsHealth', {
   authLevel: 'anonymous',
   route: 'materials/health',
   handler: async (request, context) => {
+    const token = request.headers.get('authorization')?.match(/^Bearer\s+(\S+)$/i)?.[1]
+    if (!hasDiagnosticToken(token)) return jsonResponse(401, { error: 'Authentication required.' })
+    const diagnostics = getSupabaseDiagnostics(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, token)
     const { error } = await getConfirmedUser(request, context)
     let storage = { ok: false, code: 'AUTH_REQUIRED', message: 'Storage check requires a confirmed user.' }
     if (!error) {
@@ -201,7 +205,8 @@ app.http('materialsHealth', {
       supabaseUrlSet: Boolean(process.env.SUPABASE_URL),
       supabaseAnonKeySet: Boolean(process.env.SUPABASE_ANON_KEY),
       supabaseUrlHost: getUrlHost(process.env.SUPABASE_URL),
-      auth: { ok: !error, code: error?.jsonBody.code ?? null, hint: error?.jsonBody.hint ?? null },
+      ...diagnostics,
+      auth: { ok: !error, status: error?.status ?? 200, code: error?.jsonBody.code ?? null, hint: error?.jsonBody.hint ?? null },
       storageAccountName: Boolean(process.env.AZURE_STORAGE_ACCOUNT_NAME),
       containerName: Boolean(process.env.AZURE_STORAGE_CONTAINER_NAME),
       authMode: process.env.AZURE_STORAGE_CONNECTION_STRING
@@ -209,7 +214,7 @@ app.http('materialsHealth', {
         : process.env.AZURE_CLIENT_ID && process.env.AZURE_TENANT_ID && process.env.AZURE_CLIENT_SECRET
           ? 'servicePrincipal'
           : 'defaultCredential-no-sp-vars',
-      storage,
+      ...(!error ? { storage } : {}),
       nodeVersion: process.version,
     })
   },

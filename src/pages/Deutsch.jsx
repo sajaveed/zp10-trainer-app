@@ -5,6 +5,7 @@ import ExamOverview from '../components/deutsch/ExamOverview'
 import ExamTips from '../components/deutsch/ExamTips'
 import ExerciseAccordion from '../components/deutsch/ExerciseAccordion'
 import SimulationTeaser from '../components/deutsch/SimulationTeaser'
+import MaterialsDiagnostics from '../components/deutsch/MaterialsDiagnostics'
 import InfoBox from '../components/InfoBox'
 import { DEUTSCH_CATEGORIES } from '../data/deutschExercises'
 import styles from './Deutsch.module.css'
@@ -12,6 +13,7 @@ import styles from './Deutsch.module.css'
 const MATERIAL_ERROR_HINTS = {
   AUTH_NOT_CONFIGURED: 'Serverseitige Supabase-Einstellungen fehlen (SUPABASE_URL / SUPABASE_ANON_KEY).',
   AUTH_INVALID: 'Anmeldung konnte serverseitig nicht geprüft werden – SUPABASE_URL stimmt evtl. nicht mit dem Frontend-Projekt überein.',
+  AUTH_ISSUER_MISMATCH: 'Backend und Anmeldetoken verwenden unterschiedliche Supabase-Projekte – Diagnose anzeigen und Konfiguration abgleichen.',
   AUTH_UPSTREAM_UNREACHABLE: 'Der Anmeldedienst ist nicht erreichbar – Supabase-URL und Netzwerkverbindung prüfen.',
   STORAGE_AUTH_FAILED: 'Azure-Zugangsdaten fehlen oder sind ungültig (AZURE_TENANT_ID/CLIENT_ID/CLIENT_SECRET oder Connection String).',
   STORAGE_FORBIDDEN: 'Keine Berechtigung auf den Container – Rolle „Storage Blob Data Reader" prüfen.',
@@ -63,6 +65,7 @@ export default function Deutsch() {
             <button className={styles.retryButton} type="button" onClick={materials.refetch}>Erneut versuchen</button>
           </div>
         )}
+        {materials.status === 'error' && <MaterialsDiagnostics materials={materials} />}
         <div className={styles.accordions}>
           {DEUTSCH_CATEGORIES.map(category => (
             <ExerciseAccordion

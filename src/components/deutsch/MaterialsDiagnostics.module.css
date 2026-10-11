@@ -1,0 +1,61 @@
+.panel {
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 2px dashed #b7791f;
+  border-radius: 0.75rem;
+  overflow-wrap: anywhere;
+}
+
+.panel summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.temporary {
+  font-weight: 600;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.panel table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.panel caption {
+  text-align: left;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.panel th,
+.panel td {
+  padding: 0.65rem;
+  border-bottom: 1px solid #b7791f;
+  vertical-align: top;
+}
+
+.warning {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.recommendation {
+  border-left: 3px solid #b7791f;
+  padding-left: 1rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.actions button {
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+}
