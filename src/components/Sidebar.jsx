@@ -3,6 +3,7 @@ import { Link, NavLink } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useLang } from '../hooks/useLang'
 import styles from './Sidebar.module.css'
+import { getUserName } from '../utils/userName'
 
 const NAV_ITEMS = [
   { label: 'Dashboard', path: '/dashboard', icon: '🏠' },
@@ -19,10 +20,7 @@ export default function Sidebar({ isCollapsed, onToggleCollapse }) {
   const { t } = useLang()
   const [mobileOpen, setMobileOpen] = useState(false)
 
-  const name =
-    user?.user_metadata?.first_name ||
-    user?.email?.split('@')[0] ||
-    'Nutzer'
+  const name = getUserName(user)
   const schoolType = user?.user_metadata?.school_type || 'Klasse 10'
   const initials = name.slice(0, 2).toUpperCase()
 

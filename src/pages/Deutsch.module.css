@@ -9,6 +9,25 @@
 }
 
 .header { padding: 4px 2px; }
+.intro { max-width: 700px; margin-top: 9px; color: var(--text-muted); font-size: 0.94rem; line-height: 1.65; }
+.startButton {
+  min-height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border: 1px solid var(--red);
+  border-radius: var(--radius-md);
+  background: var(--red);
+  color: #fff;
+  font-size: 0.94rem;
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.startButton:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.startButton span { font-size: 1.15rem; }
 
 .kicker {
   color: var(--red);
@@ -199,6 +218,9 @@
 .note > span { flex: 0 0 auto; }
 .extraTime { color: var(--text-muted); font-size: 0.82rem; }
 .extraTime span { margin-right: 5px; }
+.timeList { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 20px; list-style: none; }
+.timeList li { color: var(--warning-text); }
+.timeList strong { color: var(--text); }
 
 .tips {
   padding: 18px 20px;
@@ -286,6 +308,7 @@
 }
 
 .exerciseCard:hover { transform: translateY(-2px); border-color: var(--red-border); box-shadow: var(--shadow-md); }
+.exerciseCompleted { border-color: color-mix(in srgb, var(--success) 42%, var(--border)); background: color-mix(in srgb, var(--success) 5%, var(--bg-elevated)); }
 
 .exerciseHeading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
 .exerciseType { color: var(--text-dim); font-size: 0.68rem; line-height: 1.45; }
@@ -295,12 +318,12 @@
 .exerciseActions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
 
 .pdfButton {
-  min-height: 38px;
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 7px;
-  padding: 7px 10px;
+  padding: 9px 12px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--bg-elevated);
@@ -313,6 +336,21 @@
 .pdfButton:hover:not(:disabled) { border-color: var(--red-border); background: var(--bg-subtle); color: var(--red); }
 .pdfButtonDisabled { color: var(--text-dim); cursor: not-allowed; opacity: 0.72; }
 .pdfFollow { color: var(--text-dim); font-size: 0.66rem; font-weight: 500; }
+.pdfError { margin-top: 8px; color: var(--danger); font-size: 0.78rem; }
+.completedControl { display: inline-flex; align-items: center; gap: 9px; min-height: 44px; margin-top: 8px; color: var(--text-muted); font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+.completedControl input { width: 18px; height: 18px; accent-color: var(--success); }
+.materialStatus { color: var(--text-muted); font-size: 0.85rem; }
+.materialError { padding: 12px 14px; border: 1px solid var(--warning-border); border-radius: var(--radius-md); background: var(--warning-bg); color: var(--warning-text); font-size: 0.84rem; line-height: 1.5; }
+.exerciseSkeleton { min-height: 125px; border: 1px solid var(--border); border-radius: var(--radius-md); background: linear-gradient(100deg, var(--bg-card) 30%, var(--bg-card2) 50%, var(--bg-card) 70%); background-size: 220% 100%; animation: skeleton-shimmer 1.4s ease infinite; }
+@keyframes skeleton-shimmer { to { background-position-x: -220%; } }
+
+.explanation { overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--bg-elevated); box-shadow: var(--shadow-sm); }
+.explanation > summary { min-height: 54px; display: flex; align-items: center; padding: 14px 18px; color: var(--text); font-family: var(--font-head); font-size: 0.96rem; font-weight: 700; cursor: pointer; }
+.explanation[open] > summary { border-bottom: 1px solid var(--border); }
+.explanation > :not(summary) { margin: 16px; }
+.explanation > .overview { margin: 16px; }
+.explanation > .tips,
+.explanation > .simulation { margin: 16px; }
 
 .emptyState { padding: 18px; color: var(--text-dim); font-size: 0.84rem; }
 
@@ -338,7 +376,8 @@
   .sectionDescription { max-width: 100%; }
   .partsGrid,
   .tipsList,
-  .exerciseGrid { grid-template-columns: 1fr; }
+  .exerciseGrid,
+  .timeList { grid-template-columns: 1fr; }
   .simulation { align-items: flex-start; gap: 11px; padding: 15px; }
   .simulationIcon { width: 38px; height: 38px; font-size: 1.1rem; }
   .comingSoon { margin-left: auto; font-size: 0.65rem; }
@@ -355,6 +394,7 @@
   .comingSoon { margin-left: 49px; }
   .exerciseActions { flex-direction: column; align-items: stretch; }
   .pdfButton { width: 100%; }
+  .startButton { width: 100%; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -363,6 +403,7 @@
   .chevron,
   .accordionPanel,
   .exerciseCard { transition: none; }
+  .exerciseSkeleton { animation: none; }
   .taskCard:hover,
   .exerciseCard:hover { transform: none; }
 }

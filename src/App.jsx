@@ -17,6 +17,7 @@ import Fortschritt from './pages/Fortschritt'
 import Settings from './pages/Settings'
 import Confirm from './pages/Confirm'
 import ResetPassword from './pages/ResetPassword'
+import { CompletedExercisesProvider } from './hooks/useCompletedExercises'
 
 const DASHBOARD_PATHS = ['/dashboard', '/zeno', '/deutsch', '/englisch', '/mathematik', '/fortschritt', '/settings']
 
@@ -60,7 +61,9 @@ export default function App() {
     <LangProvider>
       <AuthProvider>
         <ThemeSettingsProvider>
-          <AppContent />
+          <CompletedExercisesProvider>
+            <AppContent />
+          </CompletedExercisesProvider>
         </ThemeSettingsProvider>
       </AuthProvider>
     </LangProvider>

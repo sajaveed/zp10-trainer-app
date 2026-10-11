@@ -8,6 +8,8 @@ ZP10 Trainer ist eine React/Vite-Webanwendung zur Vorbereitung auf die ZP10 mit 
 - Vite 8
 - React Router 7
 - Supabase Auth
+- Azure Static Web Apps mit Managed Functions API
+- Private Azure Blob Storage Materialien
 
 ## Lokale Entwicklung
 
@@ -23,6 +25,63 @@ npm run lint
 npm run build
 npm run preview
 ```
+
+## Architektur: Übungsmaterialien
+
+Die React/Vite-App wird als Azure Static Web App ausgeliefert. Die Funktionen in `api/` verifizieren das Supabase-Access-Token bei Supabase Auth und lehnen nicht bestätigte E-Mail-Adressen ab. Sie listen PDFs im privaten Container `zp10-materialien` und streamen ausgewählte PDFs mit `Content-Disposition: inline`. Azure-Zugangsdaten werden ausschließlich in der serverseitigen Function-Umgebung verwendet.
+
+**Lokal:** `npm run dev` startet Vite auf Port 5173 und leitet `/api` an `http://localhost:7071` weiter. In einem zweiten Terminal:
+
+```bash
+cd api
+npm ci
+cp local.settings.json.example local.settings.json
+npm start
+```
+
+`local.settings.json` mit echten Werten bleibt lokal und darf nicht eingecheckt werden. Alternativ können die Functions und die App gemeinsam mit der Azure SWA CLI (`swa start`) betrieben werden. Der Parser lässt sich unabhängig von Azure testen: `npm test --prefix api`.
+Für `func start` müssen Node.js 20, Azure Functions Core Tools (v4) und für `UseDevelopmentStorage=true` ein lokaler Azurite-Dienst installiert/gestartet sein.
+
+### Umgebungsvariablen
+
+Frontend/Vite:
+
+| Variable | Zweck |
+| --- | --- |
+| `VITE_SUPABASE_URL` | Supabase-Projekt-URL für den Browser |
+| `VITE_SUPABASE_ANON_KEY` | Öffentlicher Supabase-Anon-Key für den Browser |
+| `VITE_EXAM_DATE_DEUTSCH` | Optionales Prüfungsdatum als `YYYY-MM-DD` |
+| `VITE_EXAM_DATE_ENGLISCH` | Optionales Prüfungsdatum als `YYYY-MM-DD` |
+| `VITE_EXAM_DATE_MATHEMATIK` | Optionales Prüfungsdatum als `YYYY-MM-DD` |
+
+Für den produktiven Vite-Build können die drei Prüfungsdaten als optionale GitHub Actions Repository-Variablen (`Settings → Secrets and variables → Actions → Variables`) gepflegt werden. Ohne gültigen Wert zeigt das Dashboard „Termin noch nicht hinterlegt“.
+
+Serverseitige Functions (SWA-Anwendungseinstellungen und lokal in `api/local.settings.json`):
+
+| Variable | Zweck |
+| --- | --- |
+| `AZURE_STORAGE_ACCOUNT_NAME` | Storage Account, Standard `zp10trainerfiles` |
+| `AZURE_STORAGE_CONTAINER_NAME` | Privater Container, Standard `zp10-materialien` |
+| `AZURE_STORAGE_CONNECTION_STRING` | Optionale serverseitige Storage-Verbindung; hat Vorrang vor `DefaultAzureCredential` |
+| `AZURE_TENANT_ID` | Entra-Tenant des Service Principals |
+| `AZURE_CLIENT_ID` | App-/Client-ID des Service Principals |
+| `AZURE_CLIENT_SECRET` | Servergeheimnis des Service Principals |
+| `SUPABASE_URL` | Supabase-Projekt-URL zur serverseitigen JWT-Prüfung |
+| `SUPABASE_ANON_KEY` | Supabase-Anon-Key für den serverseitigen Auth-User-Aufruf |
+
+Alle `VITE_*`-Werte gelangen in den Browser-Build und dürfen daher keine Geheimnisse enthalten. Azure- und serverseitige Supabase-Werte niemals als `VITE_*` definieren.
+
+### Azure-Checkliste vor dem Live-Betrieb
+
+1. Wähle entweder (a) eine Entra-App-/Service-Principal-Identität mit `AZURE_TENANT_ID`, `AZURE_CLIENT_ID` und `AZURE_CLIENT_SECRET` oder (b) eine Connection String. SWA Managed Functions haben für ausgehende Aufrufe keine Managed Identity. Für eine echte Managed Identity ist eine eigene Functions-App auf einem passenden Plan mit aktivierter Identität erforderlich.
+2. Weise dem Service Principal am Storage Account `zp10trainerfiles` die Rolle **Storage Blob Data Reader** zu. Bei einer Connection String muss sie serverseitig gesetzt und sicher rotiert werden.
+3. Trage die ausgewählten Secrets/Einstellungen in den Anwendungseinstellungen der Static Web App **`red-pebble-03d39be10`** ein: `AZURE_STORAGE_ACCOUNT_NAME`, `AZURE_STORAGE_CONTAINER_NAME`, eine der Credential-Varianten sowie `SUPABASE_URL` und `SUPABASE_ANON_KEY`. Für den Frontend-Build bleiben `VITE_SUPABASE_URL` und `VITE_SUPABASE_ANON_KEY` als Build-Secrets konfiguriert. Keine Werte in den Quellcode eintragen.
+4. Lege PDF-Dateien unter `deutsch/leseverstehen/`, `deutsch/4a-aufgaben/`, `deutsch/4b-aufgaben/` oder `deutsch/2-aufgaben/` ab. Namen folgen `<fach>_<ordnerkürzel>_<titel>_text_NNN.pdf` und `<fach>_<ordnerkürzel>_<titel>_auswertungsbogen_NNN.pdf`; auch `-auswertungsbogen_NNN.pdf` wird erkannt. Zum Beispiel `deutsch_leseverstehen_ki-beim-lernen_text_001.pdf`.
+5. Prüfe nach Einrichtung die Endpunkte mit einem bestätigten Supabase-Konto. Neue PDFs werden beim nächsten Listenaufruf anhand der Blob-Präfixe eingelesen; ein Deployment für neue Dateien ist nicht erforderlich.
+
+### Umsetzungs- und Teststatus
+
+Implementiert sind der Functions-Code, Authentifizierungsprüfung, PDF-Pfadvalidierung/Streaming, Parser mit Unit-Tests, Vite-Proxy und die Browser-UI. Parser, Lint und Frontend-Build können lokal/CI getestet werden. Ohne Azure-/Supabase-Zugangsdaten sowie die Storage-Berechtigung kann die Verbindung zum privaten Container hier nicht live geprüft werden; PDFs erscheinen live erst nach den obigen Azure-Einstellungen. Es wurde kein produktives Deployment ausgelöst und keine Supabase-Datenbankänderung vorgenommen.
 
 ## Authentifizierung
 

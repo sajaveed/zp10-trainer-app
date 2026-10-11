@@ -15,9 +15,14 @@ export function getNextExam(examDates) {
 
 /** Returns days remaining from now until the given ISO date string. */
 export function getDaysRemaining(dateString) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateString ?? '')
+  if (!match) return null
+  const [, year, month, day] = match.map(Number)
+  const target = new Date(Date.UTC(year, month - 1, day))
+  if (target.getUTCFullYear() !== year || target.getUTCMonth() !== month - 1 || target.getUTCDate() !== day) return null
   const now = new Date()
-  const target = new Date(dateString)
-  return Math.ceil((target - now) / (1000 * 60 * 60 * 24))
+  const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())
+  return Math.round((target.getTime() - today) / (1000 * 60 * 60 * 24))
 }
 
 /** Formats an ISO date string as German date, e.g. "11. Mai 2027". */

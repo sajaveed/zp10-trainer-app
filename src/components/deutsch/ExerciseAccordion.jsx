@@ -3,10 +3,12 @@ import { DEUTSCH_EXERCISES } from '../../data/deutschExercises'
 import ExerciseCard from './ExerciseCard'
 import styles from '../../pages/Deutsch.module.css'
 
-export default function ExerciseAccordion({ category }) {
+export default function ExerciseAccordion({ category, status, materials = [] }) {
   const [isOpen, setIsOpen] = useState(false)
   const panelId = useId()
-  const exercises = DEUTSCH_EXERCISES.filter(exercise => exercise.category === category.id)
+  const exercises = status === 'error'
+    ? DEUTSCH_EXERCISES.filter(exercise => exercise.category === category.id)
+    : materials
 
   return (
     <section className={`${styles.accordion} ${isOpen ? styles.accordionOpen : ''}`}>
@@ -20,7 +22,7 @@ export default function ExerciseAccordion({ category }) {
         >
           <span className={styles.categoryIcon} aria-hidden="true">{category.icon}</span>
           <span className={styles.categoryTitle}>{category.title}</span>
-          <span className={styles.categoryCount}>{exercises.length}</span>
+          <span className={styles.categoryCount}>{status === 'loading' ? '…' : exercises.length}</span>
           <span className={styles.chevron} aria-hidden="true">⌄</span>
         </button>
       </h3>
@@ -33,7 +35,12 @@ export default function ExerciseAccordion({ category }) {
       >
         <span id={`${panelId}-heading`} className={styles.visuallyHidden}>{category.title}</span>
         <div className={styles.accordionContent}>
-          {exercises.length > 0 ? (
+          {status === 'loading' ? (
+            <div className={styles.exerciseGrid} aria-label="Aufgaben werden geladen">
+              <div className={styles.exerciseSkeleton} />
+              <div className={styles.exerciseSkeleton} />
+            </div>
+          ) : exercises.length > 0 ? (
             <div className={styles.exerciseGrid}>
               {exercises.map(exercise => (
                 <ExerciseCard key={exercise.id} exercise={exercise} category={category} />
