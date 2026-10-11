@@ -1,0 +1,22 @@
+.box {
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-sm);
+}
+
+.info { border-color: var(--red-border); background: var(--bg-card2); }
+.time { border-color: var(--warning-border); background: var(--warning-bg); }
+.structure { background: var(--bg-elevated); }
+.success { border-color: color-mix(in srgb, var(--success) 35%, var(--border)); background: color-mix(in srgb, var(--success) 7%, var(--bg-elevated)); }
+
+.heading { display: flex; align-items: center; gap: 10px; }
+.icon { flex: 0 0 auto; font-size: 1.25rem; }
+.heading h2 { color: var(--text); font-family: var(--font-head); font-size: 1.05rem; line-height: 1.35; }
+.content { margin-top: 10px; color: var(--text-muted); font-size: 0.88rem; line-height: 1.65; }
+.content > :first-child { margin-top: 0; }
+
+@media (max-width: 480px) {
+  .box { padding: 15px; }
+}

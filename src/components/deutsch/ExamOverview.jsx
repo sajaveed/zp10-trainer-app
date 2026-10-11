@@ -1,4 +1,5 @@
 import styles from '../../pages/Deutsch.module.css'
+import InfoBox from '../InfoBox'
 
 const writingTasks = [
   {
@@ -18,52 +19,62 @@ const writingTasks = [
 export default function ExamOverview() {
   return (
     <section className={styles.overview} aria-labelledby="overview-title">
-      <div className={styles.sectionHeading}>
-        <div>
-          <p className={styles.kicker}>DAS PRÜFUNGSFORMAT</p>
-          <h2 id="overview-title" className={styles.sectionTitle}>So ist die Deutsch-ZP10 aufgebaut</h2>
+      <InfoBox icon="🧩" title="Aufbau der Deutschprüfung" tone="structure">
+        <div className={styles.sectionHeading}>
+          <div>
+            <p className={styles.kicker}>DAS PRÜFUNGSFORMAT</p>
+            <h3 id="overview-title" className={styles.sectionTitle}>So ist die Deutsch-ZP10 aufgebaut</h3>
+          </div>
+          <p className={styles.sectionDescription}>
+            Die zentrale Deutschprüfung der Klasse 10 am Gymnasium in NRW besteht aus zwei Prüfungsteilen.
+          </p>
         </div>
-        <p className={styles.sectionDescription}>
-          Die zentrale Deutschprüfung der Klasse 10 am Gymnasium in NRW besteht aus zwei Prüfungsteilen.
-        </p>
-      </div>
 
-      <div className={styles.partsGrid}>
-        <article className={styles.partCard}>
-          <span className={styles.partIcon} aria-hidden="true">📚</span>
-          <h3 className={styles.cardTitle}>Teil 1 – Leseverstehen</h3>
-          <div className={styles.metrics}>
-            <span><strong>30 Min.</strong> reguläre Bearbeitungszeit</span>
-            <span><strong>15 Punkte</strong> erreichbar</span>
-          </div>
-          <p>Ein Sachtext mit verschiedenen Aufgaben, z. B. Multiple Choice, Zuordnungen, Erläuterungen und kurze Stellungnahmen.</p>
-        </article>
-        <article className={styles.partCard}>
-          <span className={styles.partIcon} aria-hidden="true">📝</span>
-          <h3 className={styles.cardTitle}>Teil 2 – Schreiben</h3>
-          <div className={styles.metrics}>
-            <span><strong>120 Min.</strong> reguläre Bearbeitungszeit</span>
-            <span><strong>60 Punkte</strong> erreichbar</span>
-          </div>
-          <p>Zwei Wahlaufgaben, von denen nur eine bearbeitet wird.</p>
-        </article>
-      </div>
-
-      <div className={styles.taskGrid}>
-        {writingTasks.map((task, index) => (
-          <article className={styles.taskCard} key={task.title}>
-            <span className={styles.taskNumber}>0{index + 1}</span>
-            <h3 className={styles.cardTitle}>{task.title}</h3>
-            <p>{task.description}</p>
+        <div className={styles.partsGrid}>
+          <article className={styles.partCard}>
+            <span className={styles.partIcon} aria-hidden="true">📚</span>
+            <h3 className={styles.cardTitle}>Teil 1 – Leseverstehen</h3>
+            <div className={styles.metrics}>
+              <span><strong>30 Min.</strong> reguläre Bearbeitungszeit</span>
+              <span><strong>15 Punkte</strong> erreichbar</span>
+            </div>
+            <p>Ein Sachtext mit verschiedenen Aufgaben, z. B. Multiple Choice, Zuordnungen, Erläuterungen und kurze Stellungnahmen.</p>
           </article>
-        ))}
-      </div>
+          <article className={styles.partCard}>
+            <span className={styles.partIcon} aria-hidden="true">📝</span>
+            <h3 className={styles.cardTitle}>Teil 2 – Schreiben</h3>
+            <div className={styles.metrics}>
+              <span><strong>120 Min.</strong> reguläre Bearbeitungszeit</span>
+              <span><strong>60 Punkte</strong> erreichbar</span>
+            </div>
+            <p>Zwei Wahlaufgaben, von denen nur eine bearbeitet wird.</p>
+          </article>
+        </div>
 
-      <div className={styles.note}>
-        <span aria-hidden="true">💡</span>
-        <p><strong>Wichtig:</strong> Die erste Wahlaufgabe ist Aufgabentyp 4a. Die zweite Wahlaufgabe ist entweder Aufgabentyp 2 oder 4b.</p>
-      </div>
-      <p className={styles.extraTime}><span aria-hidden="true">⏱️</span> Zusätzlich gibt es 10 Minuten Auswahlzeit und 10 Minuten Bonuszeit.</p>
+        <div className={styles.taskGrid}>
+          {writingTasks.map((task, index) => (
+            <article className={styles.taskCard} key={task.title}>
+              <span className={styles.taskNumber}>0{index + 1}</span>
+              <h3 className={styles.cardTitle}>{task.title}</h3>
+              <p>{task.description}</p>
+            </article>
+          ))}
+        </div>
+
+        <div className={styles.note}>
+          <span aria-hidden="true">💡</span>
+          <p><strong>Wichtig:</strong> Die erste Wahlaufgabe ist Aufgabentyp 4a. Die zweite Wahlaufgabe ist entweder Aufgabentyp 2 oder 4b.</p>
+        </div>
+      </InfoBox>
+      <InfoBox icon="⏱️" title="Zeitmanagement" tone="time">
+        <p>Zusätzlich gibt es 10 Minuten Auswahlzeit und 10 Minuten Bonuszeit.</p>
+        <ul className={styles.timeList}>
+          <li><strong>30 Min.</strong> Leseverstehen</li>
+          <li><strong>120 Min.</strong> Schreiben</li>
+          <li><strong>10 Minuten</strong> Auswahlzeit</li>
+          <li><strong>10 Minuten</strong> Bonuszeit</li>
+        </ul>
+      </InfoBox>
     </section>
   )
 }
