@@ -26,3 +26,14 @@ export function getUrlHost(url) {
     return null
   }
 }
+
+export function looksLikeAzurePlatformToken(issuer) {
+  try {
+    const host = new URL(issuer).hostname
+    return host.endsWith('.azurewebsites.net')
+      || host === 'login.microsoftonline.com' || host.endsWith('.login.microsoftonline.com')
+      || host === 'sts.windows.net' || host.endsWith('.sts.windows.net')
+  } catch {
+    return false
+  }
+}

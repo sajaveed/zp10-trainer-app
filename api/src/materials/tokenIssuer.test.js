@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { decodeJwtIssuer, issuerMatchesSupabaseUrl, getUrlHost } from './tokenIssuer.js'
+import { decodeJwtIssuer, issuerMatchesSupabaseUrl, getUrlHost, looksLikeAzurePlatformToken } from './tokenIssuer.js'
 
 test('decodes only a string issuer from an unverified base64url JWT payload', () => {
   const issuer = 'https://project.supabase.co/auth/v1'
@@ -27,4 +27,20 @@ test('compares normalized origins, not issuer paths or hostname prefixes', () =>
 test('host diagnostics exclude credentials, paths and query strings', () => {
   assert.equal(getUrlHost('https://project.supabase.co/auth/v1?secret=value'), 'project.supabase.co')
   assert.equal(getUrlHost('invalid'), null)
+})
+
+test('recognizes Azure platform issuer hosts without misclassifying Supabase issuers', () => {
+  for (const issuer of [
+    'https://platform.scm.azurewebsites.net',
+    'https://platform.azurewebsites.net:443/auth',
+    'https://login.microsoftonline.com/tenant/v2.0',
+    'https://sts.windows.net/tenant/',
+  ]) assert.equal(looksLikeAzurePlatformToken(issuer), true)
+  for (const issuer of [
+    'https://project.supabase.co/auth/v1',
+    'https://platform.azurewebsites.net.evil.test',
+    'https://notlogin.microsoftonline.com',
+    null,
+    'invalid',
+  ]) assert.equal(looksLikeAzurePlatformToken(issuer), false)
 })

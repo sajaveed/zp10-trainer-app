@@ -4,8 +4,9 @@ import { BlobServiceClient } from '@azure/storage-blob'
 import { Readable } from 'node:stream'
 import { parseBlobs } from './materials/parseBlobs.js'
 import { authErrorBody, storageErrorBody } from './materials/errorCodes.js'
-import { decodeJwtIssuer, issuerMatchesSupabaseUrl, getUrlHost } from './materials/tokenIssuer.js'
+import { decodeJwtIssuer, issuerMatchesSupabaseUrl, getUrlHost, looksLikeAzurePlatformToken } from './materials/tokenIssuer.js'
 import { getSupabaseDiagnostics, hasDiagnosticToken } from './materials/supabaseDiagnostics.js'
+import { extractSupabaseToken, getSupabaseTokenSource } from './materials/authHeader.js'
 
 const SUPPORTED_SUBJECTS = new Set(['deutsch', 'englisch', 'mathematik'])
 const ALLOWED_FOLDERS = new Set(['leseverstehen', '4a-aufgaben', '4b-aufgaben', '2-aufgaben'])
@@ -41,7 +42,7 @@ function logError(context, operation, error, secrets = [], messageLimit = Infini
 }
 
 async function getConfirmedUser(request, context) {
-  const token = request.headers.get('authorization')?.match(/^Bearer\s+(.+)$/i)?.[1]
+  const token = extractSupabaseToken(request)
   const supabaseUrl = process.env.SUPABASE_URL?.trim().replace(/\/+$/, '')
   const anonKey = process.env.SUPABASE_ANON_KEY
   if (!supabaseUrl || !anonKey) return { error: jsonResponse(503, { error: 'Authentication is not configured.', code: 'AUTH_NOT_CONFIGURED' }) }
@@ -56,7 +57,9 @@ async function getConfirmedUser(request, context) {
     return { error: jsonResponse(401, {
       error: 'Authentication token belongs to another Supabase project.',
       code: 'AUTH_ISSUER_MISMATCH',
-      hint: 'SUPABASE_URL in der Static Web App zeigt auf ein anderes Supabase-Projekt als das Frontend (VITE_SUPABASE_URL).',
+      hint: looksLikeAzurePlatformToken(issuer)
+        ? 'Der Authorization-Header wurde von Azure überschrieben – das Supabase-Token wird jetzt über X-Supabase-Authorization übertragen.'
+        : 'SUPABASE_URL im Azure-Backend zeigt auf ein anderes Supabase-Projekt als das Frontend (VITE_SUPABASE_URL).',
     }) }
   }
 
@@ -184,7 +187,7 @@ app.http('materialsHealth', {
   authLevel: 'anonymous',
   route: 'materials/health',
   handler: async (request, context) => {
-    const token = request.headers.get('authorization')?.match(/^Bearer\s+(\S+)$/i)?.[1]
+    const token = extractSupabaseToken(request)
     if (!hasDiagnosticToken(token)) return jsonResponse(401, { error: 'Authentication required.' })
     const diagnostics = getSupabaseDiagnostics(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, token)
     const { error } = await getConfirmedUser(request, context)
@@ -206,6 +209,11 @@ app.http('materialsHealth', {
       supabaseAnonKeySet: Boolean(process.env.SUPABASE_ANON_KEY),
       supabaseUrlHost: getUrlHost(process.env.SUPABASE_URL),
       ...diagnostics,
+      token: {
+        ...diagnostics.token,
+        source: getSupabaseTokenSource(request),
+        looksLikeAzurePlatformToken: looksLikeAzurePlatformToken(decodeJwtIssuer(token)),
+      },
       auth: { ok: !error, status: error?.status ?? 200, code: error?.jsonBody.code ?? null, hint: error?.jsonBody.hint ?? null },
       storageAccountName: Boolean(process.env.AZURE_STORAGE_ACCOUNT_NAME),
       containerName: Boolean(process.env.AZURE_STORAGE_CONTAINER_NAME),

@@ -24,6 +24,9 @@ function comparisonLabel(match) {
 
 function recommendations(frontend, health, frontendToken, frontendBackend) {
   const { backend, comparison } = health
+  if (health.token.looksLikeAzurePlatformToken) {
+    return ['Azure-Plattform-Token erkannt, kein Supabase-Projektfehler. App neu laden und erneut anmelden; prüfen, ob X-Supabase-Authorization das Backend erreicht.']
+  }
   const messages = []
   if (frontendToken === true && frontendBackend === false && frontend.ref) {
     messages.push(`Korrigiere in Azure (Static Web App red-pebble-03d39be10 → Umgebungsvariablen → Production) SUPABASE_URL auf https://${frontend.ref}.supabase.co und SUPABASE_ANON_KEY auf den anon/publishable-Key desselben Projekts.`)
@@ -90,6 +93,7 @@ export default function MaterialsDiagnostics({ materials }) {
                 <tr><th scope="row">Frontend-Projekt (VITE_SUPABASE_URL)</th><td>{frontend.host ?? 'Nicht gesetzt / ungültig'}<br />{frontend.ref ?? 'Keine Standard-Projekt-Ref'}</td></tr>
                 <tr><th scope="row">Backend-Projekt (Azure SUPABASE_URL)</th><td>{health.backend.supabaseUrlHost ?? 'Nicht gesetzt / ungültig'}<br />{health.backend.supabaseProjectRef ?? 'Keine Standard-Projekt-Ref'}</td></tr>
                 <tr><th scope="row">Anmeldetoken-Issuer</th><td>{health.token.issuerHost ?? 'Nicht bestimmbar'}<br />{health.token.issuerProjectRef ?? 'Keine Standard-Projekt-Ref'}</td></tr>
+                <tr><th scope="row">Token-Header</th><td>{health.token.source ?? 'Nicht bestimmbar'}{health.token.looksLikeAzurePlatformToken && ' – Azure-Plattform-Token erkannt'}</td></tr>
                 <tr className={unsafeKey ? styles.warning : undefined}><th scope="row">Backend Anon-Key gehört zu Projekt</th><td>{health.backend.anonKeyProjectRef ?? 'Nicht bestimmbar'}<br />Format: {health.backend.anonKeyFormat}; Rolle: {health.backend.anonKeyRole ?? 'Nicht bestimmbar'}{unsafeKey && <strong> – Privilegierter Schlüssel!</strong>}</td></tr>
               </tbody>
             </table>

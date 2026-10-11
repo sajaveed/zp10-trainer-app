@@ -7,6 +7,13 @@ async function getAccessToken() {
   return accessToken
 }
 
+function authHeaders(token) {
+  return {
+    Authorization: 'Bearer ' + token,
+    'X-Supabase-Authorization': 'Bearer ' + token,
+  }
+}
+
 async function responseError(response, message) {
   let body
   try {
@@ -26,7 +33,7 @@ async function responseError(response, message) {
 export async function fetchMaterials(subject) {
   const token = await getAccessToken()
   const response = await fetch(`/api/materials?subject=${encodeURIComponent(subject)}`, {
-    headers: { Authorization: 'Bearer ' + token },
+    headers: authHeaders(token),
   })
   if (!response.ok) throw await responseError(response, 'Aufgaben konnten nicht geladen werden')
   return response.json()
@@ -35,7 +42,7 @@ export async function fetchMaterials(subject) {
 export async function fetchMaterialsHealth() {
   const token = await getAccessToken()
   const response = await fetch('/api/materials/health', {
-    headers: { Authorization: 'Bearer ' + token },
+    headers: authHeaders(token),
     cache: 'no-store',
   })
   if (!response.ok) throw new Error(`Diagnose konnte nicht geladen werden (HTTP ${response.status}).`)
@@ -45,7 +52,7 @@ export async function fetchMaterialsHealth() {
 export async function fetchMaterialPdf(path) {
   const token = await getAccessToken()
   const response = await fetch(`/api/materials/file?path=${encodeURIComponent(path)}`, {
-    headers: { Authorization: 'Bearer ' + token },
+    headers: authHeaders(token),
   })
   if (!response.ok) throw await responseError(response, 'Das PDF konnte nicht geöffnet werden')
   return response.blob()
