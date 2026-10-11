@@ -1,6 +1,7 @@
 .layout {
   display: flex;
   min-height: 100vh;
+  min-height: 100dvh;
   background: var(--bg);
   --sidebar-width: 260px;
   --sidebar-collapsed-width: 84px;
@@ -14,6 +15,7 @@
   flex: 1;
   margin-left: var(--sidebar-width);
   min-height: 100vh;
+  min-height: 100dvh;
   overflow-x: hidden;
   transition: margin-left 0.28s ease;
 }

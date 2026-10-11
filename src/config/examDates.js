@@ -5,7 +5,7 @@ function validExamDate(value) {
 }
 
 export const EXAM_DATES = {
-  deutsch: validExamDate(import.meta.env.VITE_EXAM_DATE_DEUTSCH),
-  englisch: validExamDate(import.meta.env.VITE_EXAM_DATE_ENGLISCH),
-  mathematik: validExamDate(import.meta.env.VITE_EXAM_DATE_MATHEMATIK),
+  deutsch: validExamDate(import.meta.env.VITE_EXAM_DATE_DEUTSCH) ?? '2027-05-11',
+  englisch: validExamDate(import.meta.env.VITE_EXAM_DATE_ENGLISCH) ?? '2027-05-13',
+  mathematik: validExamDate(import.meta.env.VITE_EXAM_DATE_MATHEMATIK) ?? '2027-05-20',
 }

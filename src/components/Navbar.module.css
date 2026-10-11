@@ -7,8 +7,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 2rem;
-  height: 72px;
+  padding: env(safe-area-inset-top) 2rem 0;
+  height: calc(72px + env(safe-area-inset-top));
   border-bottom: 1px solid transparent;
 }
 
@@ -22,6 +22,8 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .logoImg {
@@ -140,7 +142,7 @@
   .links {
     display: none;
     position: fixed;
-    top: 72px;
+    top: calc(72px + env(safe-area-inset-top));
     left: 0;
     right: 0;
     background: var(--bg-elevated);
@@ -148,6 +150,7 @@
     border-bottom: 1px solid var(--border);
     flex-direction: column;
     gap: 0;
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
   .links.open { display: flex; }
@@ -163,9 +166,19 @@
 
   .hamburger { display: flex; }
 
-  .nav { padding: 0 1rem; }
+  .nav { padding-right: 1rem; padding-left: 1rem; }
 
   .langToggle { display: none; }
 
   .themeToggle { display: none; }
+
+  .right { gap: 0.5rem; }
+
+  .btnNav { min-height: 44px; padding: 0.45rem 0.7rem; font-size: 0.8rem; }
+
+  .hamburger { min-width: 44px; min-height: 44px; align-items: center; justify-content: center; }
+
+  .logoImg { width: 32px; height: 32px; }
+
+  .logoText { font-size: 1rem; }
 }

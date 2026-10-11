@@ -22,6 +22,7 @@ export function useMaterials(subject, enabled = true) {
         if (active) setState({ requestKey, status: 'ready', items, ignored, error: null })
       })
       .catch(error => {
+        console.warn('Aufgaben konnten nicht geladen werden.', error)
         if (active) setState({ requestKey, status: 'error', items: [], ignored: [], error })
       })
     return () => { active = false }

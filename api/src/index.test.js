@@ -1,5 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { Readable } from 'node:stream'
 import { app } from '@azure/functions'
 import { BlobServiceClient } from '@azure/storage-blob'
 
@@ -250,7 +251,10 @@ test('all endpoints verify the custom Supabase token even when Azure replaces Au
       async *[Symbol.asyncIterator]() {},
       byPage: () => ({ next: async () => ({}) }),
     }),
-    getBlobClient: () => ({ download: async () => ({}) }),
+    getBlobClient: () => ({
+      getProperties: async () => ({ contentLength: 12 }),
+      download: async () => ({}),
+    }),
   }))
   assert.equal((await handlers.materials(request, context)).status, 200)
   request.query.set('path', 'deutsch/leseverstehen/task.pdf')
@@ -308,6 +312,7 @@ test('PDF validation accepts real filenames in every folder and rejects unsafe p
   const downloads = []
   t.mock.method(BlobServiceClient.prototype, 'getContainerClient', () => ({
     getBlobClient: path => ({
+      getProperties: async () => ({ contentLength: 12 }),
       download: async () => { downloads.push(path); return {} },
     }),
   }))
@@ -331,4 +336,66 @@ test('PDF validation accepts real filenames in every folder and rejects unsafe p
     assert.equal((await handlers.materialFile(request, context)).jsonBody.code, 'INVALID_PDF_PATH')
   }
   assert.equal(downloads.length, 4)
+})
+
+test('PDF endpoint serves authenticated byte ranges and conditional cache hits', async t => {
+  const { request, context } = setup(t)
+  request.query.set('path', 'deutsch/leseverstehen/task.pdf')
+  const downloadCalls = []
+  t.mock.method(BlobServiceClient.prototype, 'getContainerClient', () => ({
+    getBlobClient: () => ({
+      getProperties: async () => ({ contentLength: 10, etag: '"blob-v1"' }),
+      download: async (...args) => {
+        downloadCalls.push(args)
+        return { readableStreamBody: Readable.from(['data']), contentLength: 4 }
+      },
+    }),
+  }))
+
+  request.headers.set('range', 'bytes=2-5')
+  let response = await handlers.materialFile(request, context)
+  assert.equal(response.status, 206)
+  assert.equal(response.headers['Content-Range'], 'bytes 2-5/10')
+  assert.equal(response.headers['Content-Length'], '4')
+  assert.equal(response.headers['Accept-Ranges'], 'bytes')
+  assert.equal(response.headers['Cache-Control'], 'private, max-age=600')
+  assert.equal(response.headers.ETag, '"blob-v1"')
+  assert.deepEqual(downloadCalls[0], [2, 4])
+
+  request.headers.delete('range')
+  request.headers.set('if-none-match', 'W/"blob-v1"')
+  response = await handlers.materialFile(request, context)
+  assert.equal(response.status, 304)
+  assert.equal(downloadCalls.length, 1)
+
+  request.headers.delete('if-none-match')
+  request.headers.set('range', 'bytes=10-')
+  response = await handlers.materialFile(request, context)
+  assert.equal(response.status, 416)
+  assert.equal(response.headers['Content-Range'], 'bytes */10')
+  assert.equal(downloadCalls.length, 1)
+})
+
+test('full PDF downloads use streamed metadata without an extra properties request', async t => {
+  const { request, context } = setup(t)
+  request.query.set('path', 'deutsch/leseverstehen/task.pdf')
+  t.mock.method(BlobServiceClient.prototype, 'getContainerClient', () => ({
+    getBlobClient: () => ({
+      getProperties: async () => { throw new Error('Unexpected properties request') },
+      download: async (...args) => {
+        assert.deepEqual(args, [])
+        return {
+          readableStreamBody: Readable.from(['pdf']),
+          contentLength: 3,
+          etag: '"blob-v2"',
+        }
+      },
+    }),
+  }))
+
+  const response = await handlers.materialFile(request, context)
+  assert.equal(response.status, 200)
+  assert.equal(response.headers['Content-Length'], '3')
+  assert.equal(response.headers.ETag, '"blob-v2"')
+  assert.equal(response.headers['Cache-Control'], 'private, max-age=600')
 })

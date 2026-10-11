@@ -1,5 +1,6 @@
 .page {
   min-height: calc(100vh - 140px);
+  min-height: calc(100dvh - 140px);
   display: grid;
   place-items: center;
   padding: 42px 20px;
