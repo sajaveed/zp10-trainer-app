@@ -3,7 +3,8 @@ import { DefaultAzureCredential } from '@azure/identity'
 import { BlobServiceClient } from '@azure/storage-blob'
 import { Readable } from 'node:stream'
 import { parseBlobs } from './materials/parseBlobs.js'
-import { storageErrorBody } from './materials/errorCodes.js'
+import { authErrorBody, storageErrorBody } from './materials/errorCodes.js'
+import { decodeJwtIssuer, issuerMatchesSupabaseUrl, getUrlHost } from './materials/tokenIssuer.js'
 
 const SUPPORTED_SUBJECTS = new Set(['deutsch', 'englisch', 'mathematik'])
 const ALLOWED_FOLDERS = new Set(['leseverstehen', '4a-aufgaben', '4b-aufgaben', '2-aufgaben'])
@@ -12,9 +13,12 @@ function jsonResponse(status, body) {
   return { status, jsonBody: body, headers: { 'Cache-Control': 'no-store' } }
 }
 
-function logError(context, operation, error) {
+function logError(context, operation, error, secrets = [], messageLimit = Infinity) {
   const redact = value => {
     let text = String(value ?? '')
+    for (const secret of secrets) {
+      if (secret) text = text.split(secret).join('[redacted]')
+    }
     for (const [key, secret] of Object.entries(process.env)) {
       if (/SECRET|KEY|TOKEN|CONNECTION_STRING|SUPABASE_URL|AZURE_.*_ID/.test(key) && secret) {
         text = text.split(secret).join('[redacted]')
@@ -28,7 +32,7 @@ function logError(context, operation, error) {
   }
   context.error(operation, {
     name: redact(error?.name),
-    message: redact(error?.message),
+    message: redact(error?.message).slice(0, messageLimit),
     code: redact(error?.code ?? error?.cause?.code),
     statusCode: error?.statusCode,
     errorCode: redact(error?.name === 'RestError' ? error.details?.errorCode : undefined),
@@ -37,21 +41,50 @@ function logError(context, operation, error) {
 
 async function getConfirmedUser(request, context) {
   const token = request.headers.get('authorization')?.match(/^Bearer\s+(.+)$/i)?.[1]
-  const supabaseUrl = process.env.SUPABASE_URL?.replace(/\/+$/, '')
+  const supabaseUrl = process.env.SUPABASE_URL?.trim().replace(/\/+$/, '')
   const anonKey = process.env.SUPABASE_ANON_KEY
   if (!supabaseUrl || !anonKey) return { error: jsonResponse(503, { error: 'Authentication is not configured.', code: 'AUTH_NOT_CONFIGURED' }) }
   if (!token) return { error: jsonResponse(401, { error: 'Authentication required.', code: 'AUTH_REQUIRED' }) }
+
+  const issuer = decodeJwtIssuer(token)
+  if (issuer && !issuerMatchesSupabaseUrl(issuer, supabaseUrl)) {
+    context.error('Supabase token issuer mismatch', {
+      issuerHost: getUrlHost(issuer),
+      supabaseUrlHost: getUrlHost(supabaseUrl),
+    })
+    return { error: jsonResponse(401, {
+      error: 'Authentication token belongs to another Supabase project.',
+      code: 'AUTH_ISSUER_MISMATCH',
+      hint: 'SUPABASE_URL in der Static Web App zeigt auf ein anderes Supabase-Projekt als das Frontend (VITE_SUPABASE_URL).',
+    }) }
+  }
 
   try {
     const response = await fetch(`${supabaseUrl}/auth/v1/user`, {
       headers: { apikey: anonKey, Authorization: 'Bearer ' + token },
     })
-    if (!response.ok) return { error: jsonResponse(401, { error: 'Invalid authentication token.', code: 'AUTH_INVALID' }) }
+    if (!response.ok) {
+      let details
+      const text = await response.text()
+      try {
+        const body = JSON.parse(text)
+        details = Object.fromEntries(['msg', 'message', 'error_description', 'error_code']
+          .filter(key => typeof body?.[key] === 'string')
+          .map(key => [key, body[key]]))
+      } catch {
+        details = text
+      }
+      logError(context, 'Supabase authentication rejected', {
+        statusCode: response.status,
+        message: typeof details === 'string' ? details : JSON.stringify(details),
+      }, [token], 300)
+      return { error: jsonResponse(401, authErrorBody(details)) }
+    }
     const user = await response.json()
     if (!user.email_confirmed_at) return { error: jsonResponse(403, { error: 'Confirm your email to access materials.', code: 'EMAIL_UNCONFIRMED' }) }
     return { user }
   } catch (error) {
-    logError(context, 'Supabase authentication upstream failed', error)
+    logError(context, 'Supabase authentication upstream failed', error, [token])
     return { error: jsonResponse(503, { error: 'Authentication service could not be reached.', code: 'AUTH_UPSTREAM_UNREACHABLE' }) }
   }
 }
@@ -151,22 +184,24 @@ app.http('materialsHealth', {
   route: 'materials/health',
   handler: async (request, context) => {
     const { error } = await getConfirmedUser(request, context)
-    if (error) return error
-
-    let storage
-    try {
-      const container = getContainerClient(context)
-      await container.getProperties()
-      await container.listBlobsFlat().byPage({ maxPageSize: 1 }).next()
-      storage = { ok: true, code: null, message: 'Storage is reachable and readable.' }
-    } catch (error) {
-      logError(context, 'Materials health check failed', error)
-      const body = storageErrorBody(error)
-      storage = { ok: false, code: body.code, message: body.error }
+    let storage = { ok: false, code: 'AUTH_REQUIRED', message: 'Storage check requires a confirmed user.' }
+    if (!error) {
+      try {
+        const container = getContainerClient(context)
+        await container.getProperties()
+        await container.listBlobsFlat().byPage({ maxPageSize: 1 }).next()
+        storage = { ok: true, code: null, message: 'Storage is reachable and readable.' }
+      } catch (error) {
+        logError(context, 'Materials health check failed', error)
+        const body = storageErrorBody(error)
+        storage = { ok: false, code: body.code, message: body.error }
+      }
     }
     return jsonResponse(200, {
       supabaseUrlSet: Boolean(process.env.SUPABASE_URL),
       supabaseAnonKeySet: Boolean(process.env.SUPABASE_ANON_KEY),
+      supabaseUrlHost: getUrlHost(process.env.SUPABASE_URL),
+      auth: { ok: !error, code: error?.jsonBody.code ?? null, hint: error?.jsonBody.hint ?? null },
       storageAccountName: Boolean(process.env.AZURE_STORAGE_ACCOUNT_NAME),
       containerName: Boolean(process.env.AZURE_STORAGE_CONTAINER_NAME),
       authMode: process.env.AZURE_STORAGE_CONNECTION_STRING

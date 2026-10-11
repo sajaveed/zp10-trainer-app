@@ -42,7 +42,7 @@ test('all materials endpoints require configured auth and a token before storage
   const storage = t.mock.method(BlobServiceClient.prototype, 'getContainerClient', () => {
     throw new Error('Storage must not be accessed')
   })
-  for (const handler of Object.values(handlers)) {
+  for (const handler of [handlers.materials, handlers.materialFile]) {
     request.headers.delete('authorization')
     assert.equal((await handler(request, context)).jsonBody.code, 'AUTH_REQUIRED')
     delete process.env.SUPABASE_ANON_KEY
@@ -52,12 +52,18 @@ test('all materials endpoints require configured auth and a token before storage
   assert.equal(storage.mock.callCount(), 0)
 })
 
-test('health rejects invalid tokens and unconfirmed accounts', async t => {
+test('health diagnoses invalid tokens and unconfirmed accounts without storage access', async t => {
   const { request, context } = setup(t)
   globalThis.fetch = async () => new Response('{}', { status: 401 })
-  assert.equal((await handlers.materialsHealth(request, context)).jsonBody.code, 'AUTH_INVALID')
+  const storage = t.mock.method(BlobServiceClient.prototype, 'getContainerClient', () => {
+    throw new Error('Storage must not be accessed')
+  })
+  const response = await handlers.materialsHealth(request, context)
+  assert.equal(response.status, 200)
+  assert.equal(response.jsonBody.auth.code, 'AUTH_INVALID')
   globalThis.fetch = async () => new Response('{}')
-  assert.equal((await handlers.materialsHealth(request, context)).jsonBody.code, 'EMAIL_UNCONFIRMED')
+  assert.equal((await handlers.materialsHealth(request, context)).jsonBody.auth.code, 'EMAIL_UNCONFIRMED')
+  assert.equal(storage.mock.callCount(), 0)
 })
 
 test('Supabase network errors return an auth-specific 503 and safe logs', async t => {
@@ -96,6 +102,8 @@ test('health checks container properties and one listing page without exposing s
   assert.deepEqual(response.jsonBody, {
     supabaseUrlSet: true,
     supabaseAnonKeySet: true,
+    supabaseUrlHost: 'auth.example.test',
+    auth: { ok: true, code: null, hint: null },
     storageAccountName: true,
     containerName: true,
     authMode: 'servicePrincipal',
@@ -105,6 +113,94 @@ test('health checks container properties and one listing page without exposing s
   assert.ok(!JSON.stringify(response.jsonBody).includes('private.pdf'))
 })
 
+  test('Supabase rejections classify API keys and JWT failures and log safe bounded details', async t => {
+    const { request, context, errors } = setup(t)
+    const cases = [
+      [401, { message: 'Invalid API key' }, 'AUTH_APIKEY_INVALID'],
+      [401, { error_code: 'invalid_api_key' }, 'AUTH_APIKEY_INVALID'],
+      [403, { msg: 'No API key found in request' }, 'AUTH_APIKEY_INVALID'],
+      [401, 'apikey is invalid', 'AUTH_APIKEY_INVALID'],
+      [401, { message: 'invalid JWT' }, 'AUTH_TOKEN_INVALID'],
+      [401, { error_code: 'bad_jwt' }, 'AUTH_TOKEN_INVALID'],
+      [401, { error_code: 'session_not_found' }, 'AUTH_TOKEN_INVALID'],
+      [401, { error_description: 'token is expired' }, 'AUTH_TOKEN_INVALID'],
+      [500, 'Unexpected upstream error', 'AUTH_INVALID'],
+      [401, {}, 'AUTH_INVALID'],
+    ]
+    for (const [status, details, code] of cases) {
+      globalThis.fetch = async () => new Response(typeof details === 'string' ? details : JSON.stringify(details), { status })
+      const response = await handlers.materials(request, context)
+      assert.equal(response.status, 401)
+      assert.equal(response.jsonBody.code, code)
+      assert.ok(response.jsonBody.hint)
+      assert.equal(errors.at(-1)[1].statusCode, status)
+      assert.ok(errors.at(-1)[1].message.includes(typeof details === 'string' ? details : JSON.stringify(details)))
+    }
+    for (const details of [
+      { message: `Invalid API key ${process.env.SUPABASE_ANON_KEY} test-token ${'x'.repeat(500)}` },
+      `Invalid API key ${process.env.SUPABASE_ANON_KEY} test-token ${'x'.repeat(500)}`,
+    ]) {
+      globalThis.fetch = async () => new Response(typeof details === 'string' ? details : JSON.stringify(details), { status: 401 })
+      const response = await handlers.materials(request, context)
+      assert.equal(response.jsonBody.code, 'AUTH_APIKEY_INVALID')
+      assert.ok(errors.at(-1)[1].message.length <= 300)
+      assert.ok(!JSON.stringify([response, errors]).includes(process.env.SUPABASE_ANON_KEY))
+      assert.ok(!JSON.stringify([response, errors]).includes('test-token'))
+    }
+  })
+
+  test('issuer mismatch blocks Supabase calls and logs only hosts', async t => {
+    const { request, context, errors } = setup(t)
+    const issuer = 'https://other.example.test/auth/v1?private=value'
+    request.headers.set('authorization', ['Bearer', `a.${Buffer.from(JSON.stringify({ iss: issuer })).toString('base64url')}.c`].join(' '))
+    const fetch = t.mock.method(globalThis, 'fetch', () => { throw new Error('Must not fetch') })
+    const response = await handlers.materials(request, context)
+    assert.equal(response.status, 401)
+    assert.equal(response.jsonBody.code, 'AUTH_ISSUER_MISMATCH')
+    assert.ok(response.jsonBody.hint.includes('VITE_SUPABASE_URL'))
+    assert.deepEqual(errors[0][1], { issuerHost: 'other.example.test', supabaseUrlHost: 'auth.example.test' })
+    assert.equal(fetch.mock.callCount(), 0)
+    const health = await handlers.materialsHealth(request, context)
+    assert.equal(health.status, 200)
+    assert.equal(health.jsonBody.auth.code, 'AUTH_ISSUER_MISMATCH')
+  })
+
+  test('matching issuer still requires Supabase verification', async t => {
+    const { request, context } = setup(t)
+    process.env.SUPABASE_URL = ' https://auth.example.test/// '
+    request.headers.set('authorization', ['Bearer', `a.${Buffer.from(JSON.stringify({ iss: 'https://auth.example.test/auth/v1' })).toString('base64url')}.c`].join(' '))
+    const fetch = t.mock.method(globalThis, 'fetch', async url => {
+      assert.equal(url, 'https://auth.example.test/auth/v1/user')
+      return new Response(JSON.stringify({ error_code: 'bad_jwt' }), { status: 401 })
+    })
+    assert.equal((await handlers.materialFile(request, context)).jsonBody.code, 'AUTH_TOKEN_INVALID')
+    assert.equal(fetch.mock.callCount(), 1)
+  })
+
+  test('health remains available without a token or configuration and on network failures', async t => {
+    const { request, context } = setup(t)
+    const fetch = t.mock.method(globalThis, 'fetch', async () => { throw new Error('Offline') })
+    request.headers.delete('authorization')
+    let response = await handlers.materialsHealth(request, context)
+    assert.equal(response.status, 200)
+    assert.equal(response.jsonBody.auth.code, 'AUTH_REQUIRED')
+    assert.equal(fetch.mock.callCount(), 0)
+    delete process.env.SUPABASE_URL
+    delete process.env.SUPABASE_ANON_KEY
+    response = await handlers.materialsHealth(request, context)
+    assert.equal(response.status, 200)
+    assert.equal(response.jsonBody.supabaseUrlSet, false)
+    assert.equal(response.jsonBody.supabaseAnonKeySet, false)
+    assert.equal(response.jsonBody.supabaseUrlHost, null)
+    assert.equal(response.jsonBody.auth.code, 'AUTH_NOT_CONFIGURED')
+    process.env.SUPABASE_URL = 'https://auth.example.test'
+    process.env.SUPABASE_ANON_KEY = 'test-anon-key'
+    request.headers.set('authorization', ['Bearer', 'test-token'].join(' '))
+    response = await handlers.materialsHealth(request, context)
+    assert.equal(response.status, 200)
+    assert.equal(response.jsonBody.auth.code, 'AUTH_UPSTREAM_UNREACHABLE')
+    assert.equal(fetch.mock.callCount(), 1)
+  })
 test('health reports safe storage failure details and warns when SP variables are absent', async t => {
   const { request, context, errors, warnings } = setup(t)
   delete process.env.AZURE_CLIENT_ID
