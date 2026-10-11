@@ -20,15 +20,25 @@ export function getDaysRemaining(dateString) {
   const [, year, month, day] = match.map(Number)
   const target = new Date(Date.UTC(year, month - 1, day))
   if (target.getUTCFullYear() !== year || target.getUTCMonth() !== month - 1 || target.getUTCDate() !== day) return null
-  const now = new Date()
-  const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Berlin',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(new Date())
+  const todayParts = Object.fromEntries(parts.map(({ type, value }) => [type, value]))
+  const today = Date.UTC(Number(todayParts.year), Number(todayParts.month) - 1, Number(todayParts.day))
   return Math.round((target.getTime() - today) / (1000 * 60 * 60 * 24))
 }
 
 /** Formats an ISO date string as German date, e.g. "11. Mai 2027". */
 export function formatGermanDate(dateString) {
-  const d = new Date(dateString)
-  return `${d.getDate()}. ${GERMAN_MONTHS[d.getMonth()]} ${d.getFullYear()}`
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateString ?? '')
+  if (!match) return ''
+  const [, year, month, day] = match.map(Number)
+  const date = new Date(Date.UTC(year, month - 1, day))
+  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) return ''
+  return `${day}. ${GERMAN_MONTHS[month - 1]} ${year}`
 }
 
 /** Formats an ISO date string as German time, e.g. "09:00 Uhr". */

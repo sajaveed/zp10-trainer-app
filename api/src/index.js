@@ -6,6 +6,7 @@ import { parseBlobsDetailed } from './materials/parseBlobs.js'
 import { authErrorBody, storageErrorBody } from './materials/errorCodes.js'
 import { decodeJwtIssuer, issuerMatchesSupabaseUrl, getUrlHost, looksLikeAzurePlatformToken } from './materials/tokenIssuer.js'
 import { extractSupabaseToken } from './materials/authHeader.js'
+import { matchesIfNoneMatch, parseByteRange } from './materials/range.js'
 
 const SUPPORTED_SUBJECTS = new Set(['deutsch', 'englisch', 'mathematik'])
 const ALLOWED_FOLDERS = new Set(['leseverstehen', '4a-aufgaben', '4b-aufgaben', '2-aufgaben'])
@@ -162,16 +163,49 @@ app.http('materialFile', {
         return jsonResponse(400, { error: 'Invalid PDF path.', code: 'INVALID_PDF_PATH' })
       }
 
-      const download = await getContainerClient(context).getBlobClient(path).download()
+      const blobClient = getContainerClient(context).getBlobClient(path)
+      const rangeHeader = request.headers.get('range')
+      const ifNoneMatch = request.headers.get('if-none-match')
+      const properties = rangeHeader || ifNoneMatch ? await blobClient.getProperties() : null
+      const totalLength = properties?.contentLength
+      const etag = properties?.etag
+      const headers = {
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': 'inline',
+        'Cache-Control': 'private, max-age=600',
+        'Accept-Ranges': 'bytes',
+      }
+      if (etag) headers.ETag = etag
+      if (Number.isSafeInteger(totalLength)) headers['Content-Length'] = String(totalLength)
+
+      if (matchesIfNoneMatch(ifNoneMatch, etag)) {
+        return { status: 304, headers }
+      }
+
+      const range = parseByteRange(rangeHeader, totalLength)
+      if (range?.unsatisfiable) {
+        headers['Content-Range'] = `bytes */${totalLength}`
+        delete headers['Content-Length']
+        return { status: 416, headers }
+      }
+
+      const download = range
+        ? await blobClient.download(range.start, range.count)
+        : await blobClient.download()
       if (!download.readableStreamBody) return jsonResponse(404, { error: 'PDF not found.', code: 'PDF_NOT_FOUND' })
+      const responseHeaders = { ...headers }
+      const downloadEtag = etag ?? download.etag
+      if (downloadEtag) responseHeaders.ETag = downloadEtag
+      if (range) {
+        responseHeaders['Content-Range'] = `bytes ${range.start}-${range.end}/${totalLength}`
+        responseHeaders['Content-Length'] = String(download.contentLength ?? range.count)
+      } else if (Number.isSafeInteger(download.contentLength)) {
+        responseHeaders['Content-Length'] = String(download.contentLength)
+      }
       return {
-        status: 200,
+        status: range ? 206 : 200,
         body: Readable.toWeb(download.readableStreamBody),
-        headers: {
-          'Content-Type': 'application/pdf',
-          'Content-Disposition': 'inline',
-          'Cache-Control': 'private, no-store',
-        },
+        headers: responseHeaders,
       }
     } catch (error) {
       logError(context, 'Material PDF download failed', error)

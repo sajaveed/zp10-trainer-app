@@ -6,7 +6,7 @@ export default function SimulationTeaser() {
       <div className={styles.simulationIcon} aria-hidden="true">🧭</div>
       <div className={styles.simulationCopy}>
         <h2 id="simulation-title" className={styles.cardTitle}>Deutsch ZP Simulation</h2>
-        <p>Trainiere die vollständige Deutsch-ZP10 unter realistischen Prüfungsbedingungen.</p>
+        <p>Bereite dich unter realistischen Prüfungsbedingungen auf deine Deutsch-ZP10 vor.</p>
       </div>
       <span className={styles.comingSoon}>Bald verfügbar</span>
     </section>

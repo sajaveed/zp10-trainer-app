@@ -16,24 +16,19 @@
 .sectionHeading h2 { color: var(--text); font-family: var(--font-head); font-size: 1.2rem; }
 .sectionHeading p { color: var(--text-dim); font-size: 0.78rem; }
 .examGrid,
-.progressGrid,
-.quickLinks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.progressGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 .examCard,
-.progressCard,
-.quickLink { min-width: 0; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-elevated); box-shadow: var(--shadow-sm); }
-.examCard { display: flex; align-items: center; gap: 12px; padding: 16px; }
-.examCard > span,
-.progressTitle > span,
-.quickLink > span:first-child { font-size: 1.25rem; }
+.progressCard { min-width: 0; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-elevated); box-shadow: var(--shadow-sm); }
+.examCard { display: flex; align-items: flex-start; gap: 12px; padding: 16px; }
+.examIcon,
+.progressTitle > span { font-size: 1.25rem; }
 .examCard h3,
 .progressTitle h3 { color: var(--text); font-size: 0.92rem; font-weight: 700; }
-.examCard p,
+.examDate { margin-top: 2px; color: var(--text-muted); font-size: 0.82rem; }
+.examStatus { margin-top: 7px; color: var(--red); font-family: var(--font-head); font-size: clamp(1.05rem, 2vw, 1.32rem); font-weight: 700; line-height: 1.25; overflow-wrap: anywhere; }
 .progressCard > p { color: var(--text-muted); font-size: 0.8rem; line-height: 1.5; }
 .progressCard { display: flex; flex-direction: column; gap: 12px; padding: 16px; }
 .progressTitle { display: flex; align-items: center; gap: 9px; }
-.quickLink { display: flex; align-items: center; gap: 12px; padding: 15px; color: var(--text); font-size: 0.9rem; font-weight: 600; transition: border-color 0.18s ease, transform 0.18s ease; }
-.quickLink > span:nth-child(2) { flex: 1; }
-.quickLink:hover { transform: translateY(-2px); border-color: var(--red-border); color: var(--red); }
 
 .emailBanner {
   display: flex;
@@ -95,6 +90,6 @@
   .emailBanner { flex-direction: column; align-items: flex-start; }
   .sectionHeading { align-items: flex-start; flex-direction: column; gap: 4px; }
   .examGrid,
-  .progressGrid,
-  .quickLinks { grid-template-columns: 1fr; }
+  .progressGrid { grid-template-columns: 1fr; }
+  .welcome h1 { font-size: clamp(1.55rem, 7vw, 2rem); }
 }

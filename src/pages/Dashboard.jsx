@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useLang } from '../hooks/useLang'
 import { useProgress } from '../hooks/useProgress'
 import { EXAM_DATES } from '../config/examDates'
-import { getDaysRemaining } from '../utils/dateHelpers'
+import { formatGermanDate, getDaysRemaining } from '../utils/dateHelpers'
 import { getUserName } from '../utils/userName'
 import ProgressBar from '../components/ProgressBar'
 import styles from './Dashboard.module.css'
@@ -77,25 +76,23 @@ export default function Dashboard() {
       <section className={styles.dashboardSection} aria-labelledby="exam-countdown-title">
         <div className={styles.sectionHeading}>
           <h2 id="exam-countdown-title">{dashboard.examCountdownTitle}</h2>
-          <p>{dashboard.examDateConfigHint}</p>
         </div>
         <div className={styles.examGrid}>
           {SUBJECTS.map(subject => {
             const date = EXAM_DATES[subject.id]
-            const days = date ? getDaysRemaining(date) : null
-            const status = days === null
-              ? dashboard.examDateMissing
-              : days === 0
+            const days = getDaysRemaining(date)
+            const status = days === 0
                 ? dashboard.examToday
                 : days < 0
                   ? dashboard.examPassed
                   : dashboard.examDaysLeft.replace('{count}', days)
             return (
               <article className={styles.examCard} key={subject.id}>
-                <span aria-hidden="true">{subject.icon}</span>
+                <span className={styles.examIcon} aria-hidden="true">{subject.icon}</span>
                 <div>
                   <h3>{dashboard[subject.labelKey]}</h3>
-                  <p>{status}</p>
+                  <p className={styles.examDate}>{formatGermanDate(date)}</p>
+                  <p className={styles.examStatus}>{status}</p>
                 </div>
               </article>
             )
@@ -121,20 +118,6 @@ export default function Dashboard() {
         </div>
       </section>
 
-      <section className={styles.dashboardSection} aria-labelledby="quick-access-title">
-        <div className={styles.sectionHeading}>
-          <h2 id="quick-access-title">{dashboard.quickAccessTitle}</h2>
-        </div>
-        <div className={styles.quickLinks}>
-          {SUBJECTS.map(subject => (
-            <Link className={styles.quickLink} to={`/${subject.id}`} key={subject.id}>
-              <span aria-hidden="true">{subject.icon}</span>
-              <span>{dashboard[subject.labelKey]}</span>
-              <span aria-hidden="true">→</span>
-            </Link>
-          ))}
-        </div>
-      </section>
     </div>
   )
 }

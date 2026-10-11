@@ -23,18 +23,22 @@ function PdfAction({ path, label, icon, onOpen, disabled }) {
 export default function ExerciseCard({ exercise, category }) {
   const { isCompleted, toggle } = useCompletedExercises()
   const [isOpening, setIsOpening] = useState(false)
+  const [openingPath, setOpeningPath] = useState('')
   const [openError, setOpenError] = useState('')
   const completed = isCompleted(exercise.id)
 
   const handleOpen = async path => {
     setOpenError('')
     setIsOpening(true)
+    setOpeningPath(path)
     try {
       await openMaterialPdf(path)
     } catch (error) {
-      setOpenError(error.message)
+      console.warn('PDF konnte nicht geöffnet werden.', error)
+      setOpenError('Das PDF konnte nicht geöffnet werden. Bitte versuche es erneut.')
     } finally {
       setIsOpening(false)
+      setOpeningPath('')
     }
   }
 
@@ -48,8 +52,8 @@ export default function ExerciseCard({ exercise, category }) {
         {exercise.points && <span className={styles.points}>{exercise.points} P.</span>}
       </div>
       <div className={styles.exerciseActions}>
-        <PdfAction path={exercise.pdfPath} label={isOpening ? 'Wird geöffnet …' : 'Aufgabe öffnen'} icon="📄" onOpen={() => handleOpen(exercise.pdfPath)} disabled={isOpening} />
-        <PdfAction path={exercise.evaluationPath} label="Auswertungsbogen" icon="📋" onOpen={() => handleOpen(exercise.evaluationPath)} disabled={isOpening} />
+        <PdfAction path={exercise.pdfPath} label={isOpening && openingPath === exercise.pdfPath ? 'Wird geöffnet …' : 'Aufgabe öffnen'} icon="📄" onOpen={() => handleOpen(exercise.pdfPath)} disabled={isOpening} />
+        <PdfAction path={exercise.evaluationPath} label={isOpening && openingPath === exercise.evaluationPath ? 'Wird geöffnet …' : 'Auswertungsbogen'} icon="📋" onOpen={() => handleOpen(exercise.evaluationPath)} disabled={isOpening} />
       </div>
       {openError && <p className={styles.pdfError} role="alert">{openError}</p>}
       <label className={styles.completedControl}>
