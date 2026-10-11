@@ -118,7 +118,7 @@ test('health checks container properties and one listing page without exposing s
       anonKeyHasWhitespace: false,
       supabaseUrlHasWhitespace: false,
     },
-    token: { issuerHost: 'auth.example.test', issuerProjectRef: null },
+    token: { issuerHost: 'auth.example.test', issuerProjectRef: null, source: 'authorization', looksLikeAzurePlatformToken: false },
     comparison: { tokenMatchesBackendUrl: true, anonKeyMatchesBackendUrl: null },
     auth: { ok: true, status: 200, code: null, hint: null },
     storageAccountName: true,
@@ -272,4 +272,51 @@ test('PDF downloads distinguish missing blobs from missing containers', async t 
   code = 'ContainerNotFound'
   assert.equal((await handlers.materialFile(request, context)).jsonBody.code, 'CONTAINER_NOT_FOUND')
   assert.equal(errors.length, 2)
+})
+
+test('all endpoints verify the custom Supabase token even when Azure replaces Authorization', async t => {
+  const { request, context } = setup(t)
+  const token = diagnosticToken('https://auth.example.test/auth/v1')
+  const azureToken = diagnosticToken('https://platform.scm.azurewebsites.net')
+  request.headers.set('authorization', 'Bearer ' + azureToken)
+  request.headers.set('x-supabase-authorization', 'Bearer ' + token)
+  const fetch = t.mock.method(globalThis, 'fetch', async (url, options) => {
+    assert.equal(url, 'https://auth.example.test/auth/v1/user')
+    assert.deepEqual(options.headers, { apikey: 'test-anon-key', Authorization: 'Bearer ' + token })
+    return new Response(JSON.stringify({ email_confirmed_at: '2026-01-01' }))
+  })
+  t.mock.method(BlobServiceClient.prototype, 'getContainerClient', () => ({
+    getProperties: async () => ({}),
+    listBlobsFlat: () => ({
+      async *[Symbol.asyncIterator]() {},
+      byPage: () => ({ next: async () => ({}) }),
+    }),
+    getBlobClient: () => ({ download: async () => ({}) }),
+  }))
+  assert.equal((await handlers.materials(request, context)).status, 200)
+  request.query.set('path', 'deutsch/leseverstehen/task.pdf')
+  assert.equal((await handlers.materialFile(request, context)).jsonBody.code, 'PDF_NOT_FOUND')
+  const health = await handlers.materialsHealth(request, context)
+  assert.equal(health.jsonBody.auth.ok, true)
+  assert.equal(health.jsonBody.token.source, 'x-supabase-authorization')
+  assert.equal(health.jsonBody.token.issuerHost, 'auth.example.test')
+  assert.equal(health.jsonBody.token.looksLikeAzurePlatformToken, false)
+  assert.equal(fetch.mock.callCount(), 3)
+  assert.ok(!JSON.stringify(health).includes(token))
+  assert.ok(!JSON.stringify(health).includes(azureToken))
+
+  globalThis.fetch = async () => new Response('{}', { status: 401 })
+  assert.equal((await handlers.materials(request, context)).status, 401)
+  globalThis.fetch = async () => new Response('{}')
+  assert.equal((await handlers.materialFile(request, context)).jsonBody.code, 'EMAIL_UNCONFIRMED')
+})
+
+test('health identifies Azure platform issuers with a safe transport hint', async t => {
+  const { request, context } = setup(t)
+  request.headers.set('authorization', 'Bearer ' + diagnosticToken('https://platform.scm.azurewebsites.net'))
+  const health = await handlers.materialsHealth(request, context)
+  assert.equal(health.jsonBody.token.source, 'authorization')
+  assert.equal(health.jsonBody.token.looksLikeAzurePlatformToken, true)
+  assert.equal(health.jsonBody.auth.code, 'AUTH_ISSUER_MISMATCH')
+  assert.ok(health.jsonBody.auth.hint.includes('X-Supabase-Authorization'))
 })
