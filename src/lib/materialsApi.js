@@ -32,6 +32,16 @@ export async function fetchMaterials(subject) {
   return response.json()
 }
 
+export async function fetchMaterialsHealth() {
+  const token = await getAccessToken()
+  const response = await fetch('/api/materials/health', {
+    headers: { Authorization: 'Bearer ' + token },
+    cache: 'no-store',
+  })
+  if (!response.ok) throw new Error(`Diagnose konnte nicht geladen werden (HTTP ${response.status}).`)
+  return response.json()
+}
+
 export async function fetchMaterialPdf(path) {
   const token = await getAccessToken()
   const response = await fetch(`/api/materials/file?path=${encodeURIComponent(path)}`, {

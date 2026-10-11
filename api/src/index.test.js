@@ -9,6 +9,12 @@ app.http = (name, options) => { handlers[name] = options.handler }
 await import('./index.js')
 app.http = register
 
+const diagnosticToken = issuer => [
+  Buffer.from(JSON.stringify({ alg: 'HS256' })).toString('base64url'),
+  Buffer.from(JSON.stringify({ iss: issuer })).toString('base64url'),
+  'signature',
+].join('.')
+
 function setup(t) {
   const originalEnv = process.env
   process.env = {
@@ -30,7 +36,7 @@ function setup(t) {
     warn: (...args) => warnings.push(args),
   }
   const request = {
-    headers: new Headers({ authorization: ['Bearer', 'test-token'].join(' ') }),
+    headers: new Headers({ authorization: ['Bearer', diagnosticToken('https://auth.example.test/auth/v1')].join(' ') }),
     query: new URLSearchParams({ subject: 'deutsch' }),
   }
   t.mock.method(globalThis, 'fetch', async () => new Response(JSON.stringify({ email_confirmed_at: '2026-01-01' })))
@@ -103,7 +109,18 @@ test('health checks container properties and one listing page without exposing s
     supabaseUrlSet: true,
     supabaseAnonKeySet: true,
     supabaseUrlHost: 'auth.example.test',
-    auth: { ok: true, code: null, hint: null },
+    backend: {
+      supabaseUrlHost: 'auth.example.test',
+      supabaseProjectRef: null,
+      anonKeyProjectRef: null,
+      anonKeyRole: null,
+      anonKeyFormat: 'unknown',
+      anonKeyHasWhitespace: false,
+      supabaseUrlHasWhitespace: false,
+    },
+    token: { issuerHost: 'auth.example.test', issuerProjectRef: null },
+    comparison: { tokenMatchesBackendUrl: true, anonKeyMatchesBackendUrl: null },
+    auth: { ok: true, status: 200, code: null, hint: null },
     storageAccountName: true,
     containerName: true,
     authMode: 'servicePrincipal',
@@ -136,23 +153,24 @@ test('health checks container properties and one listing page without exposing s
       assert.equal(errors.at(-1)[1].statusCode, status)
       assert.ok(errors.at(-1)[1].message.includes(typeof details === 'string' ? details : JSON.stringify(details)))
     }
+    const token = request.headers.get('authorization').split(' ')[1]
     for (const details of [
-      { message: `Invalid API key ${process.env.SUPABASE_ANON_KEY} test-token ${'x'.repeat(500)}` },
-      `Invalid API key ${process.env.SUPABASE_ANON_KEY} test-token ${'x'.repeat(500)}`,
+      { message: `Invalid API key ${process.env.SUPABASE_ANON_KEY} ${token} ${'x'.repeat(500)}` },
+      `Invalid API key ${process.env.SUPABASE_ANON_KEY} ${token} ${'x'.repeat(500)}`,
     ]) {
       globalThis.fetch = async () => new Response(typeof details === 'string' ? details : JSON.stringify(details), { status: 401 })
       const response = await handlers.materials(request, context)
       assert.equal(response.jsonBody.code, 'AUTH_APIKEY_INVALID')
       assert.ok(errors.at(-1)[1].message.length <= 300)
       assert.ok(!JSON.stringify([response, errors]).includes(process.env.SUPABASE_ANON_KEY))
-      assert.ok(!JSON.stringify([response, errors]).includes('test-token'))
+      assert.ok(!JSON.stringify([response, errors]).includes(token))
     }
   })
 
   test('issuer mismatch blocks Supabase calls and logs only hosts', async t => {
     const { request, context, errors } = setup(t)
     const issuer = 'https://other.example.test/auth/v1?private=value'
-    request.headers.set('authorization', ['Bearer', `a.${Buffer.from(JSON.stringify({ iss: issuer })).toString('base64url')}.c`].join(' '))
+    request.headers.set('authorization', ['Bearer', diagnosticToken(issuer)].join(' '))
     const fetch = t.mock.method(globalThis, 'fetch', () => { throw new Error('Must not fetch') })
     const response = await handlers.materials(request, context)
     assert.equal(response.status, 401)
@@ -177,16 +195,17 @@ test('health checks container properties and one listing page without exposing s
     assert.equal(fetch.mock.callCount(), 1)
   })
 
-  test('health remains available without a token or configuration and on network failures', async t => {
+  test('health requires a token but diagnoses missing configuration and network failures', async t => {
     const { request, context } = setup(t)
     const fetch = t.mock.method(globalThis, 'fetch', async () => { throw new Error('Offline') })
     request.headers.delete('authorization')
     let response = await handlers.materialsHealth(request, context)
-    assert.equal(response.status, 200)
-    assert.equal(response.jsonBody.auth.code, 'AUTH_REQUIRED')
+    assert.equal(response.status, 401)
+    assert.deepEqual(response.jsonBody, { error: 'Authentication required.' })
     assert.equal(fetch.mock.callCount(), 0)
     delete process.env.SUPABASE_URL
     delete process.env.SUPABASE_ANON_KEY
+    request.headers.set('authorization', ['Bearer', diagnosticToken('https://auth.example.test/auth/v1')].join(' '))
     response = await handlers.materialsHealth(request, context)
     assert.equal(response.status, 200)
     assert.equal(response.jsonBody.supabaseUrlSet, false)
@@ -195,7 +214,7 @@ test('health checks container properties and one listing page without exposing s
     assert.equal(response.jsonBody.auth.code, 'AUTH_NOT_CONFIGURED')
     process.env.SUPABASE_URL = 'https://auth.example.test'
     process.env.SUPABASE_ANON_KEY = 'test-anon-key'
-    request.headers.set('authorization', ['Bearer', 'test-token'].join(' '))
+    request.headers.set('authorization', ['Bearer', diagnosticToken('https://auth.example.test/auth/v1')].join(' '))
     response = await handlers.materialsHealth(request, context)
     assert.equal(response.status, 200)
     assert.equal(response.jsonBody.auth.code, 'AUTH_UPSTREAM_UNREACHABLE')
