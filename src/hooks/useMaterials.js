@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { fetchMaterials } from '../lib/materialsApi'
 
 export function useMaterials(subject, enabled = true) {
-  const requestKey = `${subject}:${enabled}`
+  const [attempt, setAttempt] = useState(0)
+  const refetch = useCallback(() => setAttempt(previous => previous + 1), [])
+  const requestKey = `${subject}:${enabled}:${attempt}`
   const [state, setState] = useState(() => ({
     requestKey,
     status: enabled ? 'loading' : 'ready',
@@ -43,5 +45,5 @@ export function useMaterials(subject, enabled = true) {
     return grouped
   }, {})
 
-  return { ...visibleState, byCategory }
+  return { ...visibleState, byCategory, refetch }
 }

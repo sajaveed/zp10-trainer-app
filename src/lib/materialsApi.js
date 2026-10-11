@@ -7,12 +7,28 @@ async function getAccessToken() {
   return accessToken
 }
 
+async function responseError(response, message) {
+  let body
+  try {
+    body = await response.json()
+  } catch {
+    // SWA may return HTML when the managed function is not deployed.
+  }
+  const code = typeof body?.code === 'string' ? body.code : undefined
+  const detail = typeof body?.error === 'string' ? body.error : undefined
+  const error = new Error(`${message} (${response.status}${code ? ` ${code}` : ''}${detail ? `: ${detail}` : ''})`)
+  error.status = response.status
+  error.code = code
+  error.isJsonResponse = body !== undefined
+  return error
+}
+
 export async function fetchMaterials(subject) {
   const token = await getAccessToken()
   const response = await fetch(`/api/materials?subject=${encodeURIComponent(subject)}`, {
     headers: { Authorization: 'Bearer ' + token },
   })
-  if (!response.ok) throw new Error('Aufgaben konnten nicht geladen werden.')
+  if (!response.ok) throw await responseError(response, 'Aufgaben konnten nicht geladen werden')
   return response.json()
 }
 
@@ -21,7 +37,7 @@ export async function fetchMaterialPdf(path) {
   const response = await fetch(`/api/materials/file?path=${encodeURIComponent(path)}`, {
     headers: { Authorization: 'Bearer ' + token },
   })
-  if (!response.ok) throw new Error('Das PDF konnte nicht geöffnet werden.')
+  if (!response.ok) throw await responseError(response, 'Das PDF konnte nicht geöffnet werden')
   return response.blob()
 }
 

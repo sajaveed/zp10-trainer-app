@@ -9,10 +9,24 @@ import InfoBox from '../components/InfoBox'
 import { DEUTSCH_CATEGORIES } from '../data/deutschExercises'
 import styles from './Deutsch.module.css'
 
+const MATERIAL_ERROR_HINTS = {
+  AUTH_NOT_CONFIGURED: 'Serverseitige Supabase-Einstellungen fehlen (SUPABASE_URL / SUPABASE_ANON_KEY).',
+  AUTH_INVALID: 'Anmeldung konnte serverseitig nicht geprüft werden – SUPABASE_URL stimmt evtl. nicht mit dem Frontend-Projekt überein.',
+  AUTH_UPSTREAM_UNREACHABLE: 'Der Anmeldedienst ist nicht erreichbar – Supabase-URL und Netzwerkverbindung prüfen.',
+  STORAGE_AUTH_FAILED: 'Azure-Zugangsdaten fehlen oder sind ungültig (AZURE_TENANT_ID/CLIENT_ID/CLIENT_SECRET oder Connection String).',
+  STORAGE_FORBIDDEN: 'Keine Berechtigung auf den Container – Rolle „Storage Blob Data Reader" prüfen.',
+  CONTAINER_NOT_FOUND: 'Container nicht gefunden – AZURE_STORAGE_CONTAINER_NAME prüfen.',
+  STORAGE_NETWORK_BLOCKED: 'Azure Storage ist nicht erreichbar – DNS und Netzwerkregeln prüfen.',
+}
+
 export default function Deutsch() {
   const { emailConfirmed } = useAuth()
   const { t } = useLang()
   const materials = useMaterials('deutsch', emailConfirmed)
+  const errorHint = MATERIAL_ERROR_HINTS[materials.error?.code]
+    || (materials.error?.status === 404 && !materials.error?.isJsonResponse
+      ? 'Die API ist nicht erreichbar (Function nicht deployed / Runtime).'
+      : null)
 
   if (!emailConfirmed) {
     return (
@@ -44,6 +58,9 @@ export default function Deutsch() {
         {materials.status === 'error' && (
           <div className={styles.materialError} role="status">
             Aufgaben konnten nicht geladen werden. Angezeigt werden zunächst die gespeicherten Übungen.
+            {materials.error?.message && <small className={styles.materialDetail}>{materials.error.message}</small>}
+            {errorHint && <small className={styles.materialDetail}>{errorHint}</small>}
+            <button className={styles.retryButton} type="button" onClick={materials.refetch}>Erneut versuchen</button>
           </div>
         )}
         <div className={styles.accordions}>
