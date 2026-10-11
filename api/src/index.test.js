@@ -58,17 +58,17 @@ test('all materials endpoints require configured auth and a token before storage
   assert.equal(storage.mock.callCount(), 0)
 })
 
-test('health diagnoses invalid tokens and unconfirmed accounts without storage access', async t => {
+test('health rejects invalid tokens and unconfirmed accounts without storage access', async t => {
   const { request, context } = setup(t)
   globalThis.fetch = async () => new Response('{}', { status: 401 })
   const storage = t.mock.method(BlobServiceClient.prototype, 'getContainerClient', () => {
     throw new Error('Storage must not be accessed')
   })
   const response = await handlers.materialsHealth(request, context)
-  assert.equal(response.status, 200)
-  assert.equal(response.jsonBody.auth.code, 'AUTH_INVALID')
+  assert.equal(response.status, 401)
+  assert.equal(response.jsonBody.code, 'AUTH_INVALID')
   globalThis.fetch = async () => new Response('{}')
-  assert.equal((await handlers.materialsHealth(request, context)).jsonBody.auth.code, 'EMAIL_UNCONFIRMED')
+  assert.equal((await handlers.materialsHealth(request, context)).jsonBody.code, 'EMAIL_UNCONFIRMED')
   assert.equal(storage.mock.callCount(), 0)
 })
 
@@ -87,47 +87,16 @@ test('Supabase network errors return an auth-specific 503 and safe logs', async 
   assert.ok(!JSON.stringify(errors).includes(process.env.SUPABASE_URL))
 })
 
-test('health checks container properties and one listing page without exposing settings or blobs', async t => {
+test('health returns only a boolean after confirmed-user authentication', async t => {
   const { request, context } = setup(t)
-  let propertiesChecked = false
-  let pageOptions
-  t.mock.method(BlobServiceClient.prototype, 'getContainerClient', () => ({
-    getProperties: async () => { propertiesChecked = true },
-    listBlobsFlat: () => ({
-      byPage: options => {
-        pageOptions = options
-        return { next: async () => ({ value: { segment: { blobItems: [{ name: 'private.pdf' }] } } }) }
-      },
-    }),
-  }))
+  const storage = t.mock.method(BlobServiceClient.prototype, 'getContainerClient', () => {
+    throw new Error('Health must not access storage')
+  })
   const response = await handlers.materialsHealth(request, context)
   assert.equal(response.status, 200)
   assert.equal(response.headers['Cache-Control'], 'no-store')
-  assert.equal(propertiesChecked, true)
-  assert.deepEqual(pageOptions, { maxPageSize: 1 })
-  assert.deepEqual(response.jsonBody, {
-    supabaseUrlSet: true,
-    supabaseAnonKeySet: true,
-    supabaseUrlHost: 'auth.example.test',
-    backend: {
-      supabaseUrlHost: 'auth.example.test',
-      supabaseProjectRef: null,
-      anonKeyProjectRef: null,
-      anonKeyRole: null,
-      anonKeyFormat: 'unknown',
-      anonKeyHasWhitespace: false,
-      supabaseUrlHasWhitespace: false,
-    },
-    token: { issuerHost: 'auth.example.test', issuerProjectRef: null, source: 'authorization', looksLikeAzurePlatformToken: false },
-    comparison: { tokenMatchesBackendUrl: true, anonKeyMatchesBackendUrl: null },
-    auth: { ok: true, status: 200, code: null, hint: null },
-    storageAccountName: true,
-    containerName: true,
-    authMode: 'servicePrincipal',
-    storage: { ok: true, code: null, message: 'Storage is reachable and readable.' },
-    nodeVersion: process.version,
-  })
-  assert.ok(!JSON.stringify(response.jsonBody).includes('private.pdf'))
+  assert.deepEqual(response.jsonBody, { ok: true })
+  assert.equal(storage.mock.callCount(), 0)
 })
 
   test('Supabase rejections classify API keys and JWT failures and log safe bounded details', async t => {
@@ -179,8 +148,8 @@ test('health checks container properties and one listing page without exposing s
     assert.deepEqual(errors[0][1], { issuerHost: 'other.example.test', supabaseUrlHost: 'auth.example.test' })
     assert.equal(fetch.mock.callCount(), 0)
     const health = await handlers.materialsHealth(request, context)
-    assert.equal(health.status, 200)
-    assert.equal(health.jsonBody.auth.code, 'AUTH_ISSUER_MISMATCH')
+    assert.equal(health.status, 401)
+    assert.equal(health.jsonBody.code, 'AUTH_ISSUER_MISMATCH')
   })
 
   test('matching issuer still requires Supabase verification', async t => {
@@ -195,68 +164,58 @@ test('health checks container properties and one listing page without exposing s
     assert.equal(fetch.mock.callCount(), 1)
   })
 
-  test('health requires a token but diagnoses missing configuration and network failures', async t => {
+  test('health requires a token and rejects missing configuration and network failures', async t => {
     const { request, context } = setup(t)
     const fetch = t.mock.method(globalThis, 'fetch', async () => { throw new Error('Offline') })
     request.headers.delete('authorization')
     let response = await handlers.materialsHealth(request, context)
     assert.equal(response.status, 401)
-    assert.deepEqual(response.jsonBody, { error: 'Authentication required.' })
+    assert.equal(response.jsonBody.code, 'AUTH_REQUIRED')
     assert.equal(fetch.mock.callCount(), 0)
     delete process.env.SUPABASE_URL
     delete process.env.SUPABASE_ANON_KEY
     request.headers.set('authorization', ['Bearer', diagnosticToken('https://auth.example.test/auth/v1')].join(' '))
     response = await handlers.materialsHealth(request, context)
-    assert.equal(response.status, 200)
-    assert.equal(response.jsonBody.supabaseUrlSet, false)
-    assert.equal(response.jsonBody.supabaseAnonKeySet, false)
-    assert.equal(response.jsonBody.supabaseUrlHost, null)
-    assert.equal(response.jsonBody.auth.code, 'AUTH_NOT_CONFIGURED')
+    assert.equal(response.status, 503)
+    assert.equal(response.jsonBody.code, 'AUTH_NOT_CONFIGURED')
     process.env.SUPABASE_URL = 'https://auth.example.test'
     process.env.SUPABASE_ANON_KEY = 'test-anon-key'
     request.headers.set('authorization', ['Bearer', diagnosticToken('https://auth.example.test/auth/v1')].join(' '))
     response = await handlers.materialsHealth(request, context)
-    assert.equal(response.status, 200)
-    assert.equal(response.jsonBody.auth.code, 'AUTH_UPSTREAM_UNREACHABLE')
+    assert.equal(response.status, 503)
+    assert.equal(response.jsonBody.code, 'AUTH_UPSTREAM_UNREACHABLE')
     assert.equal(fetch.mock.callCount(), 1)
   })
-test('health reports safe storage failure details and warns when SP variables are absent', async t => {
+test('materials reports safe storage failure details and warns when SP variables are absent', async t => {
   const { request, context, errors, warnings } = setup(t)
   delete process.env.AZURE_CLIENT_ID
   delete process.env.AZURE_TENANT_ID
   delete process.env.AZURE_CLIENT_SECRET
   t.mock.method(BlobServiceClient.prototype, 'getContainerClient', () => ({
-    getProperties: async () => {
+    listBlobsFlat: () => {
       throw Object.assign(new Error(`Forbidden ${process.env.SUPABASE_ANON_KEY}`), {
         name: 'RestError', statusCode: 403, details: { errorCode: 'AuthorizationPermissionMismatch' },
       })
     },
   }))
-  const response = await handlers.materialsHealth(request, context)
-  assert.equal(response.jsonBody.authMode, 'defaultCredential-no-sp-vars')
-  assert.equal(response.jsonBody.storage.ok, false)
-  assert.equal(response.jsonBody.storage.code, 'STORAGE_FORBIDDEN')
+  const response = await handlers.materials(request, context)
+  assert.equal(response.status, 503)
+  assert.equal(response.jsonBody.code, 'STORAGE_FORBIDDEN')
   assert.equal(errors[0][1].errorCode, 'AuthorizationPermissionMismatch')
   assert.equal(warnings.length, 1)
   assert.ok(!JSON.stringify([response, errors]).includes(process.env.SUPABASE_ANON_KEY))
 })
 
-test('health prefers connection string and checks listing permissions too', async t => {
+test('materials prefers connection string and checks listing permissions', async t => {
   const { request, context } = setup(t)
   process.env.AZURE_STORAGE_CONNECTION_STRING = 'test-connection-string'
   t.mock.method(BlobServiceClient, 'fromConnectionString', () => ({
     getContainerClient: () => ({
-      getProperties: async () => ({}),
-      listBlobsFlat: () => ({
-        byPage: () => ({
-          next: async () => { throw { code: 'AuthorizationPermissionMismatch', statusCode: 403 } },
-        }),
-      }),
+      listBlobsFlat: () => { throw { code: 'AuthorizationPermissionMismatch', statusCode: 403 } },
     }),
   }))
-  const response = await handlers.materialsHealth(request, context)
-  assert.equal(response.jsonBody.authMode, 'connectionString')
-  assert.equal(response.jsonBody.storage.code, 'STORAGE_FORBIDDEN')
+  const response = await handlers.materials(request, context)
+  assert.equal(response.jsonBody.code, 'STORAGE_FORBIDDEN')
 })
 
 test('PDF downloads distinguish missing blobs from missing containers', async t => {
@@ -297,10 +256,7 @@ test('all endpoints verify the custom Supabase token even when Azure replaces Au
   request.query.set('path', 'deutsch/leseverstehen/task.pdf')
   assert.equal((await handlers.materialFile(request, context)).jsonBody.code, 'PDF_NOT_FOUND')
   const health = await handlers.materialsHealth(request, context)
-  assert.equal(health.jsonBody.auth.ok, true)
-  assert.equal(health.jsonBody.token.source, 'x-supabase-authorization')
-  assert.equal(health.jsonBody.token.issuerHost, 'auth.example.test')
-  assert.equal(health.jsonBody.token.looksLikeAzurePlatformToken, false)
+  assert.deepEqual(health.jsonBody, { ok: true })
   assert.equal(fetch.mock.callCount(), 3)
   assert.ok(!JSON.stringify(health).includes(token))
   assert.ok(!JSON.stringify(health).includes(azureToken))
@@ -311,12 +267,68 @@ test('all endpoints verify the custom Supabase token even when Azure replaces Au
   assert.equal((await handlers.materialFile(request, context)).jsonBody.code, 'EMAIL_UNCONFIRMED')
 })
 
-test('health identifies Azure platform issuers with a safe transport hint', async t => {
+test('health rejects Azure platform issuers with a safe transport hint', async t => {
   const { request, context } = setup(t)
   request.headers.set('authorization', 'Bearer ' + diagnosticToken('https://platform.scm.azurewebsites.net'))
   const health = await handlers.materialsHealth(request, context)
-  assert.equal(health.jsonBody.token.source, 'authorization')
-  assert.equal(health.jsonBody.token.looksLikeAzurePlatformToken, true)
-  assert.equal(health.jsonBody.auth.code, 'AUTH_ISSUER_MISMATCH')
-  assert.ok(health.jsonBody.auth.hint.includes('X-Supabase-Authorization'))
+  assert.equal(health.status, 401)
+  assert.equal(health.jsonBody.code, 'AUTH_ISSUER_MISMATCH')
+  assert.ok(health.jsonBody.hint.includes('X-Supabase-Authorization'))
+})
+
+test('materials returns paired items and warns about ignored files', async t => {
+  const { request, context, warnings } = setup(t)
+  const taskBlob = 'deutsch/4b-aufgaben/deutsch_leseverstehen_ki-beim-lernen_text_001.pdf'
+  const evaluationBlob = 'deutsch/4b-aufgaben/deutsch_leseverstehen_ki-beim-lernen_auswertungsbogen_001.pdf'
+  const ignored = [
+    { path: 'deutsch/4b-aufgaben/notes.docx', reason: 'not-pdf' },
+    { path: 'deutsch/other/task.pdf', reason: 'unknown-folder' },
+  ]
+  t.mock.method(BlobServiceClient.prototype, 'getContainerClient', () => ({
+    listBlobsFlat: options => {
+      assert.deepEqual(options, { prefix: 'deutsch/' })
+      return {
+        async *[Symbol.asyncIterator]() {
+          for (const name of [taskBlob, evaluationBlob, ...ignored.map(item => item.path)]) yield { name }
+        },
+      }
+    },
+  }))
+  const response = await handlers.materials(request, context)
+  assert.equal(response.status, 200)
+  assert.equal(response.jsonBody.items.length, 1)
+  assert.equal(response.jsonBody.items[0].taskBlob, taskBlob)
+  assert.equal(response.jsonBody.items[0].evaluationBlob, evaluationBlob)
+  assert.deepEqual(response.jsonBody.ignored, ignored)
+  assert.deepEqual(warnings, [['Unrecognized material files', ignored]])
+})
+
+test('PDF validation accepts real filenames in every folder and rejects unsafe paths', async t => {
+  const { request, context } = setup(t)
+  const downloads = []
+  t.mock.method(BlobServiceClient.prototype, 'getContainerClient', () => ({
+    getBlobClient: path => ({
+      download: async () => { downloads.push(path); return {} },
+    }),
+  }))
+  for (const path of [
+    'deutsch/leseverstehen/deutsch_leseverstehen_lichtverschmutzung_text_001.pdf',
+    'deutsch/4a-aufgaben/deutsch_leseverstehen_striche-an-der-tuer_text_001.pdf',
+    'deutsch/4b-aufgaben/deutsch_leseverstehen_ki-beim-lernen_auswertungsbogen_001.PDF',
+    'deutsch/2-aufgaben/deutsch_reparieren-statt-wegwerfen-auswertungsbogen.pdf',
+  ]) {
+    request.query.set('path', path)
+    assert.equal((await handlers.materialFile(request, context)).jsonBody.code, 'PDF_NOT_FOUND')
+    assert.equal(downloads.at(-1), path)
+  }
+  for (const path of [
+    '', 'deutsch/other/task.pdf', 'deutsch/2-aufgaben/sub/task.pdf',
+    'deutsch/2-aufgaben/../task.pdf', 'deutsch\\2-aufgaben\\task.pdf',
+    'deutsch/2-aufgaben/task.docx', 'deutsch/2-aufgaben/\0.pdf',
+    'other/2-aufgaben/task.pdf',
+  ]) {
+    request.query.set('path', path)
+    assert.equal((await handlers.materialFile(request, context)).jsonBody.code, 'INVALID_PDF_PATH')
+  }
+  assert.equal(downloads.length, 4)
 })

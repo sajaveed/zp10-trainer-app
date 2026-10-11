@@ -5,13 +5,6 @@ const CATEGORY_MAP = {
   '2-aufgaben': { id: 'typ2', taskType: 'Aufgabentyp 2' },
 }
 
-const FOLDER_PREFIX = {
-  leseverstehen: 'leseverstehen',
-  typ4a: '4a-aufgaben',
-  typ4b: '4b-aufgaben',
-  typ2: '2-aufgaben',
-}
-
 const SMALL_WORDS = new Set([
   'beim', 'der', 'die', 'das', 'statt', 'an', 'zum', 'wenn', 'und',
   'mit', 'von', 'zu', 'am', 'im',
@@ -37,43 +30,48 @@ function titleFromSlug(slug) {
   }).join(' ')
 }
 
-function parseFileName(path, subject, folder) {
+function parseFileName(path, subject) {
   const filename = path.split('/').at(-1)
-  if (!filename?.toLocaleLowerCase('de').endsWith('.pdf')) return null
-
-  const folderPrefix = FOLDER_PREFIX[CATEGORY_MAP[folder]?.id]
-  if (!folderPrefix) return null
-
   let stem = filename.slice(0, -4)
-  const prefix = `${subject}_${folderPrefix}_`
-  if (stem.toLocaleLowerCase('de').startsWith(prefix.toLocaleLowerCase('de'))) {
-    stem = stem.slice(prefix.length)
-  } else {
-    const genericPrefix = `${subject}_${folder}_`
-    if (!stem.toLocaleLowerCase('de').startsWith(genericPrefix.toLocaleLowerCase('de'))) return null
-    stem = stem.slice(genericPrefix.length)
+  const subjectPrefix = subject.toLocaleLowerCase('de')
+  if (stem.toLocaleLowerCase('de').startsWith(`${subjectPrefix}_`)
+    || stem.toLocaleLowerCase('de').startsWith(`${subjectPrefix}-`)) {
+    stem = stem.slice(subjectPrefix.length + 1)
   }
+  stem = stem.replace(/^(?:leseverstehen|(?:4a|4b|2)[-_]aufgaben|typ[-_]?(?:4a|4b|2)|aufgabentyp[-_]?(?:4a|4b|2)|4a|4b|2)[-_]/i, '')
 
-  const evaluation = /[-_]auswertungsbogen(?:[-_]\d+)?$/i.test(stem)
-  if (evaluation) {
-    stem = stem.replace(/[-_]auswertungsbogen(?:[-_]\d+)?$/i, '')
-  } else {
-    stem = stem.replace(/_text(?:[-_]\d+)?$/i, '').replace(/[-_]\d+$/i, '')
-  }
+  const evaluationSuffix = /(?:^|[-_])auswertungsbogen(?=$|[-_]|\d)/i.exec(stem)
+  const taskSuffix = /(?:^|[-_])text(?=$|[-_]|\d)/i.exec(stem)
+  const suffix = evaluationSuffix || taskSuffix
+  if (suffix) stem = stem.slice(0, suffix.index)
+  stem = stem.replace(/[-_]\d+$/, '')
 
   const slug = normalizeSlug(stem)
   if (!slug) return null
-  return { slug, title: titleFromSlug(stem), evaluation }
+  return { slug, title: titleFromSlug(stem), evaluation: Boolean(evaluationSuffix) }
 }
 
-export function parseBlobs(blobNames, subject = 'deutsch') {
+export function parseBlobsDetailed(blobNames, subject = 'deutsch') {
   const grouped = new Map()
-  for (const path of blobNames) {
-    const [blobSubject, folder] = path.split('/')
-    const category = CATEGORY_MAP[folder]
-    if (blobSubject !== subject || !category) continue
-    const parsed = parseFileName(path, subject, folder)
-    if (!parsed) continue
+  const ignored = []
+  const suffixNumber = path => Number(path.match(/(\d+)\.pdf$/i)?.[1] ?? 0)
+  const sortedNames = [...blobNames].sort((a, b) => suffixNumber(a) - suffixNumber(b))
+  for (const path of sortedNames) {
+    const [blobSubject, folder, filename, extra] = path.split('/')
+    const category = Object.hasOwn(CATEGORY_MAP, folder) ? CATEGORY_MAP[folder] : null
+    const reason = !path.toLowerCase().endsWith('.pdf') ? 'not-pdf'
+      : blobSubject !== subject ? 'wrong-subject'
+        : !category || !filename || extra !== undefined ? 'unknown-folder'
+          : null
+    if (reason) {
+      ignored.push({ path, reason })
+      continue
+    }
+    const parsed = parseFileName(path, subject)
+    if (!parsed) {
+      ignored.push({ path, reason: 'empty-title' })
+      continue
+    }
     const id = `${subject}-${category.id}-${parsed.slug}`
     const task = grouped.get(id) ?? {
       id,
@@ -86,10 +84,18 @@ export function parseBlobs(blobNames, subject = 'deutsch') {
     }
     if (parsed.evaluation) {
       task.evaluationBlob ??= path
-    } else {
-      task.taskBlob ??= path
+    } else if (!task.taskBlob) {
+      task.taskBlob = path
+      task.title = parsed.title
     }
     grouped.set(id, task)
   }
-  return [...grouped.values()].sort((a, b) => a.title.localeCompare(b.title, 'de'))
+  return {
+    tasks: [...grouped.values()].sort((a, b) => a.title.localeCompare(b.title, 'de')),
+    ignored,
+  }
+}
+
+export function parseBlobs(blobNames, subject = 'deutsch') {
+  return parseBlobsDetailed(blobNames, subject).tasks
 }

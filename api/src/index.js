@@ -2,11 +2,10 @@ import { app } from '@azure/functions'
 import { DefaultAzureCredential } from '@azure/identity'
 import { BlobServiceClient } from '@azure/storage-blob'
 import { Readable } from 'node:stream'
-import { parseBlobs } from './materials/parseBlobs.js'
+import { parseBlobsDetailed } from './materials/parseBlobs.js'
 import { authErrorBody, storageErrorBody } from './materials/errorCodes.js'
 import { decodeJwtIssuer, issuerMatchesSupabaseUrl, getUrlHost, looksLikeAzurePlatformToken } from './materials/tokenIssuer.js'
-import { getSupabaseDiagnostics, hasDiagnosticToken } from './materials/supabaseDiagnostics.js'
-import { extractSupabaseToken, getSupabaseTokenSource } from './materials/authHeader.js'
+import { extractSupabaseToken } from './materials/authHeader.js'
 
 const SUPPORTED_SUBJECTS = new Set(['deutsch', 'englisch', 'mathematik'])
 const ALLOWED_FOLDERS = new Set(['leseverstehen', '4a-aufgaben', '4b-aufgaben', '2-aufgaben'])
@@ -128,7 +127,9 @@ app.http('materials', {
       for await (const blob of container.listBlobsFlat({ prefix: `${subject}/` })) {
         names.push(blob.name)
       }
-      return jsonResponse(200, parseBlobs(names, subject))
+      const { tasks, ignored } = parseBlobsDetailed(names, subject)
+      if (ignored.length > 0) context.warn('Unrecognized material files', ignored)
+      return jsonResponse(200, { items: tasks, ignored })
     } catch (error) {
       logError(context, 'Materials listing failed', error)
       return jsonResponse(503, storageErrorBody(error))
@@ -187,43 +188,8 @@ app.http('materialsHealth', {
   authLevel: 'anonymous',
   route: 'materials/health',
   handler: async (request, context) => {
-    const token = extractSupabaseToken(request)
-    if (!hasDiagnosticToken(token)) return jsonResponse(401, { error: 'Authentication required.' })
-    const diagnostics = getSupabaseDiagnostics(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, token)
     const { error } = await getConfirmedUser(request, context)
-    let storage = { ok: false, code: 'AUTH_REQUIRED', message: 'Storage check requires a confirmed user.' }
-    if (!error) {
-      try {
-        const container = getContainerClient(context)
-        await container.getProperties()
-        await container.listBlobsFlat().byPage({ maxPageSize: 1 }).next()
-        storage = { ok: true, code: null, message: 'Storage is reachable and readable.' }
-      } catch (error) {
-        logError(context, 'Materials health check failed', error)
-        const body = storageErrorBody(error)
-        storage = { ok: false, code: body.code, message: body.error }
-      }
-    }
-    return jsonResponse(200, {
-      supabaseUrlSet: Boolean(process.env.SUPABASE_URL),
-      supabaseAnonKeySet: Boolean(process.env.SUPABASE_ANON_KEY),
-      supabaseUrlHost: getUrlHost(process.env.SUPABASE_URL),
-      ...diagnostics,
-      token: {
-        ...diagnostics.token,
-        source: getSupabaseTokenSource(request),
-        looksLikeAzurePlatformToken: looksLikeAzurePlatformToken(decodeJwtIssuer(token)),
-      },
-      auth: { ok: !error, status: error?.status ?? 200, code: error?.jsonBody.code ?? null, hint: error?.jsonBody.hint ?? null },
-      storageAccountName: Boolean(process.env.AZURE_STORAGE_ACCOUNT_NAME),
-      containerName: Boolean(process.env.AZURE_STORAGE_CONTAINER_NAME),
-      authMode: process.env.AZURE_STORAGE_CONNECTION_STRING
-        ? 'connectionString'
-        : process.env.AZURE_CLIENT_ID && process.env.AZURE_TENANT_ID && process.env.AZURE_CLIENT_SECRET
-          ? 'servicePrincipal'
-          : 'defaultCredential-no-sp-vars',
-      ...(!error ? { storage } : {}),
-      nodeVersion: process.version,
-    })
+    if (error) return error
+    return jsonResponse(200, { ok: true })
   },
 })

@@ -9,6 +9,7 @@ export function useMaterials(subject, enabled = true) {
     requestKey,
     status: enabled ? 'loading' : 'ready',
     items: [],
+    ignored: [],
     error: null,
   }))
 
@@ -17,21 +18,20 @@ export function useMaterials(subject, enabled = true) {
 
     let active = true
     fetchMaterials(subject)
-      .then(items => {
-        if (!Array.isArray(items)) throw new Error('Die Aufgabenliste hat ein ungültiges Format.')
-        if (active) setState({ requestKey, status: 'ready', items, error: null })
+      .then(({ items, ignored }) => {
+        if (active) setState({ requestKey, status: 'ready', items, ignored, error: null })
       })
       .catch(error => {
-        if (active) setState({ requestKey, status: 'error', items: [], error })
+        if (active) setState({ requestKey, status: 'error', items: [], ignored: [], error })
       })
     return () => { active = false }
   }, [subject, enabled, requestKey])
 
   const visibleState = !enabled
-    ? { status: 'ready', items: [], error: null }
+    ? { status: 'ready', items: [], ignored: [], error: null }
     : state.requestKey === requestKey
       ? state
-      : { status: 'loading', items: [], error: null }
+      : { status: 'loading', items: [], ignored: [], error: null }
 
   const byCategory = visibleState.items.reduce((grouped, item) => {
     grouped[item.categoryId] ??= []

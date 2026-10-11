@@ -22,8 +22,7 @@ async function responseError(response, message) {
     // SWA may return HTML when the managed function is not deployed.
   }
   const code = typeof body?.code === 'string' ? body.code : undefined
-  const detail = typeof body?.error === 'string' ? body.error : undefined
-  const error = new Error(`${message} (${response.status}${code ? ` ${code}` : ''}${detail ? `: ${detail}` : ''})`)
+  const error = new Error(`${message} (${response.status}${code ? ` ${code}` : ''})`)
   error.status = response.status
   error.code = code
   error.isJsonResponse = body !== undefined
@@ -36,17 +35,10 @@ export async function fetchMaterials(subject) {
     headers: authHeaders(token),
   })
   if (!response.ok) throw await responseError(response, 'Aufgaben konnten nicht geladen werden')
-  return response.json()
-}
-
-export async function fetchMaterialsHealth() {
-  const token = await getAccessToken()
-  const response = await fetch('/api/materials/health', {
-    headers: authHeaders(token),
-    cache: 'no-store',
-  })
-  if (!response.ok) throw new Error(`Diagnose konnte nicht geladen werden (HTTP ${response.status}).`)
-  return response.json()
+  const body = await response.json()
+  const items = Array.isArray(body) ? body : body?.items
+  if (!Array.isArray(items)) throw new Error('Die Aufgabenliste hat ein ungültiges Format.')
+  return { items, ignored: Array.isArray(body?.ignored) ? body.ignored : [] }
 }
 
 export async function fetchMaterialPdf(path) {
