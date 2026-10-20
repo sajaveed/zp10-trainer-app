@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import styles from './DashboardLayout.module.css'
 
 const SIDEBAR_COLLAPSED_STORAGE_KEY = 'zp10-sidebar-collapsed'
 
 export default function DashboardLayout() {
+  const { pathname } = useLocation()
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
     if (typeof window === 'undefined') return false
     return window.localStorage.getItem(SIDEBAR_COLLAPSED_STORAGE_KEY) === '1'
@@ -18,6 +19,7 @@ export default function DashboardLayout() {
   return (
     <div className={`${styles.layout} ${isSidebarCollapsed ? styles.sidebarCollapsed : ''}`}>
       <Sidebar
+        key={pathname}
         isCollapsed={isSidebarCollapsed}
         onToggleCollapse={() => setIsSidebarCollapsed(prev => !prev)}
       />

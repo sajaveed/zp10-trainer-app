@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { LayoutDashboard, BookOpen, Languages, Calculator, Bot, ChartNoAxesColumn, Settings, LogOut, ChevronLeft, ChevronRight, Menu } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
@@ -21,6 +21,19 @@ export default function Sidebar({ isCollapsed, onToggleCollapse }) {
   const { user, signOut } = useAuth()
   const { t } = useLang()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const menuToggleRef = useRef(null)
+
+  useEffect(() => {
+    if (!mobileOpen) return undefined
+    const closeOnEscape = event => {
+      if (event.key === 'Escape') {
+        setMobileOpen(false)
+        menuToggleRef.current?.focus()
+      }
+    }
+    document.addEventListener('keydown', closeOnEscape)
+    return () => document.removeEventListener('keydown', closeOnEscape)
+  }, [mobileOpen])
 
   const name = getUserName(user)
   const schoolType = user?.user_metadata?.school_type || 'Klasse 10'
@@ -31,9 +44,13 @@ export default function Sidebar({ isCollapsed, onToggleCollapse }) {
   return (
     <>
       <button
+        ref={menuToggleRef}
+        type="button"
         className={styles.hamburger}
-        onClick={() => setMobileOpen(true)}
-        aria-label="Menü öffnen"
+        onClick={() => setMobileOpen(open => !open)}
+        aria-label={mobileOpen ? 'Menü schließen' : 'Menü öffnen'}
+        aria-expanded={mobileOpen}
+        aria-controls="dashboard-navigation"
       >
         <Menu aria-hidden="true" />
       </button>
@@ -42,7 +59,7 @@ export default function Sidebar({ isCollapsed, onToggleCollapse }) {
         <div className={styles.overlay} onClick={closeMobile} aria-hidden="true" />
       )}
 
-      <aside className={`${styles.sidebar} ${mobileOpen ? styles.open : ''} ${isCollapsed ? styles.collapsed : ''}`}>
+      <aside id="dashboard-navigation" className={`${styles.sidebar} ${mobileOpen ? styles.open : ''} ${isCollapsed ? styles.collapsed : ''}`}>
         <div className={styles.collapseRow}>
           <button
             type="button"

@@ -28,13 +28,13 @@ export default function Deutsch() {
         <p className={styles.kicker}>ZP10 · Gymnasium NRW</p>
         <h1 className={styles.title}>Deutsch</h1>
         <p className={styles.intro}>
-          Bearbeite eine Aufgabe in deinem eigenen Tempo und prüfe deine Lösung anschließend selbst.
+          Bearbeite eine Aufgabe in deinem eigenen Tempo und reflektiere anschließend deine Lösung.
         </p>
       </header>
 
       <ol className={styles.steps} aria-label="So übst du">
         <li><strong>Aufgabe öffnen</strong><span>Das PDF öffnet sich in einem neuen Tab. Bearbeite es auf Papier oder in einem eigenen Dokument.</span></li>
-        <li><strong>Selbst überprüfen</strong><span>Vergleiche deine Lösung mit dem Auswertungsbogen. Hier erfolgt keine automatische Bewertung.</span></li>
+        <li><strong>Lösung auswerten</strong><span>Nutze den Auswertungsbogen zur Selbstkontrolle. Als zweiter Weg ist eine KI-gestützte Bewertung durch Zeno geplant; sie ist noch nicht verfügbar.</span></li>
         <li><strong>Für diese Sitzung abhaken</strong><span>Häkchen sind nur vorübergehend und werden nicht gespeichert. Beim Neuladen oder Kontowechsel werden sie zurückgesetzt.</span></li>
       </ol>
 

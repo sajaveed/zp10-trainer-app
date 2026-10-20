@@ -34,7 +34,7 @@ function AppContent() {
   return (
     <>
       <a className="skip-link" href="#main-content">{t.nav.skipContent}</a>
-      {!isDashboard && <Navbar onAuthClick={() => setModalOpen(true)} />}
+      {!isDashboard && <Navbar key={pathname} onAuthClick={() => setModalOpen(true)} />}
       {!isDashboard && <AuthModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />}
       <Routes>
         <Route

@@ -1,6 +1,6 @@
 .nav { position: sticky; top: 0; z-index: 100; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; padding: 12px var(--page-gutter); padding-top: max(12px, env(safe-area-inset-top)); background: var(--surface); border-bottom: 1px solid var(--border); }
-.logo { display: inline-flex; align-items: center; }
-.right { display: flex; align-items: center; gap: 8px; }
+.logo { display: inline-flex; align-items: center; flex-shrink: 0; }
+.right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .links { display: none; order: 3; width: 100%; list-style: none; border-top: 1px solid var(--border); padding-top: 8px; }
 .links.open { display: grid; }
 .links a { display: flex; align-items: center; min-height: 44px; padding: 8px; color: var(--text-muted); font-size: 0.9375rem; }
@@ -10,11 +10,12 @@
 .langToggle button { font-size: 0.875rem; font-weight: 650; }
 .langToggle button.active { color: var(--action-primary); background: var(--action-subtle); }
 .themeToggle:hover, .hamburger:hover { background: var(--surface-subtle); }
+.hamburger { width: 44px; height: 44px; padding: 0; flex: 0 0 44px; }
+.hamburger svg { display: block; width: 24px; height: 24px; flex-shrink: 0; }
 .btnNav { min-height: 44px; padding: 8px 16px; border-radius: var(--radius-sm); background: var(--action-primary); color: var(--on-action); font-weight: 650; font-size: 0.9375rem; }
 .btnNav:hover { background: var(--action-hover); }
 @media (max-width: 767px) {
   .right { margin-left: auto; }
-  .langToggle { order: 4; }
 }
 @media (max-width: 479px) {
   .nav { column-gap: 8px; }

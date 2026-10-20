@@ -16,10 +16,14 @@
 .page h2 { font: 650 1.15rem/1.4 system-ui, sans-serif; }
 .page h3 { font: 600 1rem/1.4 system-ui, sans-serif; }
 .learning { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: clamp(18px, 3vw, 28px); display: grid; gap: 16px; }
-.primaryAction { justify-self: start; text-decoration: none; }
+.primaryAction { justify-self: start; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; text-decoration: none; }
+.primaryAction svg { flex-shrink: 0; }
 .primaryAction:hover { text-decoration: underline; }
 .subjectList { list-style: none; padding: 0; margin: 4px 0 0; }
-.subjectList li { display: flex; justify-content: space-between; gap: 12px; padding: 15px 0; border-top: 1px solid var(--border); }
+.subjectList { scroll-margin-top: 80px; }
+.subjectList li { border-top: 1px solid var(--border); }
+.subjectList a { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 15px 0; min-height: 44px; }
+.subjectList a:hover h3 { color: var(--action-primary); }
 .subjectList span { color: var(--text-muted); font-size: .875rem; text-align: right; }
 .dashboardSection { display: grid; gap: 16px; }
 .examGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--border); }
@@ -40,7 +44,7 @@
   .page { gap: 28px; padding-inline: 16px; padding-bottom: 24px; }
   .examGrid { grid-template-columns: 1fr; }
   .examCard { padding: 16px 0; border-bottom: 1px solid var(--border); }
-  .subjectList li { flex-wrap: wrap; gap: 4px 12px; }
+  .subjectList a { flex-wrap: wrap; gap: 4px 12px; }
   .subjectList span { text-align: left; }
   .primaryAction { justify-self: stretch; }
 }
