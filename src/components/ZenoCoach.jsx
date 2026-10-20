@@ -1,251 +1,159 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
+import { ArrowUp, Paperclip, X } from 'lucide-react'
 import { useLang } from '../hooks/useLang'
 import styles from './ZenoCoach.module.css'
 
-// ─── Mock data ────────────────────────────────────────────────────────────────
-// Replace `mockMessages` with real API responses once the AI model is ready.
-// The shape { role: 'zeno'|'student', text: string, timestamp: Date } is
-// intentionally kept simple so a future useSendMessage() hook can produce the
-// same structure from a backend response.
-function buildInitialMessages(t) {
-  return [
-    {
-      id: 1,
-      role: 'zeno',
-      text: t.zenoCoach.initialMessageA,
-      timestamp: new Date(Date.now() - 90_000),
-    },
-    {
-      id: 2,
-      role: 'student',
-      text: t.zenoCoach.initialMessageB,
-      timestamp: new Date(Date.now() - 60_000),
-    },
-    {
-      id: 3,
-      role: 'zeno',
-      text: t.zenoCoach.initialMessageC,
-      timestamp: new Date(Date.now() - 30_000),
-    },
-  ]
+const copy = {
+  de: {
+    kicker: 'Chat-Vorschau',
+    badge: 'Demo · In Entwicklung',
+    subtitle: 'Beispielantworten, keine echte KI.',
+    initial: 'Dies ist eine Demo. Hier kannst du den Chat ausprobieren; meine Antworten sind vorgegeben.',
+    question: 'Wie kann ich meine Argumentation überprüfen?',
+    example: 'Ein möglicher Selbstcheck: Ist deine These klar? Hast du ein passendes Beispiel genannt und erklärt, warum es deine These stützt?',
+    reply: 'Demo-Antwort: Prüfe, ob These, Begründung und Beispiel zusammenpassen. Das ist ein allgemeiner Hinweis, keine Analyse deiner Nachricht oder Dateien.',
+    chat: 'Zeno-Demounterhaltung',
+    student: 'Du',
+    pending: 'Demo-Antwort wird angezeigt …',
+    selected: 'Nur lokal ausgewählt:',
+    remove: 'Datei entfernen:',
+    attach: 'Dateien lokal für die Demo auswählen',
+    placeholder: 'Demo-Nachricht schreiben …',
+    input: 'Deine Demo-Nachricht',
+    send: 'Demo-Nachricht senden',
+    disclaimer: 'Nur eine Demo: keine KI-Verbindung. Nachrichten bleiben in dieser Ansicht. Dateien werden nicht hochgeladen, gelesen oder analysiert.',
+    fileNames: 'Ausgewählte Dateinamen',
+  },
+  en: {
+    kicker: 'Chat preview',
+    badge: 'Demo · In development',
+    subtitle: 'Example replies, not real AI.',
+    initial: 'This is a demo. You can try the chat here; my replies are predefined.',
+    question: 'How can I check my argument?',
+    example: 'One possible self-check: is your main claim clear? Have you given a relevant example and explained why it supports your claim?',
+    reply: 'Demo reply: check whether your claim, reasoning and example fit together. This is general guidance, not an analysis of your message or files.',
+    chat: 'Zeno demo conversation',
+    student: 'You',
+    pending: 'Showing a demo reply …',
+    selected: 'Selected locally only:',
+    remove: 'Remove file:',
+    attach: 'Select local files for the demo',
+    placeholder: 'Write a demo message …',
+    input: 'Your demo message',
+    send: 'Send demo message',
+    disclaimer: 'Demo only: no AI connection. Messages stay in this view. Files are not uploaded, read or analysed.',
+    fileNames: 'Selected filenames',
+  },
 }
 
-// ─── Helper: format HH:MM ─────────────────────────────────────────────────────
-function fmtTime(date) {
-  return date.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
-}
-
-// ─── Sub-components ───────────────────────────────────────────────────────────
-
-function MessageBubble({ message }) {
-  const isZeno = message.role === 'zeno'
-  return (
-    <div className={`${styles.messageRow} ${isZeno ? styles.zenoRow : styles.studentRow}`}>
-      {isZeno && (
-        <div className={styles.bubbleAvatar} aria-hidden="true">Z</div>
-      )}
-      <div className={`${styles.bubble} ${isZeno ? styles.zenoBubble : styles.studentBubble}`}>
-        <p className={styles.bubbleText}>{message.text}</p>
-        <time className={styles.bubbleTime} dateTime={message.timestamp.toISOString()}>
-          {fmtTime(message.timestamp)}
-        </time>
-      </div>
-    </div>
-  )
-}
-
-function TypingIndicator({ t }) {
-  return (
-    <div className={`${styles.messageRow} ${styles.zenoRow}`}>
-      <div className={styles.bubbleAvatar} aria-hidden="true">Z</div>
-      <div className={`${styles.bubble} ${styles.zenoBubble} ${styles.typingBubble}`} aria-label={t.zenoCoach.typingAria}>
-        <span className={styles.typingDot} />
-        <span className={styles.typingDot} />
-        <span className={styles.typingDot} />
-      </div>
-    </div>
-  )
-}
-
-function AttachmentChip({ file, onRemove }) {
-  const isImage = file.type.startsWith('image/')
-  const icon = isImage ? '🖼️' : '📎'
-  return (
-    <span className={styles.attachmentChip}>
-      <span className={styles.chipIcon}>{icon}</span>
-      <span className={styles.chipName}>{file.name}</span>
-      <button
-        type="button"
-        className={styles.chipRemove}
-        onClick={() => onRemove(file.name)}
-        aria-label={`${file.name} entfernen`}
-      >
-        ×
-      </button>
-    </span>
-  )
-}
-
-// ─── Main component ───────────────────────────────────────────────────────────
-// Structure is intentionally split so a future hook (e.g. useZenoChat) can
-// replace `messages`, `thinking`, and `handleSend` with API-backed equivalents.
+const initialMessages = [
+  { id: 'initial', role: 'zeno', copyKey: 'initial' },
+  { id: 'question', role: 'student', copyKey: 'question' },
+  { id: 'example', role: 'zeno', copyKey: 'example' },
+]
 
 export default function ZenoCoach({ popup = false }) {
-  const { t } = useLang()
-  const [messages, setMessages] = useState(() => buildInitialMessages(t))
+  const { lang } = useLang()
+  const c = copy[lang] || copy.de
+  const id = useId()
+  const [messages, setMessages] = useState(initialMessages)
   const [inputValue, setInputValue] = useState('')
   const [thinking, setThinking] = useState(false)
   const [attachments, setAttachments] = useState([])
   const fileInputRef = useRef(null)
   const chatWindowRef = useRef(null)
+  const replyTimer = useRef(null)
+  const sequence = useRef(0)
 
-  // Keep scrolling inside the chat area to avoid moving the full page
+  useEffect(() => () => clearTimeout(replyTimer.current), [])
+
   useEffect(() => {
-    const chatWindow = chatWindowRef.current
-    if (!chatWindow) return
-    chatWindow.scrollTo({
-      top: chatWindow.scrollHeight,
-      behavior: 'smooth',
-    })
+    const chat = chatWindowRef.current
+    if (chat) chat.scrollTop = chat.scrollHeight
   }, [messages, thinking])
 
-  // ── Sending a message (mock – replace body with real API call later) ──────
-  const handleSend = useCallback(() => {
+  function handleSend(event) {
+    event?.preventDefault()
     const text = inputValue.trim()
-    if (!text && attachments.length === 0) return
-
-    const studentMsg = {
-      id: Date.now(),
-      role: 'student',
-      text: text || `[${attachments.map(f => f.name).join(', ')}]`,
-      timestamp: new Date(),
-    }
-    setMessages(prev => [...prev, studentMsg])
+    if (replyTimer.current !== null || (!text && attachments.length === 0)) return
+    sequence.current += 1
+    const messageId = sequence.current
+    setMessages(previous => [...previous, { id: `student-${messageId}`, role: 'student', text, files: attachments }])
     setInputValue('')
     setAttachments([])
     setThinking(true)
-
-    // TODO: replace the timeout below with a real API call, e.g.:
-    // const reply = await fetchZenoReply({ text, attachments, subject, rubric })
-    // setMessages(prev => [...prev, { id: ..., role: 'zeno', text: reply.text, timestamp: new Date() }])
-    setTimeout(() => {
+    replyTimer.current = setTimeout(() => {
+      setMessages(previous => [...previous, { id: `reply-${messageId}`, role: 'zeno', copyKey: 'reply' }])
       setThinking(false)
-      setMessages(prev => [
-        ...prev,
-        {
-          id: Date.now() + 1,
-          role: 'zeno',
-          text: t.zenoCoach.mockReply,
-          timestamp: new Date(),
-        },
-      ])
-    }, 1800)
-  }, [attachments, inputValue, t])
+      replyTimer.current = null
+    }, 650)
+  }
 
-  const handleKeyDown = useCallback((e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSend()
-    }
-  }, [handleSend])
-
-  // ── File upload ────────────────────────────────────────────────────────────
-  const handleFileChange = useCallback((e) => {
-    const files = Array.from(e.target.files || [])
-    setAttachments(prev => {
-      const existing = new Set(prev.map(f => f.name))
-      const newFiles = files.filter(f => !existing.has(f.name))
-      return [...prev, ...newFiles]
-    })
-    // Reset input so the same file can be re-selected after removal
-    e.target.value = ''
-  }, [])
-
-  const removeAttachment = useCallback((name) => {
-    setAttachments(prev => prev.filter(f => f.name !== name))
-  }, [])
+  function handleFileChange(event) {
+    // Keep filenames only: the demo never reads or transmits file contents.
+    const names = Array.from(event.target.files || [], file => file.name)
+    setAttachments(previous => [...new Set([...previous, ...names])])
+    event.target.value = ''
+  }
 
   return (
-    <section className={`${styles.wrapper} ${popup ? styles.popupWrapper : ''}`}>
-      {/* ── Header ── */}
-      <div className={styles.header}>
-        <div className={styles.avatarWrap} aria-hidden="true">
-          <div className={styles.avatar}>Z</div>
-          <div className={styles.statusDot} title={t.zenoCoach.statusOnline} />
-        </div>
+    <section className={`${styles.wrapper} ${popup ? styles.popupWrapper : ''}`} aria-labelledby={`${id}-title`}>
+      <header className={styles.header}>
         <div className={styles.headerInfo}>
-          <p className={styles.kicker}>{t.zenoCoach.kicker}</p>
-          <h2 className={styles.title}>Zeno</h2>
-          <p className={styles.subtitle}>
-            {t.zenoCoach.subtitle}
-          </p>
+          <p className={styles.kicker}>{c.kicker}</p>
+          <h2 className={styles.title} id={`${id}-title`}>Zeno</h2>
+          <p className={styles.subtitle}>{c.subtitle}</p>
         </div>
-        <div className={styles.headerBadge}>{t.zenoCoach.inDevelopment}</div>
-      </div>
+        <span className={styles.headerBadge}>{c.badge}</span>
+      </header>
 
-      {/* ── Chat messages ── */}
-      <div className={styles.chatWindow} ref={chatWindowRef} role="log" aria-live="polite" aria-label={t.zenoCoach.chatAria}>
-        {messages.map(msg => (
-          <MessageBubble key={msg.id} message={msg} />
+      <div className={styles.chatWindow} ref={chatWindowRef} role="log" aria-live="polite" aria-label={c.chat} tabIndex={0}>
+        {messages.map(message => (
+          <div className={`${styles.messageRow} ${message.role === 'student' ? styles.studentRow : ''}`} key={message.id}>
+            <div className={`${styles.bubble} ${message.role === 'student' ? styles.studentBubble : ''}`}>
+              <span className={styles.speaker}>{message.role === 'zeno' ? 'Zeno' : c.student}</span>
+              {(message.copyKey || message.text) && <p>{message.copyKey ? c[message.copyKey] : message.text}</p>}
+              {message.files?.length > 0 && (
+                <div className={styles.messageFiles}><span>{c.fileNames}:</span><ul>{message.files.map(name => <li key={name}>{name}</li>)}</ul></div>
+              )}
+            </div>
+          </div>
         ))}
-        {thinking && <TypingIndicator t={t} />}
+        {thinking && <p className={styles.pending}>{c.pending}</p>}
       </div>
 
-      {/* ── Attachment preview ── */}
       {attachments.length > 0 && (
         <div className={styles.attachmentPreview}>
-          <span className={styles.attachmentLabel}>{t.zenoCoach.attachmentsLabel}</span>
-          <div className={styles.chips}>
-            {attachments.map(file => (
-              <AttachmentChip key={file.name} file={file} onRemove={removeAttachment} />
+          <p>{c.selected}</p>
+          <ul className={styles.chips}>
+            {attachments.map(name => (
+              <li className={styles.attachmentChip} key={name}>
+                <span className={styles.chipName}>{name}</span>
+                <button type="button" onClick={() => setAttachments(previous => previous.filter(file => file !== name))} aria-label={`${c.remove} ${name}`}><X size={16} aria-hidden="true" /></button>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       )}
 
-      {/* ── Input bar ── */}
-      <div className={styles.inputBar}>
-        {/* Hidden file input */}
-        <input
-          ref={fileInputRef}
-          type="file"
-          multiple
-          accept="image/*,.pdf,.doc,.docx,.txt"
-          className={styles.hiddenFileInput}
-          onChange={handleFileChange}
-          aria-label={t.zenoCoach.attachmentsAria}
-        />
-        <button
-          type="button"
-          className={styles.uploadButton}
-          onClick={() => fileInputRef.current?.click()}
-          title={t.zenoCoach.attachmentsButton}
-          aria-label={t.zenoCoach.attachmentsButton}
-        >
-          📎
-        </button>
+      <form className={styles.inputBar} onSubmit={handleSend} aria-describedby={`${id}-disclaimer`}>
+        <input ref={fileInputRef} type="file" multiple accept="image/*,.pdf,.doc,.docx,.txt" className={styles.hiddenFileInput} onChange={handleFileChange} aria-label={c.attach} />
+        <button type="button" className={styles.attachButton} onClick={() => fileInputRef.current?.click()} title={c.attach} aria-label={c.attach}><Paperclip size={19} aria-hidden="true" /></button>
         <textarea
-          className={styles.textInput}
-          placeholder={t.zenoCoach.inputPlaceholder}
+          className={`ui-field ${styles.textInput}`}
+          placeholder={c.placeholder}
           value={inputValue}
-          onChange={e => setInputValue(e.target.value)}
-          onKeyDown={handleKeyDown}
+          onChange={event => setInputValue(event.target.value)}
+          onKeyDown={event => {
+            if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) handleSend(event)
+          }}
           rows={1}
-          aria-label={t.zenoCoach.inputAria}
+          aria-label={c.input}
+          aria-describedby={`${id}-disclaimer`}
         />
-        <button
-          type="button"
-          className={styles.sendButton}
-          onClick={handleSend}
-          disabled={!inputValue.trim() && attachments.length === 0}
-          aria-label={t.zenoCoach.sendAria}
-        >
-          ➤
-        </button>
-      </div>
-      <p className={styles.disclaimer}>
-        {t.zenoCoach.disclaimer}
-      </p>
+        <button type="submit" className={styles.sendButton} disabled={thinking || (!inputValue.trim() && attachments.length === 0)} aria-label={c.send}><ArrowUp size={20} aria-hidden="true" /></button>
+      </form>
+      <p className={styles.disclaimer} id={`${id}-disclaimer`}>{c.disclaimer}</p>
     </section>
   )
 }

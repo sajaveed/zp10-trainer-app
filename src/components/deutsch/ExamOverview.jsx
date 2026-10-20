@@ -1,5 +1,4 @@
 import styles from '../../pages/Deutsch.module.css'
-import InfoBox from '../InfoBox'
 
 const writingTasks = [
   {
@@ -19,10 +18,8 @@ const writingTasks = [
 export default function ExamOverview() {
   return (
     <section className={styles.overview} aria-labelledby="overview-title">
-      <InfoBox icon="🧩" title="Aufbau der Deutschprüfung" tone="structure">
         <div className={styles.sectionHeading}>
           <div>
-            <p className={styles.kicker}>DAS PRÜFUNGSFORMAT</p>
             <h3 id="overview-title" className={styles.sectionTitle}>So ist die Deutsch-ZP10 aufgebaut</h3>
           </div>
           <p className={styles.sectionDescription}>
@@ -32,7 +29,6 @@ export default function ExamOverview() {
 
         <div className={styles.partsGrid}>
           <article className={styles.partCard}>
-            <span className={styles.partIcon} aria-hidden="true">📚</span>
             <h3 className={styles.cardTitle}>Teil 1 – Leseverstehen</h3>
             <div className={styles.metrics}>
               <span><strong>30 Min.</strong> reguläre Bearbeitungszeit</span>
@@ -41,7 +37,6 @@ export default function ExamOverview() {
             <p>Ein Sachtext mit verschiedenen Aufgaben, z. B. Multiple Choice, Zuordnungen, Erläuterungen und kurze Stellungnahmen.</p>
           </article>
           <article className={styles.partCard}>
-            <span className={styles.partIcon} aria-hidden="true">📝</span>
             <h3 className={styles.cardTitle}>Teil 2 – Schreiben</h3>
             <div className={styles.metrics}>
               <span><strong>120 Min.</strong> reguläre Bearbeitungszeit</span>
@@ -52,9 +47,8 @@ export default function ExamOverview() {
         </div>
 
         <div className={styles.taskGrid}>
-          {writingTasks.map((task, index) => (
+          {writingTasks.map(task => (
             <article className={styles.taskCard} key={task.title}>
-              <span className={styles.taskNumber}>0{index + 1}</span>
               <h3 className={styles.cardTitle}>{task.title}</h3>
               <p>{task.description}</p>
             </article>
@@ -62,11 +56,10 @@ export default function ExamOverview() {
         </div>
 
         <div className={styles.note}>
-          <span aria-hidden="true">💡</span>
           <p><strong>Wichtig:</strong> Die erste Wahlaufgabe ist Aufgabentyp 4a. Die zweite Wahlaufgabe ist entweder Aufgabentyp 2 oder 4b.</p>
         </div>
-      </InfoBox>
-      <InfoBox icon="⏱️" title="Zeitmanagement" tone="time">
+      <div className={styles.timeManagement}>
+        <h3 className={styles.cardTitle}>Zeitmanagement</h3>
         <p>Zusätzlich gibt es 10 Minuten Auswahlzeit und 10 Minuten Bonuszeit.</p>
         <ul className={styles.timeList}>
           <li><strong>30 Min.</strong> Leseverstehen</li>
@@ -74,7 +67,7 @@ export default function ExamOverview() {
           <li><strong>10 Minuten</strong> Auswahlzeit</li>
           <li><strong>10 Minuten</strong> Bonuszeit</li>
         </ul>
-      </InfoBox>
+      </div>
     </section>
   )
 }

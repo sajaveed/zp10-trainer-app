@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 
 const LangContext = createContext()
 
@@ -11,6 +11,7 @@ export const translations = {
       faq: 'FAQ',
       signIn: 'Anmelden',
       themeToggle: 'Darkmode umschalten',
+      skipContent: 'Zum Inhalt springen',
     },
     hero: {
       h1a: 'Schreib. Lern.',
@@ -104,7 +105,7 @@ export const translations = {
       close: 'Schließen',
     },
     footer: {
-      tagline: 'KI-gestützte ZP10-Vorbereitung für NRW.',
+      tagline: 'ZP10-Vorbereitung für Nordrhein-Westfalen.',
       appCol: 'App',
       legalCol: 'Rechtliches',
       privacy: 'Datenschutz',
@@ -206,7 +207,7 @@ export const translations = {
       dashboardRedesignHint: 'Das Dashboard wird gerade neu gestaltet. Schau bald wieder vorbei.',
     },
     settings: {
-      title: '⚙️ Einstellungen',
+      title: 'Einstellungen',
       subtitle: 'Theme und Dashboard-Präferenzen werden in user_settings gespeichert.',
       displayTitle: 'Darstellung',
       loadingTheme: 'Lade Theme-Einstellungen…',
@@ -270,13 +271,13 @@ export const translations = {
     },
     placeholders: {
       inDevelopment: 'In Entwicklung',
-      germanTitle: '📝 Deutsch',
+      germanTitle: 'Deutsch',
       germanDescription: 'Dieser Bereich wird gerade aufgebaut. Bald findest du hier strukturierte Aufgaben für Deutsch.',
-      englishTitle: '🌍 Englisch',
+      englishTitle: 'Englisch',
       englishDescription: 'Dieser Bereich wird gerade aufgebaut. Bald findest du hier strukturierte Aufgaben für Englisch.',
-      mathTitle: '📐 Mathematik',
+      mathTitle: 'Mathematik',
       mathDescription: 'Dieser Bereich wird gerade aufgebaut. Bald findest du hier strukturierte Aufgaben für Mathematik.',
-      progressTitle: '📈 Fortschritt',
+      progressTitle: 'Fortschritt',
       progressDescription: 'Dieser Bereich wird gerade aufgebaut. Bald siehst du hier deinen Lernfortschritt im Zeitverlauf.',
     },
   },
@@ -288,6 +289,7 @@ export const translations = {
       faq: 'FAQ',
       signIn: 'Sign in',
       themeToggle: 'Toggle dark mode',
+      skipContent: 'Skip to content',
     },
     hero: {
       h1a: 'Write. Learn.',
@@ -381,7 +383,7 @@ export const translations = {
       close: 'Close',
     },
     footer: {
-      tagline: 'AI-powered ZP10 prep for NRW.',
+      tagline: 'ZP10 preparation for North Rhine-Westphalia.',
       appCol: 'App',
       legalCol: 'Legal',
       privacy: 'Privacy policy',
@@ -483,7 +485,7 @@ export const translations = {
       dashboardRedesignHint: 'The dashboard is being redesigned. Please check back soon.',
     },
     settings: {
-      title: '⚙️ Settings',
+      title: 'Settings',
       subtitle: 'Theme and dashboard preferences are stored in user_settings.',
       displayTitle: 'Appearance',
       loadingTheme: 'Loading theme settings…',
@@ -547,13 +549,13 @@ export const translations = {
     },
     placeholders: {
       inDevelopment: 'In development',
-      germanTitle: '📝 German',
+      germanTitle: 'German',
       germanDescription: 'This area is currently being built. Structured German tasks will be available soon.',
-      englishTitle: '🌍 English',
+      englishTitle: 'English',
       englishDescription: 'This area is currently being built. Structured English tasks will be available soon.',
-      mathTitle: '📐 Math',
+      mathTitle: 'Math',
       mathDescription: 'This area is currently being built. Structured Math tasks will be available soon.',
-      progressTitle: '📈 Progress',
+      progressTitle: 'Progress',
       progressDescription: 'This area is currently being built. You will soon see your learning progress over time.',
     },
   },
@@ -561,6 +563,9 @@ export const translations = {
 
 export function LangProvider({ children }) {
   const [lang, setLang] = useState('de')
+  useEffect(() => {
+    document.documentElement.lang = lang
+  }, [lang])
   const t = translations[lang]
   return (
     <LangContext.Provider value={{ lang, setLang, t }}>

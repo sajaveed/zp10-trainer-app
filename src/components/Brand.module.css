@@ -1,0 +1,5 @@
+.brand { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
+.mark { width: 36px; height: 36px; object-fit: contain; flex: 0 0 auto; }
+.name { color: var(--text); font-size: 1rem; font-weight: 750; letter-spacing: -0.025em; white-space: nowrap; }
+.name > span { font-weight: 500; }
+@media (max-width: 359px) { .mark { width: 28px; height: 28px; } .name { font-size: 0.875rem; } }

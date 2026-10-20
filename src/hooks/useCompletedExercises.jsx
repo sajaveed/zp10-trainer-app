@@ -1,8 +1,15 @@
 import { createContext, useContext, useMemo, useState } from 'react'
+import { useAuth } from './useAuth'
 
 const CompletedExercisesContext = createContext(null)
 
 export function CompletedExercisesProvider({ children }) {
+  const { user } = useAuth()
+  // Discard in-memory marks synchronously when the account changes.
+  return <SessionCompletedExercises key={user?.id ?? 'signed-out'}>{children}</SessionCompletedExercises>
+}
+
+function SessionCompletedExercises({ children }) {
   const [completedIds, setCompletedIds] = useState(() => new Set())
   const value = useMemo(() => ({
     isCompleted: id => completedIds.has(id),

@@ -17,45 +17,53 @@ export default function Deutsch() {
   if (!emailConfirmed) {
     return (
       <div className={`${styles.page} ${styles.lockState}`}>
-        <div className={styles.lockIcon}>🔒</div>
         <p>{t.dashboard.contentLocked}</p>
       </div>
     )
   }
 
   return (
-    <main className={styles.page}>
+    <div className={styles.page}>
       <header className={styles.header}>
-        <p className={styles.kicker}>ZP10 · LERNBEREICH</p>
+        <p className={styles.kicker}>ZP10 · Gymnasium NRW</p>
         <h1 className={styles.title}>Deutsch</h1>
         <p className={styles.intro}>
-          Übe die vier Aufgabentypen und überprüfe deine Ergebnisse mit dem Auswertungsbogen.
+          Bearbeite eine Aufgabe in deinem eigenen Tempo und prüfe deine Lösung anschließend selbst.
         </p>
       </header>
 
-      <a className={styles.startButton} href="#exercises">Jetzt Übungen starten <span aria-hidden="true">↓</span></a>
+      <ol className={styles.steps} aria-label="So übst du">
+        <li><strong>Aufgabe öffnen</strong><span>Das PDF öffnet sich in einem neuen Tab. Bearbeite es auf Papier oder in einem eigenen Dokument.</span></li>
+        <li><strong>Selbst überprüfen</strong><span>Vergleiche deine Lösung mit dem Auswertungsbogen. Hier erfolgt keine automatische Bewertung.</span></li>
+        <li><strong>Für diese Sitzung abhaken</strong><span>Häkchen sind nur vorübergehend und werden nicht gespeichert. Beim Neuladen oder Kontowechsel werden sie zurückgesetzt.</span></li>
+      </ol>
 
       <section className={styles.exercises} id="exercises" aria-labelledby="exercises-title">
-        <h2 className={styles.visuallyHidden} id="exercises-title">Deutsch-Übungen</h2>
+        <h2 className={styles.sectionTitle} id="exercises-title">Übungen nach Aufgabentyp</h2>
         {materials.status === 'loading' && <p className={styles.materialStatus} role="status">Aufgaben werden geladen …</p>}
         {materials.status === 'error' && (
           <div className={styles.materialError} role="alert">
             {needsReauthentication
               ? 'Bitte erneut anmelden, um die Aufgaben zu laden.'
               : 'Aufgaben konnten nicht geladen werden. Bitte versuche es später erneut.'}
-            <button className={styles.retryButton} type="button" onClick={materials.refetch}>Erneut versuchen</button>
+            <button className={`ui-button ui-button-secondary ${styles.retryButton}`} type="button" onClick={materials.refetch}>Erneut versuchen</button>
           </div>
         )}
-        <div className={styles.accordions}>
+        {materials.status === 'ready' && materials.items.length === 0 && (
+          <div className={styles.materialStatus} role="status">
+            <p>Zurzeit sind keine Deutsch-Übungen verfügbar.</p>
+            <button className={`ui-button ui-button-secondary ${styles.retryButton}`} type="button" onClick={materials.refetch}>Neu laden</button>
+          </div>
+        )}
+        {materials.status === 'ready' && materials.items.length > 0 && <div className={styles.accordions}>
           {DEUTSCH_CATEGORIES.map(category => (
             <ExerciseAccordion
               key={category.id}
               category={category}
-              status={materials.status}
               materials={materials.byCategory[category.id] || []}
             />
           ))}
-        </div>
+        </div>}
       </section>
 
       <details className={styles.explanation}>
@@ -63,6 +71,6 @@ export default function Deutsch() {
         <ExamOverview />
       </details>
       <SimulationTeaser />
-    </main>
+    </div>
   )
 }

@@ -9,7 +9,6 @@ export default function Fortschritt() {
   if (!emailConfirmed) {
     return (
       <div className={`${styles.page} ${styles.lockState}`}>
-        <div className={styles.lockIcon}>🔒</div>
         <p className={styles.sub}>{t.dashboard.contentLocked}</p>
       </div>
     )

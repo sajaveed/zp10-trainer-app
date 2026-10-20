@@ -34,9 +34,9 @@ export default function Confirm() {
   }, [hash])
 
   return (
-    <main className={styles.page}>
+    <main id="main-content" tabIndex={-1} className={styles.page}>
       <section className={styles.card}>
-        <h1 className={styles.title}>{hasError ? '⚠️ Bestätigung fehlgeschlagen' : '✅ E-Mail bestätigt!'}</h1>
+        <h1 className={styles.title}>{hasError ? 'Bestätigung fehlgeschlagen' : 'E-Mail bestätigt!'}</h1>
         <p className={styles.text}>{message}</p>
         <Link className={styles.button} to={user ? '/dashboard' : '/'}>
           {user ? 'Zum Dashboard' : 'Zur Anmeldung'}
