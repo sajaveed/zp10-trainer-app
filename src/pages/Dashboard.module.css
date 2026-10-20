@@ -33,8 +33,11 @@
 .resendError { margin-top: 8px; color: var(--text); }
 .resendSuccess { color: var(--text); font-size: .9rem; }
 .page a:focus-visible, .page button:focus-visible { outline: 3px solid var(--action-primary); outline-offset: 4px; }
+@media (max-width: 767px) {
+  .page { padding-top: calc(80px + env(safe-area-inset-top, 0px)); }
+}
 @media (max-width: 600px) {
-  .page { gap: 28px; padding: 24px 16px; }
+  .page { gap: 28px; padding-inline: 16px; padding-bottom: 24px; }
   .examGrid { grid-template-columns: 1fr; }
   .examCard { padding: 16px 0; border-bottom: 1px solid var(--border); }
   .subjectList li { flex-wrap: wrap; gap: 4px 12px; }

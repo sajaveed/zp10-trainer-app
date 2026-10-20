@@ -27,7 +27,7 @@
 .accordionButton { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 68px; text-align: left; background: transparent; color: var(--text); border: none; padding: 18px 8px; font: inherit; cursor: pointer; }
 .accordionButton:hover { background: var(--surface-subtle); }
 .categoryTitle { flex: 1; min-width: 0; font-weight: 600; line-height: 1.5; }
-.categoryCount { font-size: .8rem; color: var(--text-muted); white-space: nowrap; }
+.categoryCount { font-size: .875rem; color: var(--text-muted); white-space: nowrap; }
 .chevron { flex-shrink: 0; }
 .accordionOpen .chevron { transform: rotate(180deg); }
 .accordionPanel[hidden] { display: none; }
@@ -35,16 +35,16 @@
 .exerciseGrid { display: grid; }
 .exerciseCard { padding: 22px 0; border-top: 1px solid var(--border); }
 .exerciseHeading { display: flex; align-items: start; justify-content: space-between; gap: 16px; }
-.exerciseType { font-size: .8rem; color: var(--text-muted); margin-bottom: 5px; }
+.exerciseType { font-size: .875rem; color: var(--text-muted); margin-bottom: 5px; }
 .exerciseTitle { font: 600 1.05rem/1.5 system-ui, sans-serif; }
-.points { font-size: .85rem; color: var(--text-muted); white-space: nowrap; }
+.points { font-size: .875rem; color: var(--text-muted); white-space: nowrap; }
 .exerciseActions { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0 12px; }
 .pdfButton { font-size: .9rem; cursor: pointer; }
 .pdfButton:hover:not(:disabled) { text-decoration: underline; }
 .pdfButton:disabled { cursor: not-allowed; }
 .pdfButtonDisabled { flex-wrap: wrap; }
-.pdfFollow { font-size: .75rem; font-weight: 400; }
-.completedControl { display: flex; align-items: center; gap: 10px; width: fit-content; min-height: 44px; font-size: .85rem; color: var(--text-muted); cursor: pointer; }
+.pdfFollow { font-size: .875rem; font-weight: 400; }
+.completedControl { display: flex; align-items: center; gap: 10px; width: fit-content; min-height: 44px; font-size: .875rem; color: var(--text-muted); cursor: pointer; }
 .completedControl input { width: 18px; height: 18px; flex-shrink: 0; accent-color: var(--action-primary); }
 .exerciseCompleted .completedControl { color: var(--text); }
 .pdfError { color: var(--text); font-size: .9rem; line-height: 1.6; margin: 10px 0; }
@@ -61,7 +61,7 @@
 .partsGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
 .partCard { display: grid; align-content: start; gap: 12px; }
 .cardTitle { font: 600 1rem/1.5 system-ui, sans-serif; }
-.metrics { display: grid; gap: 6px; font-size: .85rem; color: var(--text-muted); }
+.metrics { display: grid; gap: 6px; font-size: .875rem; color: var(--text-muted); }
 .metrics strong { color: var(--text); font-weight: 600; }
 .taskGrid { display: grid; gap: 20px; }
 .taskCard { display: grid; gap: 6px; }
@@ -75,8 +75,11 @@
 .lockState { color: var(--text-muted); line-height: 1.6; }
 .page button:focus-visible, .page summary:focus-visible, .page input:focus-visible { outline: 3px solid var(--action-primary); outline-offset: 3px; }
 .visuallyHidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+@media (max-width: 767px) {
+  .page { padding-top: calc(80px + env(safe-area-inset-top, 0px)); }
+}
 @media (max-width: 600px) {
-  .page { padding: 24px 16px; gap: 26px; }
+  .page { padding-inline: 16px; padding-bottom: 24px; gap: 26px; }
   .partsGrid { grid-template-columns: 1fr; }
   .accordionButton { gap: 8px; padding: 16px 2px; flex-wrap: wrap; }
   .categoryTitle { flex-basis: calc(100% - 30px); }
