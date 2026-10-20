@@ -1,14 +1,11 @@
 import { useId, useState } from 'react'
-import { DEUTSCH_EXERCISES } from '../../data/deutschExercises'
+import { ChevronDown } from 'lucide-react'
 import ExerciseCard from './ExerciseCard'
 import styles from '../../pages/Deutsch.module.css'
 
-export default function ExerciseAccordion({ category, status, materials = [] }) {
+export default function ExerciseAccordion({ category, materials = [] }) {
   const [isOpen, setIsOpen] = useState(false)
   const panelId = useId()
-  const exercises = status === 'error'
-    ? DEUTSCH_EXERCISES.filter(exercise => exercise.category === category.id)
-    : materials
 
   return (
     <section className={`${styles.accordion} ${isOpen ? styles.accordionOpen : ''}`}>
@@ -16,14 +13,14 @@ export default function ExerciseAccordion({ category, status, materials = [] }) 
         <button
           type="button"
           className={styles.accordionButton}
+          id={`${panelId}-heading`}
           aria-expanded={isOpen}
           aria-controls={panelId}
           onClick={() => setIsOpen(open => !open)}
         >
-          <span className={styles.categoryIcon} aria-hidden="true">{category.icon}</span>
           <span className={styles.categoryTitle}>{category.title}</span>
-          <span className={styles.categoryCount}>{status === 'loading' ? '…' : exercises.length}</span>
-          <span className={styles.chevron} aria-hidden="true">⌄</span>
+          <span className={styles.categoryCount}>{materials.length} {materials.length === 1 ? 'Übung' : 'Übungen'}</span>
+          <ChevronDown className={styles.chevron} size={18} aria-hidden="true" />
         </button>
       </h3>
       <div
@@ -31,18 +28,12 @@ export default function ExerciseAccordion({ category, status, materials = [] }) 
         id={panelId}
         role="region"
         aria-labelledby={`${panelId}-heading`}
-        aria-hidden={!isOpen}
+        hidden={!isOpen}
       >
-        <span id={`${panelId}-heading`} className={styles.visuallyHidden}>{category.title}</span>
         <div className={styles.accordionContent}>
-          {status === 'loading' ? (
-            <div className={styles.exerciseGrid} aria-label="Aufgaben werden geladen">
-              <div className={styles.exerciseSkeleton} />
-              <div className={styles.exerciseSkeleton} />
-            </div>
-          ) : exercises.length > 0 ? (
+          {materials.length > 0 ? (
             <div className={styles.exerciseGrid}>
-              {exercises.map(exercise => (
+              {materials.map(exercise => (
                 <ExerciseCard key={exercise.id} exercise={exercise} category={category} />
               ))}
             </div>

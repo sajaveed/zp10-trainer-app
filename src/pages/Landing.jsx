@@ -1,68 +1,102 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
+import { ArrowRight, BookOpen, FileText } from 'lucide-react'
 import { useLang } from '../hooks/useLang'
 import ZenoCoach from '../components/ZenoCoach'
 import styles from './Landing.module.css'
 
-function SectionLabel({ children }) {
-  return <div className={styles.label}>{children}</div>
-}
-
-function HeroDemo({ t }) {
-  const barRef = useRef(null)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (barRef.current) barRef.current.style.width = '85%'
-    }, 500)
-    return () => clearTimeout(timer)
-  }, [])
-
-  return (
-    <div className={styles.demoCard}>
-      <div className={styles.demoHeader}>
-        <div>
-          <div className={styles.demoTask}>{t.hero.demoTask}</div>
-          <div className={styles.demoStatus}>{t.hero.demoStatus}</div>
-        </div>
-        <div className={styles.demoPts}>17<span> / 20 Pkt.</span></div>
-      </div>
-      <div className={styles.demoBarWrap}>
-        <div className={styles.demoBarFill} ref={barRef} />
-      </div>
-      <div className={styles.demoTags}>
-        <span className={`${styles.tag} ${styles.tagGood}`}>{t.hero.demoTagThesis}</span>
-        <span className={`${styles.tag} ${styles.tagGood}`}>{t.hero.demoTagEvidence}</span>
-        <span className={`${styles.tag} ${styles.tagWarn}`}>{t.hero.demoTagCounter}</span>
-      </div>
-    </div>
-  )
-}
-
-function FaqItem({ q, a }) {
-  const [open, setOpen] = useState(false)
-
-  return (
-    <div className={`${styles.faqItem} ${open ? styles.faqOpen : ''}`}>
-      <button className={styles.faqQ} onClick={() => setOpen(o => !o)}>
-        <span>{q}</span>
-        <div className={styles.faqIcon}>{open ? '−' : '+'}</div>
-      </button>
-      <div className={styles.faqA}>
-        <div className={styles.faqAInner}>{a}</div>
-      </div>
-    </div>
-  )
+const copy = {
+  de: {
+    eyebrow: 'ZP10-Vorbereitung · NRW · Klasse 10',
+    slogan: ['Schreib. Lern.', 'Besteh.'],
+    intro: 'Starte mit Deutsch: ZP10-Übungen als PDF bearbeiten und die eigene Lösung mit Auswertungsbögen selbst überprüfen. Schritt für Schritt, in deinem Tempo.',
+    start: 'Anmelden und Deutsch üben',
+    more: 'So funktioniert es',
+    available: 'Jetzt verfügbar',
+    german: 'Deutsch',
+    resourceTitle: 'Eine Aufgabe. Dein nächster Schritt.',
+    resourceText: 'ZP10-Übungen als PDF und Auswertungsbögen zur Selbstkontrolle.',
+    resourceItems: ['Übungsaufgabe herunterladen', 'Eigenständig bearbeiten', 'Mit dem Auswertungsbogen abgleichen'],
+    resourceNote: 'Keine automatische Benotung. Du bewertest deine Lösung selbst.',
+    howLabel: 'Dein Lernweg',
+    howTitle: 'Vom Aufgabenblatt zur Selbsteinschätzung.',
+    howIntro: 'Du brauchst keine fertige Antwort. Nur einen Anfang.',
+    steps: [
+      ['Aufgabe auswählen', 'Melde dich an und öffne im Fach Deutsch eine Übungsaufgabe als PDF.'],
+      ['In Ruhe bearbeiten', 'Schreibe deine Lösung auf Papier oder in deinem eigenen Dokument.'],
+      ['Lösung reflektieren', 'Nutze die Bewertungskriterien zur Selbsteinschätzung: Was gelingt schon, was möchtest du weiter üben?'],
+    ],
+    subjectsLabel: 'Fächer & Verfügbarkeit',
+    subjectsTitle: 'Klar sehen, was du heute nutzen kannst.',
+    subjectsIntro: 'Deutsch ist der Anfang. Weitere Fächer und Funktionen werden entwickelt.',
+    subjects: [
+      ['Deutsch', 'Verfügbar', 'ZP10-Übungen als PDF und Auswertungsbögen zur Selbstkontrolle.', true],
+      ['Mathematik', 'In Entwicklung', 'Übungsangebote für Mathematik sind noch nicht verfügbar.', false],
+      ['Englisch', 'In Entwicklung', 'Übungsangebote für Englisch sind noch nicht verfügbar.', false],
+    ],
+    zenoLabel: 'Ein Blick nach vorn',
+    zenoTitle: 'Zeno: eine Idee für deinen Lernbegleiter.',
+    zenoIntro: 'KI-Feedback und Fortschrittsübersichten sind in Entwicklung. Die Vorschau zeigt nur einen beispielhaften Chat, keine echte KI-Bewertung.',
+    faqLabel: 'Gut zu wissen',
+    faqTitle: 'Fragen vor dem Start?',
+    faq: [
+      ['Was kann ich aktuell nutzen?', 'Im Fach Deutsch stehen ZP10-Übungen als PDF und Auswertungsbögen zur Selbstkontrolle bereit. Mathematik, Englisch, KI-Feedback und Fortschrittsübersichten sind in Entwicklung.'],
+      ['Wie starte ich?', 'Melde dich an oder erstelle ein Konto. Wähle anschließend Deutsch und öffne eine Übungsaufgabe.'],
+      ['Wird meine Lösung automatisch bewertet?', 'Nein. Aktuell vergleichst du deine Lösung selbst mit den Bewertungskriterien. Eine automatische KI-Bewertung ist nicht verfügbar.'],
+      ['Was passiert in der Zeno-Demo mit meinen Dateien?', 'Die Demo zeigt nur ausgewählte Dateinamen an. Dateien werden weder hochgeladen noch gelesen oder analysiert. Die Antworten sind vorgegeben.'],
+      ['Ersetzt das Angebot meinen Unterricht?', 'Nein. Nutze die Aufgaben ergänzend zum Unterricht. Bei fachlichen Fragen und zur verbindlichen Bewertung hilft dir deine Lehrkraft.'],
+    ],
+  },
+  en: {
+    eyebrow: 'ZP10 preparation · NRW · Grade 10',
+    slogan: ['Write. Learn.', 'Pass.'],
+    intro: 'Start with German: work through ZP10 practice PDFs and check your own answer using the evaluation sheets. Step by step, at your own pace.',
+    start: 'Sign in and practise German',
+    more: 'How it works',
+    available: 'Available now',
+    german: 'German',
+    resourceTitle: 'One task. Your next step.',
+    resourceText: 'ZP10 practice PDFs and evaluation sheets for self-checking.',
+    resourceItems: ['Download a practice task', 'Write your own answer', 'Compare with the evaluation sheet'],
+    resourceNote: 'No automatic grading. You assess your own answer.',
+    howLabel: 'Your learning path',
+    howTitle: 'From practice task to self-assessment.',
+    howIntro: 'You do not need a finished answer. Just a place to start.',
+    steps: [
+      ['Choose a task', 'Sign in and open a German practice task as a PDF.'],
+      ['Work at your own pace', 'Write your answer on paper or in your own document.'],
+      ['Reflect on your answer', 'Use the marking criteria for self-assessment: what is working, and what would you like to practise next?'],
+    ],
+    subjectsLabel: 'Subjects & availability',
+    subjectsTitle: 'Know what you can use today.',
+    subjectsIntro: 'German is the starting point. More subjects and features are in development.',
+    subjects: [
+      ['German', 'Available', 'ZP10 practice PDFs and evaluation sheets for self-checking.', true],
+      ['Mathematics', 'In development', 'Mathematics practice is not available yet.', false],
+      ['English', 'In development', 'English practice is not available yet.', false],
+    ],
+    zenoLabel: 'Looking ahead',
+    zenoTitle: 'Zeno: an idea for your learning companion.',
+    zenoIntro: 'AI feedback and progress summaries are in development. This preview is only an example conversation, not real AI assessment.',
+    faqLabel: 'Good to know',
+    faqTitle: 'Questions before you start?',
+    faq: [
+      ['What is available now?', 'German ZP10 practice PDFs and evaluation sheets for self-checking are available. Mathematics, English, AI feedback and progress summaries are in development.'],
+      ['How do I get started?', 'Sign in or create an account. Then choose German and open a practice task.'],
+      ['Is my answer graded automatically?', 'No. You currently compare your own answer with the marking criteria. Automatic AI assessment is not available.'],
+      ['What happens to files in the Zeno demo?', 'The demo only displays selected filenames. Files are not uploaded, read or analysed. Replies are predefined.'],
+      ['Does this replace my lessons?', 'No. Use the tasks alongside your lessons. Ask your teacher for subject guidance and formal assessment.'],
+    ],
+  },
 }
 
 export default function Landing({ onAuthClick }) {
-  const { t } = useLang()
+  const { lang, t } = useLang()
+  const c = copy[lang] || copy.de
   const [hashError] = useState(() => {
-    const hash = window.location.hash
-    if (!hash) return null
-    const params = new URLSearchParams(hash.replace(/^#/, ''))
-    const error = params.get('error')
-    if (!error) return null
+    const params = new URLSearchParams(window.location.hash.replace(/^#/, ''))
+    if (!params.get('error')) return null
     return {
-      error,
+      error: params.get('error'),
       errorCode: params.get('error_code'),
       errorDescription: params.get('error_description'),
     }
@@ -77,89 +111,88 @@ export default function Landing({ onAuthClick }) {
 
   let authError = null
   if (hashError && !errorDismissed) {
-    if (hashError.errorCode === 'otp_expired') {
-      authError = t.auth.linkExpired
-    } else if (hashError.error === 'access_denied') {
-      authError = t.auth.linkError
-    } else {
-      authError = hashError.errorDescription
-        ? decodeURIComponent(hashError.errorDescription.replace(/\+/g, ' '))
-        : t.auth.linkErrorGeneric
-    }
+    authError = hashError.errorCode === 'otp_expired'
+      ? t.auth.linkExpired
+      : hashError.error === 'access_denied'
+        ? t.auth.linkError
+        : hashError.errorDescription || t.auth.linkErrorGeneric
   }
-
-  const subjects = [
-    { emoji: '📖', name: 'Deutsch', sub: t.subjects.deSub, tags: ['Analyse', 'Argumentation', 'Stellungnahme', 'Zusammenfassung', 'Sprache'] },
-    { emoji: '🔢', name: 'Mathematik', sub: t.subjects.mathSub, tags: ['Funktionen', 'Geometrie', 'Wahrscheinlichkeit', 'Algebra', 'Sachaufgaben'] },
-    { emoji: '🌍', name: 'Englisch', sub: t.subjects.enSub, tags: ['Reading', 'Listening', 'Comment', 'Mediation', 'Vocabulary', 'Grammar'] },
-  ]
-
-  const faqItems = [
-    { q: t.faq.q1, a: t.faq.a1 },
-    { q: t.faq.q2, a: t.faq.a2 },
-    { q: t.faq.q3, a: t.faq.a3 },
-    { q: t.faq.q4, a: t.faq.a4 },
-    { q: t.faq.q5, a: t.faq.a5 },
-  ]
 
   return (
     <>
-      {authError && <div className={styles.errorBanner} role="alert"><span className={styles.errorBannerText}>{authError}</span><button className={styles.errorBannerClose} onClick={() => setErrorDismissed(true)} aria-label={t.auth.close}>×</button></div>}
-      <main>
-      <section className={styles.hero} id="home">
-        <h1 className={styles.heroH1}>{t.hero.h1a}<br /><em>{t.hero.h1b}</em></h1>
-        <p className={styles.heroSub}>{t.hero.sub}</p>
-        <div className={styles.heroCta}><button className={styles.btnPrimary} onClick={onAuthClick}>{t.hero.cta}</button><a className={styles.btnSecondary} href="#how">{t.hero.learnMore}</a></div>
-        <HeroDemo t={t} />
-      </section>
-
-      <section className={styles.section} id="how">
-        <div className={styles.inner}>
-          <SectionLabel>{t.how.label}</SectionLabel>
-          <h2 className={styles.sectionTitle}>{t.how.title}</h2>
-          <p className={styles.sectionSub}>{t.how.sub}</p>
-          <div className={styles.stepsGrid}>{[{ num: '01', icon: '📝', title: t.how.s1title, text: t.how.s1text }, { num: '02', icon: '🤖', title: t.how.s2title, text: t.how.s2text }, { num: '03', icon: '📈', title: t.how.s3title, text: t.how.s3text }].map(s => (<div className={styles.step} key={s.num}><div className={styles.stepNum}>{s.num}</div><div className={styles.stepIcon}>{s.icon}</div><h3>{s.title}</h3><p>{s.text}</p></div>))}</div>
+      {authError && (
+        <div className={styles.errorBanner} role="alert">
+          <span>{authError}</span>
+          <button type="button" onClick={() => setErrorDismissed(true)} aria-label={t.auth.close}>×</button>
         </div>
-      </section>
-
-      <section className={styles.section} id="subjects">
-        <div className={styles.inner}>
-          <SectionLabel>{t.subjects.label}</SectionLabel>
-          <h2 className={styles.sectionTitle}>{t.subjects.title}</h2>
-          <p className={styles.sectionSub}>{t.subjects.sub}</p>
-          <div className={styles.subjectsGrid}>{subjects.map(s => (<div className={styles.subjectCard} key={s.name}><span className={styles.subjectEmoji}>{s.emoji}</span><h3>{s.name}</h3><p>{s.sub}</p><div className={styles.moduleTags}>{s.tags.map(tag => <span className={styles.moduleTag} key={tag}>{tag}</span>)}</div></div>))}</div>
-        </div>
-      </section>
-
-      <section className={styles.section} id="zeno-demo">
-        <div className={styles.inner}>
-          <SectionLabel>{t.ki.label}</SectionLabel>
-          <ZenoCoach />
-        </div>
-      </section>
-
-      <section className={styles.kiSection} id="ki">
-        <div className={styles.inner}>
-          <div className={styles.kiGrid}>
-            <div>
-              <SectionLabel>{t.ki.label}</SectionLabel>
-              <h2 className={styles.sectionTitle}>{t.ki.title}</h2>
-              <p className={styles.sectionSub}>{t.ki.sub}</p>
-              <div className={styles.kiFeatures}>{[{ title: t.ki.f1title, text: t.ki.f1text }, { title: t.ki.f2title, text: t.ki.f2text }, { title: t.ki.f3title, text: t.ki.f3text }].map(f => (<div className={styles.kiFeature} key={f.title}><div className={styles.kiDot} /><div><h4>{f.title}</h4><p>{f.text}</p></div></div>))}</div>
+      )}
+      <main className={styles.page} id="main-content">
+        <section className={styles.hero} id="home" aria-labelledby="landing-title">
+          <div className={styles.heroCopy}>
+            <p className={styles.label}>{c.eyebrow}</p>
+            <h1 id="landing-title" className={styles.heroTitle}>{c.slogan[0]}<br /><span>{c.slogan[1]}</span></h1>
+            <p className={styles.heroIntro}>{c.intro}</p>
+            <div className={styles.heroActions}>
+              <button type="button" className={`ui-button ${styles.primaryButton}`} onClick={onAuthClick}>{c.start}<ArrowRight size={18} aria-hidden="true" /></button>
+              <a className={styles.secondaryLink} href="#how">{c.more}</a>
             </div>
-            <div className={styles.kiMockup}><div className={styles.kiMsg}><div className={`${styles.kiAvatar} ${styles.student}`}>S</div><div className={styles.kiBubble}>{t.ki.mockContent}</div></div><div className={styles.kiMsg}><div className={`${styles.kiAvatar} ${styles.ai}`}>Zeno</div><div className={`${styles.kiBubble} ${styles.kiBubbleAi}`}><div className={styles.kiScoreLine}><span>{t.ki.mockLabel1}</span><span className={styles.kiScore}>8 / 10</span></div><div className={styles.kiMiniBar}><div className={styles.kiMiniFill} style={{ width: '80%' }} /></div><div className={styles.kiScoreLine}><span>{t.ki.mockLabel2}</span><span className={styles.kiScore}>7 / 10</span></div><div className={styles.kiMiniBar}><div className={styles.kiMiniFill} style={{ width: '70%' }} /></div><div className={styles.kiFeedback}>{t.ki.mockFeedback.split('\n').map((line, i) => <div key={i}>{line}</div>)}</div></div></div></div>
           </div>
-        </div>
-      </section>
+          <aside className={styles.resource} aria-labelledby="resource-title">
+            <div className={styles.resourceTop}><BookOpen size={24} aria-hidden="true" /><span className={styles.status}>{c.available}</span></div>
+            <p className={styles.resourceSubject}>{c.german} / ZP10</p>
+            <h2 id="resource-title">{c.resourceTitle}</h2>
+            <p>{c.resourceText}</p>
+            <ol className={styles.resourceList}>{c.resourceItems.map(item => <li key={item}>{item}</li>)}</ol>
+            <p className={styles.resourceNote}><FileText size={16} aria-hidden="true" />{c.resourceNote}</p>
+          </aside>
+        </section>
 
-      <section className={styles.section} id="faq">
-        <div className={styles.inner}>
-          <SectionLabel>FAQ</SectionLabel>
-          <h2 className={styles.sectionTitle}>{t.faq.title}</h2>
-          <div className={styles.faqList}>{faqItems.map(item => <FaqItem key={item.q} q={item.q} a={item.a} />)}</div>
-        </div>
-      </section>
-    </main>
+        <section className={styles.section} id="how" aria-labelledby="how-title">
+          <p className={styles.label}>{c.howLabel}</p>
+          <h2 className={styles.sectionTitle} id="how-title">{c.howTitle}</h2>
+          <p className={styles.sectionIntro}>{c.howIntro}</p>
+          <ol className={styles.steps}>
+            {c.steps.map(([title, text], index) => (
+              <li key={title}><span className={styles.stepNumber} aria-hidden="true">0{index + 1}</span><h3>{title}</h3><p>{text}</p></li>
+            ))}
+          </ol>
+        </section>
+
+        <section className={styles.section} id="subjects" aria-labelledby="subjects-title">
+          <p className={styles.label}>{c.subjectsLabel}</p>
+          <h2 className={styles.sectionTitle} id="subjects-title">{c.subjectsTitle}</h2>
+          <p className={styles.sectionIntro}>{c.subjectsIntro}</p>
+          <div className={styles.subjects}>
+            {c.subjects.map(([name, status, description, available]) => (
+              <article className={styles.subject} key={name}>
+                <div className={styles.subjectHeading}><h3>{name}</h3><span className={available ? styles.status : styles.plannedStatus}>{status}</span></div>
+                <p>{description}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className={styles.previewSection} id="ki" aria-labelledby="zeno-title">
+          <div className={styles.previewInner}>
+            <div>
+              <p className={styles.label}>{c.zenoLabel}</p>
+              <h2 className={styles.sectionTitle} id="zeno-title">{c.zenoTitle}</h2>
+              <p className={styles.sectionIntro}>{c.zenoIntro}</p>
+            </div>
+            <div id="zeno-demo" className={styles.preview}><ZenoCoach /></div>
+          </div>
+        </section>
+
+        <section className={styles.section} id="faq" aria-labelledby="faq-title">
+          <p className={styles.label}>{c.faqLabel}</p>
+          <h2 className={styles.sectionTitle} id="faq-title">{c.faqTitle}</h2>
+          <div className={styles.faqList}>
+            {c.faq.map(([question, answer]) => (
+              <details className={styles.faqItem} key={question}><summary>{question}</summary><p>{answer}</p></details>
+            ))}
+          </div>
+        </section>
+      </main>
     </>
   )
 }

@@ -80,7 +80,6 @@ export default function Settings() {
       </header>
       {!emailConfirmed && (
         <div className={`${styles.card} ${styles.lockState}`}>
-          <div className={styles.lockIcon}>🔒</div>
           <p className={styles.sub}>{t.settings.locked}</p>
         </div>
       )}

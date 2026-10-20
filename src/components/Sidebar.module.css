@@ -38,6 +38,11 @@
 }
 
 .logoIcon { font-size: 1.35rem; }
+.compactBrand { display: none; }
+@media (min-width: 768px) {
+  .collapsed .fullBrand { display: none; }
+  .collapsed .compactBrand { display: inline-flex; }
+}
 
 .logoText {
   font-family: var(--font-head);
@@ -133,7 +138,7 @@
   height: 36px;
   border-radius: 50%;
   background: var(--red);
-  color: #fff;
+  color: var(--on-action);
   font-family: var(--font-head);
   font-size: 0.74rem;
   font-weight: 700;

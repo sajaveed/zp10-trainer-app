@@ -1,24 +1,26 @@
 import { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { ArrowRight } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { useLang } from '../hooks/useLang'
-import { useProgress } from '../hooks/useProgress'
 import { EXAM_DATES } from '../config/examDates'
 import { formatGermanDate, getDaysRemaining } from '../utils/dateHelpers'
 import { getUserName } from '../utils/userName'
-import ProgressBar from '../components/ProgressBar'
 import styles from './Dashboard.module.css'
 
 const SUBJECTS = [
-  { id: 'deutsch', labelKey: 'subjectGerman', icon: '📝' },
-  { id: 'englisch', labelKey: 'subjectEnglish', icon: '🌍' },
-  { id: 'mathematik', labelKey: 'subjectMath', icon: '📐' },
+  { id: 'deutsch', labelKey: 'subjectGerman' },
+  { id: 'englisch', labelKey: 'subjectEnglish' },
+  { id: 'mathematik', labelKey: 'subjectMath' },
 ]
 
 export default function Dashboard() {
   const { user, emailConfirmed, resendConfirmationEmail } = useAuth()
-  const { t } = useLang()
-  const progress = useProgress()
+  const { t, lang } = useLang()
   const { dashboard } = t
+  const copy = lang === 'en'
+    ? { start: 'Start German practice', task: 'Open a task PDF, work through it, then check your answer with the evaluation sheet.', available: 'PDF exercises available', development: 'In development', waiting: 'Sending …' }
+    : { start: 'Deutsch üben', task: 'Öffne eine Aufgabe als PDF, bearbeite sie und prüfe deine Lösung mit dem Auswertungsbogen.', available: 'PDF-Übungen verfügbar', development: 'In Entwicklung', waiting: 'Wird gesendet …' }
 
   const [isResending, setIsResending] = useState(false)
   const [emailResent, setEmailResent] = useState(false)
@@ -30,7 +32,12 @@ export default function Dashboard() {
 
     setResendError('')
     setIsResending(true)
-    const success = await resendConfirmationEmail()
+    let success
+    try {
+      success = await resendConfirmationEmail()
+    } catch {
+      success = false
+    }
     setEmailResent(success)
     setResendError(success ? '' : t.dashboard.emailResendFailed)
 
@@ -52,17 +59,16 @@ export default function Dashboard() {
     <div className={styles.page}>
       {!emailConfirmed && (
         <div className={styles.emailBanner}>
-          <div className={styles.emailBannerIcon}>⚠️</div>
           <div className={styles.emailBannerCopy}>
             <p className={styles.emailBannerText}>{t.dashboard.emailNotConfirmed}</p>
             <p className={styles.emailBannerHint}>{t.dashboard.emailNotConfirmedHint}</p>
-            {resendError && <p className={styles.resendError}>{resendError}</p>}
+            {resendError && <p className={styles.resendError} role="alert">{resendError}</p>}
           </div>
           {emailResent ? (
-            <span className={styles.resendSuccess}>{t.dashboard.emailResent}</span>
+            <span className={styles.resendSuccess} role="status">{t.dashboard.emailResent}</span>
           ) : (
-            <button type="button" className={styles.resendBtn} onClick={handleResendEmail} disabled={isResending}>
-              {isResending ? '...' : t.dashboard.resendEmail}
+            <button type="button" className="ui-button ui-button-secondary" onClick={handleResendEmail} disabled={isResending}>
+              {isResending ? copy.waiting : t.dashboard.resendEmail}
             </button>
           )}
         </div>
@@ -72,6 +78,20 @@ export default function Dashboard() {
         <h1>{dashboard.welcomeBack.replace('{name}', getUserName(user))}</h1>
         <p>{dashboard.subtitle}</p>
       </header>
+
+      <section className={styles.learning} aria-labelledby="subjects-title">
+        <h2 id="subjects-title">{dashboard.subjects}</h2>
+        <p>{copy.task}</p>
+        <Link className={`ui-button ${styles.primaryAction}`} to="/deutsch">{copy.start}<ArrowRight size={18} aria-hidden="true" /></Link>
+        <ul className={styles.subjectList}>
+          {SUBJECTS.map(subject => (
+            <li key={subject.id}>
+              <h3>{dashboard[subject.labelKey]}</h3>
+              <span>{subject.id === 'deutsch' ? copy.available : copy.development}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <section className={styles.dashboardSection} aria-labelledby="exam-countdown-title">
         <div className={styles.sectionHeading}>
@@ -88,7 +108,6 @@ export default function Dashboard() {
                   : dashboard.examDaysLeft.replace('{count}', days)
             return (
               <article className={styles.examCard} key={subject.id}>
-                <span className={styles.examIcon} aria-hidden="true">{subject.icon}</span>
                 <div>
                   <h3>{dashboard[subject.labelKey]}</h3>
                   <p className={styles.examDate}>{formatGermanDate(date)}</p>
@@ -104,18 +123,7 @@ export default function Dashboard() {
         <div className={styles.sectionHeading}>
           <h2 id="learning-progress-title">{dashboard.learningProgressTitle}</h2>
         </div>
-        <div className={styles.progressGrid}>
-          {SUBJECTS.map(subject => (
-            <article className={styles.progressCard} key={subject.id}>
-              <div className={styles.progressTitle}>
-                <span aria-hidden="true">{subject.icon}</span>
-                <h3>{dashboard[subject.labelKey]}</h3>
-              </div>
-              <ProgressBar value={progress.percent} label={`${dashboard[subject.labelKey]} ${dashboard.learningProgressTitle}`} />
-              <p>{dashboard.progressUnavailable}</p>
-            </article>
-          ))}
-        </div>
+        <p className={styles.unavailable}>{dashboard.progressUnavailable}</p>
       </section>
 
     </div>

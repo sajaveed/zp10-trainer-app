@@ -66,7 +66,7 @@ export default function ResetPassword() {
   }
 
   return (
-    <main className={styles.page}>
+    <main id="main-content" tabIndex={-1} className={styles.page}>
       {error && <p className={styles.error}>{t.settings.errorPrefix} {error}</p>}
       {status && <p className={styles.success}>{status}</p>}
 

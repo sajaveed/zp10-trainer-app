@@ -21,7 +21,7 @@ export default function DashboardLayout() {
         isCollapsed={isSidebarCollapsed}
         onToggleCollapse={() => setIsSidebarCollapsed(prev => !prev)}
       />
-      <main className={styles.main}>
+      <main id="main-content" tabIndex={-1} className={styles.main}>
         <Outlet />
       </main>
     </div>

@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { CheckCircle2 } from 'lucide-react'
 import { useLang } from '../hooks/useLang'
 import { useAuth } from '../hooks/useAuth'
 import { recordLogin } from '../lib/loginAttempts'
-import logo from '../assets/logo.png'
+import Brand from './Brand'
 import styles from './AuthModal.module.css'
 
 export default function AuthModal({ isOpen, onClose }) {
@@ -114,13 +115,12 @@ export default function AuthModal({ isOpen, onClose }) {
         <button className={styles.close} onClick={signUpSuccess ? handleSuccessToLogin : handleClose} aria-label="Schließen">×</button>
 
         <div className={styles.header}>
-          <img src={logo} alt="ZP10 Trainer" className={styles.logo} />
-          <span className={styles.logoText}>ZP10<span>Trainer</span></span>
+          <Brand />
         </div>
 
         {signUpSuccess ? (
           <div className={styles.successScreen}>
-            <div className={styles.successIcon}>✅</div>
+            <div className={styles.successIcon}><CheckCircle2 aria-hidden="true" /></div>
             <p className={styles.successMessage}>{t.auth.confirmEmailMessage}</p>
             <button type="button" className={styles.successBtn} onClick={handleSuccessToLogin}>
               {t.auth.goToLogin}
