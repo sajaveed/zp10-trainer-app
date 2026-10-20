@@ -6,7 +6,6 @@ import styles from './ZenoCoach.module.css'
 const copy = {
   de: {
     kicker: 'Chat-Vorschau',
-    badge: 'Demo · In Entwicklung',
     subtitle: 'Beispielantworten, keine echte KI.',
     initial: 'Dies ist eine Demo. Hier kannst du den Chat ausprobieren; meine Antworten sind vorgegeben.',
     question: 'Wie kann ich meine Argumentation überprüfen?',
@@ -26,7 +25,6 @@ const copy = {
   },
   en: {
     kicker: 'Chat preview',
-    badge: 'Demo · In development',
     subtitle: 'Example replies, not real AI.',
     initial: 'This is a demo. You can try the chat here; my replies are predefined.',
     question: 'How can I check my argument?',
@@ -104,7 +102,6 @@ export default function ZenoCoach({ popup = false }) {
           <h2 className={styles.title} id={`${id}-title`}>Zeno</h2>
           <p className={styles.subtitle}>{c.subtitle}</p>
         </div>
-        <span className={styles.headerBadge}>{c.badge}</span>
       </header>
 
       <div className={styles.chatWindow} ref={chatWindowRef} role="log" aria-live="polite" aria-label={c.chat} tabIndex={0}>

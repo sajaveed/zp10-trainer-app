@@ -35,7 +35,7 @@ export default function Navbar({ onAuthClick }) {
 
   return (
     <nav aria-label={lang === 'de' ? 'Öffentliche Navigation' : 'Public navigation'} className={`${styles.nav} ${scrolled ? styles.scrolled : ''}`}>
-      <Link to={pathname === '/' ? '/#home' : '/'} className={styles.logo} aria-label="ZP10 Trainer">
+      <Link to={pathname === '/' ? '/#home' : '/'} className={styles.logo} aria-label="ZP10 Trainer" onClick={() => setMenuOpen(false)}>
         <Brand />
       </Link>
 
@@ -65,9 +65,9 @@ export default function Navbar({ onAuthClick }) {
         {user ? (
           <button className={styles.btnNav} onClick={signOut}>{t.dashboard.signOut}</button>
         ) : (
-          <button className={styles.btnNav} onClick={onAuthClick}>{t.nav.signIn}</button>
+          <button className={styles.btnNav} onClick={() => { setMenuOpen(false); onAuthClick() }}>{t.nav.signIn}</button>
         )}
-        <button id="public-menu-toggle" className={styles.hamburger} onClick={() => setMenuOpen(o => !o)} aria-label={lang === 'de' ? 'Menü' : 'Menu'} aria-expanded={menuOpen} aria-controls="public-navigation-links">
+        <button type="button" id="public-menu-toggle" className={styles.hamburger} onClick={() => setMenuOpen(o => !o)} aria-label={lang === 'de' ? (menuOpen ? 'Menü schließen' : 'Menü öffnen') : (menuOpen ? 'Close menu' : 'Open menu')} aria-expanded={menuOpen} aria-controls="public-navigation-links">
           {menuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
         </button>
       </div>

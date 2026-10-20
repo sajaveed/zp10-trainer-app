@@ -201,19 +201,20 @@
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--bg-elevated);
-  padding: 8px 10px;
-  min-width: 44px;
-  min-height: 44px;
+  padding: 0;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
   box-shadow: var(--shadow-sm);
-  flex-direction: column;
-  gap: 4px;
 }
 
-.hamburger span {
-  width: 18px;
-  height: 2px;
-  background: var(--text);
-  border-radius: 2px;
+.hamburger svg {
+  display: block;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
 }
 
 .overlay {
@@ -265,6 +266,7 @@
   .sidebar {
     width: 260px;
     transform: translateX(-100%);
+    visibility: hidden;
     transition: transform 0.24s ease;
   }
 
@@ -302,6 +304,12 @@
     padding: 12px 16px 14px;
   }
 
+  .sidebar .topRow,
+  .sidebar.collapsed .topRow {
+    min-height: calc(72px + env(safe-area-inset-top));
+    padding: calc(14px + env(safe-area-inset-top)) 12px 14px 70px;
+  }
+
   .logoArea {
     overflow: hidden;
   }
@@ -319,7 +327,7 @@
     transition: none;
   }
 
-  .sidebar.open { transform: translateX(0); }
+  .sidebar.open { transform: translateX(0); visibility: visible; }
 
   .hamburger,
   .overlay { display: flex; }

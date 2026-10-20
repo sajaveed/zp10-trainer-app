@@ -113,26 +113,6 @@
   color: var(--action-primary);
 }
 
-.status,
-.plannedStatus {
-  display: inline-block;
-  padding: 0.25rem 0.6rem;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  line-height: 1.5;
-  background: var(--surface-subtle);
-}
-
-.status {
-  color: var(--action-primary);
-}
-
-.plannedStatus {
-  color: var(--text-muted);
-}
-
 .resourceSubject {
   color: var(--text-muted);
   font-size: 0.8rem;

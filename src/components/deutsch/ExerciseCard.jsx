@@ -59,7 +59,7 @@ export default function ExerciseCard({ exercise, category }) {
       {openError && <p className={styles.pdfError} role="alert">{openError}</p>}
       <label className={styles.completedControl}>
         <input type="checkbox" checked={completed} onChange={() => toggle(exercise.id)} />
-        <span>Selbst geprüft · nur für diese Sitzung</span>
+        <span>Erledigt · nur für diese Sitzung</span>
       </label>
     </article>
   )

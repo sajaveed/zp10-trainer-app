@@ -16,11 +16,8 @@ const SUBJECTS = [
 
 export default function Dashboard() {
   const { user, emailConfirmed, resendConfirmationEmail } = useAuth()
-  const { t, lang } = useLang()
+  const { t } = useLang()
   const { dashboard } = t
-  const copy = lang === 'en'
-    ? { start: 'Start German practice', task: 'Open a task PDF, work through it, then check your answer with the evaluation sheet.', available: 'PDF exercises available', development: 'In development', waiting: 'Sending …' }
-    : { start: 'Deutsch üben', task: 'Öffne eine Aufgabe als PDF, bearbeite sie und prüfe deine Lösung mit dem Auswertungsbogen.', available: 'PDF-Übungen verfügbar', development: 'In Entwicklung', waiting: 'Wird gesendet …' }
 
   const [isResending, setIsResending] = useState(false)
   const [emailResent, setEmailResent] = useState(false)
@@ -68,7 +65,7 @@ export default function Dashboard() {
             <span className={styles.resendSuccess} role="status">{t.dashboard.emailResent}</span>
           ) : (
             <button type="button" className="ui-button ui-button-secondary" onClick={handleResendEmail} disabled={isResending}>
-              {isResending ? copy.waiting : t.dashboard.resendEmail}
+              {isResending ? dashboard.resending : t.dashboard.resendEmail}
             </button>
           )}
         </div>
@@ -81,16 +78,33 @@ export default function Dashboard() {
 
       <section className={styles.learning} aria-labelledby="subjects-title">
         <h2 id="subjects-title">{dashboard.subjects}</h2>
-        <p>{copy.task}</p>
-        <Link className={`ui-button ${styles.primaryAction}`} to="/deutsch">{copy.start}<ArrowRight size={18} aria-hidden="true" /></Link>
-        <ul className={styles.subjectList}>
+        <p>{dashboard.subjectsDescription}</p>
+        <a className={`ui-button ${styles.primaryAction}`} href="#subject-selection">{dashboard.chooseSubject}<ArrowRight size={18} aria-hidden="true" /></a>
+        <ul id="subject-selection" tabIndex={-1} className={styles.subjectList}>
           {SUBJECTS.map(subject => (
             <li key={subject.id}>
-              <h3>{dashboard[subject.labelKey]}</h3>
-              <span>{subject.id === 'deutsch' ? copy.available : copy.development}</span>
+              <Link to={`/${subject.id}`}>
+                <h3>{dashboard[subject.labelKey]}</h3>
+                <span>{subject.id === 'deutsch' ? dashboard.exercisesAvailable : t.placeholders.inDevelopment}</span>
+              </Link>
             </li>
           ))}
         </ul>
+      </section>
+
+      <section className={styles.learning} aria-labelledby="assessment-title">
+        <h2 id="assessment-title">{dashboard.assessmentTitle}</h2>
+        <div className={styles.dashboardSection}>
+          <div>
+            <h3>{dashboard.selfCheckTitle}</h3>
+            <p className={styles.unavailable}>{dashboard.selfCheckDescription}</p>
+          </div>
+          <div>
+            <h3>{dashboard.zenoAssessmentTitle}</h3>
+            <p className={styles.unavailable}>{dashboard.zenoDescription}</p>
+          </div>
+        </div>
+        <Link className={styles.primaryAction} to="/zeno">{dashboard.aboutZeno}<ArrowRight size={18} aria-hidden="true" /></Link>
       </section>
 
       <section className={styles.dashboardSection} aria-labelledby="exam-countdown-title">
